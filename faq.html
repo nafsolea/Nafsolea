@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="FAQ Nafsoléa — Réponses à vos questions sur la confidentialité, les tarifs, le fonctionnement des séances, les psychologues arabophones et la thérapie en ligne.">
+  <title>FAQ — Nafsoléa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <style>
+    .faq-layout {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: var(--space-10);
+      align-items: start;
+    }
+
+    .faq-nav {
+      position: sticky;
+      top: 96px;
+      background: white;
+      border-radius: var(--radius-xl);
+      padding: var(--space-5);
+      border: 1px solid var(--border-light);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .faq-nav h4 {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: var(--space-4);
+      padding-bottom: var(--space-3);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .faq-nav__links {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-1);
+    }
+
+    .faq-nav__link {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-2) var(--space-3);
+      border-radius: var(--radius-md);
+      font-size: 0.87rem;
+      font-weight: 500;
+      color: var(--text-mid);
+      cursor: pointer;
+      transition: all var(--tr);
+      text-decoration: none;
+    }
+
+    .faq-nav__link:hover {
+      background: var(--sage-pale);
+      color: var(--sage-dark);
+    }
+
+    .faq-nav__link.active {
+      background: var(--sage-pale);
+      color: var(--sage-dark);
+      font-weight: 600;
+    }
+
+    .faq-nav__link span {
+      font-size: 1rem;
+    }
+
+    .faq-section {
+      margin-bottom: var(--space-12);
+      scroll-margin-top: 100px;
+    }
+
+    .faq-section__header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin-bottom: var(--space-5);
+    }
+
+    .faq-section__icon {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-md);
+      background: var(--sage-pale);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      flex-shrink: 0;
+    }
+
+    .faq-section__header h2 {
+      font-size: 1.4rem;
+      color: var(--text);
+    }
+
+    /* Override faq-item for this page */
+    .faq-item {
+      margin-bottom: var(--space-2);
+    }
+
+    .faq-item__answer p + p {
+      margin-top: var(--space-3);
+    }
+
+    .faq-item__answer ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      margin-top: var(--space-3);
+    }
+
+    .faq-item__answer ul li {
+      display: flex;
+      gap: var(--space-2);
+      font-size: 0.9rem;
+      color: var(--text-light);
+    }
+
+    .faq-item__answer ul li::before {
+      content: '→';
+      color: var(--sage);
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .faq-highlight {
+      background: var(--sage-pale);
+      border: 1px solid var(--sage-light);
+      border-radius: var(--radius-md);
+      padding: var(--space-4) var(--space-5);
+      margin-top: var(--space-3);
+      font-size: 0.88rem;
+      color: var(--sage-dark);
+      font-weight: 500;
+      display: flex;
+      gap: var(--space-2);
+      align-items: flex-start;
+    }
+
+    .search-faq {
+      background: white;
+      border-radius: var(--radius-xl);
+      padding: var(--space-6);
+      border: 1px solid var(--border);
+      margin-bottom: var(--space-8);
+      display: flex;
+      gap: var(--space-3);
+      align-items: center;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .search-faq input {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-size: 1rem;
+      color: var(--text);
+      background: transparent;
+      font-family: var(--font-body);
+    }
+
+    .search-faq input::placeholder { color: var(--text-muted); }
+
+    .search-faq__icon {
+      font-size: 1.3rem;
+      color: var(--text-muted);
+    }
+
+    .still-questions {
+      background: linear-gradient(135deg, var(--beige) 0%, var(--sage-pale) 100%);
+      border-radius: var(--radius-xl);
+      padding: var(--space-10);
+      text-align: center;
+      margin-top: var(--space-8);
+      border: 1px solid var(--sage-light);
+    }
+
+    .still-questions h3 { margin-bottom: var(--space-3); }
+    .still-questions p {
+      color: var(--text-light);
+      margin-bottom: var(--space-6);
+      margin-inline: auto;
+      font-size: 0.95rem;
+    }
+
+    .contact-options {
+      display: flex;
+      gap: var(--space-4);
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .contact-option {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-4) var(--space-5);
+      background: white;
+      border-radius: var(--radius-lg);
+      border: 1.5px solid var(--border);
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-mid);
+      cursor: pointer;
+      transition: all var(--tr);
+      text-decoration: none;
+    }
+
+    .contact-option:hover {
+      border-color: var(--sage);
+      color: var(--sage-dark);
+      background: var(--sage-pale);
+      transform: translateY(-2px);
+    }
+
+    .contact-option__icon { font-size: 1.3rem; }
+
+    @media (max-width: 1024px) {
+      .faq-layout { grid-template-columns: 1fr; }
+      .faq-nav { position: static; display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVIGATION -->
+<nav class="nav">
+  <div class="nav__inner">
+    <a href="index.html" class="nav__logo">
+      <div class="nav__logo-mark" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 36 36" fill="none">
+          <circle cx="18" cy="18" r="5" fill="white"/>
+          <line x1="18" y1="2" x2="18" y2="10" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="18" y1="26" x2="18" y2="34" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="2" y1="18" x2="10" y2="18" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="26" y1="18" x2="34" y2="18" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="6.7" y1="6.7" x2="11.7" y2="11.7" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+          <line x1="24.3" y1="24.3" x2="29.3" y2="29.3" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+          <line x1="29.3" y1="6.7" x2="24.3" y2="11.7" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+          <line x1="11.7" y1="24.3" x2="6.7" y2="29.3" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+        </svg>
+      </div>
+      Nafsoléa
+    </a>
+    <ul class="nav__links">
+      <li><a href="comment-ca-marche.html" class="nav__link">Comment ça marche</a></li>
+      <li><a href="psychologues.html" class="nav__link">Nos psychologues</a></li>
+      <li><a href="blog.html" class="nav__link">Ressources</a></li>
+      <li><a href="a-propos.html" class="nav__link">À propos</a></li>
+      <li><a href="faq.html" class="nav__link active">FAQ</a></li>
+    </ul>
+    <div class="nav__actions">
+      <button class="nav__lang">FR | عربي</button>
+      <a href="rendez-vous.html" class="btn btn--primary btn--sm">Prendre RDV</a>
+    </div>
+    <button class="nav__hamburger" aria-label="Menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <div class="nav__mobile">
+    <a href="comment-ca-marche.html" class="nav__mobile-link">Comment ça marche</a>
+    <a href="psychologues.html" class="nav__mobile-link">Nos psychologues</a>
+    <a href="blog.html" class="nav__mobile-link">Ressources</a>
+    <a href="a-propos.html" class="nav__mobile-link">À propos</a>
+    <a href="faq.html" class="nav__mobile-link">FAQ</a>
+    <a href="rendez-vous.html" class="btn btn--primary" style="margin-top:0.5rem">Prendre rendez-vous</a>
+  </div>
+</nav>
+
+<!-- PAGE HERO -->
+<section class="page-hero">
+  <div class="container container--narrow">
+    <span class="label">Vos questions, nos réponses</span>
+    <h1>Foire aux questions</h1>
+    <p>Tout ce que vous voulez savoir sur Nafsoléa, nos psychologues, la confidentialité et le déroulement des séances.</p>
+  </div>
+</section>
+
+<!-- FAQ CONTENT -->
+<section class="section" style="background:var(--off-white)">
+  <div class="container">
+
+    <!-- Search -->
+    <div class="search-faq" role="search">
+      <span class="search-faq__icon" aria-hidden="true">🔍</span>
+      <input type="search" placeholder="Rechercher dans la FAQ..." aria-label="Rechercher dans la FAQ">
+    </div>
+
+    <div class="faq-layout">
+
+      <!-- Sidebar nav -->
+      <aside class="faq-nav" aria-label="Navigation FAQ">
+        <h4>Catégories</h4>
+        <nav class="faq-nav__links">
+          <a href="#confidentialite" class="faq-nav__link active">
+            <span>🔐</span> Confidentialité
+          </a>
+          <a href="#fonctionnement" class="faq-nav__link">
+            <span>⚙️</span> Fonctionnement
+          </a>
+          <a href="#psychologues" class="faq-nav__link">
+            <span>👩‍⚕️</span> Nos psychologues
+          </a>
+          <a href="#langues" class="faq-nav__link">
+            <span>🌍</span> Langues &amp; culture
+          </a>
+          <a href="#tarifs" class="faq-nav__link">
+            <span>💳</span> Tarifs &amp; paiement
+          </a>
+          <a href="#technique" class="faq-nav__link">
+            <span>💻</span> Technique
+          </a>
+          <a href="#efficacite" class="faq-nav__link">
+            <span>✨</span> Efficacité
+          </a>
+        </nav>
+      </aside>
+
+      <!-- FAQ questions -->
+      <div>
+
+        <!-- 🔐 CONFIDENTIALITÉ -->
+        <div class="faq-section reveal" id="confidentialite">
+          <div class="faq-section__header">
+            <div class="faq-section__icon" aria-hidden="true">🔐</div>
+            <h2>Confidentialité &amp; vie privée</h2>
+          </div>
+
+          <div class="faq__list">
+            <div class="faq-item">
+              <div class="faq-item__question">
+                <h4>Mes séances sont-elles vraiment confidentielles ?</h4>
+                <div class="faq-item__icon" aria-hidden="true">+</div>
+              </div>
+              <div class="faq-item__answer">
+                <p>Oui, absolument. Toutes vos séances sont protégées par un chiffrement de bout en bout (technologie AES-256), identique à celle des banques. Vos conversations, vos données personnelles et le contenu de vos échanges n'appartiennent qu'à vous.</p>
+                <p>Nos thérapeutes sont soumis au secret professionnel tel que défini par la loi française. Ils ne peuvent divulguer aucune information vous concernant à qui que ce soit — y compris votre famille, votre employeur ou des autorités, sauf exception légale strictement encadrée.</p>
+                <div class="faq-highlight">🔒 En cas de risque immédiat pour votre vie, la loi autorise le thérapeute à informer les secours. C'est la seule exception possible.</div>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <div class="faq-item__question">
+                <h4>Est-ce que ma famille peut savoir que je consulte ?</h4>
+                <div class="faq-item__icon" aria-hidden="true">+</div>
+              </div>
+              <div class="faq-item__answer">
+                <p>Non. Votre consultation est strictement privée. Les séances ont lieu en vidéo depuis chez vous — choisissez simplement un endroit calme et discret (votre chambre, une voiture garée, des écouteurs...). Aucune correspondance physique, aucun courrier, aucun remboursement visible sans votre accord.</p>
+                <p>Sur votre relevé bancaire, la transaction apparaît simplement sous la mention "NAFSOLEA" — aucun détail médical ou psychologique n'est mentionné.</p>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <div class="faq-item__question">
+                <h4>Mes données sont-elles vendues ou partagées ?</h4>
+                <div class="faq-item__icon" aria-hidden="true">+</div>
+              </div>
+              <div class="faq-item__answer">
+                <p>Jamais. Nafsoléa ne vend, ne loue et ne partage aucune donnée personnelle à des annonceurs, assureurs, employeurs ou partenaires commerciaux. Nous sommes conformes au RGPD (Règlement Général sur la Protection des Données) de l'Union Européenne.</p>
+                <ul>
+                  <li>Vous pouvez demander l'accès à toutes vos données à tout moment</li>
+                  <li>Vous pouvez demander leur suppression définitive en nous contactant</li>
+                  <li>Vos données médicales ne sont jamais transmises à des assureurs</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <div class="faq-item__question">
+                <h4>Les séances sont-elles enregistrées ?</h4>
+                <div class="faq-item__icon" aria-hidden="true">+</div>
+              </div>
+              <div class="faq-item__answer">
+                <p>Non. Aucune séance n'est enregistrée, ni audio ni vidéo, ni par Nafsoléa, ni par le thérapeute. La séance est un espace de parole éphémère — ce qui s'y dit reste entre vous et votre thérapeute, et n'existe nulle part ailleurs.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ⚙️ FONCTIONNEMENT -->
+        <div class="faq-section reveal" id="fonctionnement">
+          <div class="faq-section__header">
+            <div class="faq-section__icon" aria-hidden="true">⚙️</div>
+            <h2>Comment ça fonctionne</h2>
+          </div>
+
+          <div class="faq__list">
+            <div class="faq-item">
+              <div class="faq-item__question">
+                <h4>Comment se déroule une première séance ?</h4>
+                <div class="faq-item__icon" aria-hidden="true">+</div>
+              </div>
+              <div class="faq-item__answer">
+                <p>La première séance est un espace de rencontre — pas un interrogatoire. Votre thérapeute vous accueille, vous explique comment il/elle travaille, et vous invite à parler de ce qui vous amène... à votre rythme. Vous pouvez commencer par le plus simple.</p>
+                <ul>
+                  <li>Durée : 50 minutes</li>
+                  <li>Format : vidéo sécurisée depuis votre navigateur</li>
+                  <li>Aucune question à laquelle vous êtes obligé(e) de répondre</li>
+                  <li>Première séance 100% gratuite, sans engagement</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <div class="faq-item__question">
+                <h4>Combien de séances sont nécessaires ?</h4>
+                <div class="faq-item__icon" aria-hidden="true">+</div>
+              </div>
+              <div class="faq-item__answer">
+                <p>Cela dépend entièrement de votre situation et de vos objectifs. Certaines personnes trouvent un soulagement significatif en 4 à 6 séances. D'autres optent pour un accompagnement de plus longue durée.</p>
+                <p>Votre thérapeute vous proposera un rythme adapté lors de la première séance — mais vous restez libre de décider à tout moment d'arrêter, de faire une pause ou de continuer.</p>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <div class="faq-item__question">
+                <h4>Puis-je changer de thérapeute ?</h4>
+                <div class="faq-item__icon" aria-hidden="true">+</div>
+              </div>
+              <div class="faq-item__answer">
+                <p>Oui, à tout moment et sans justification. La relation thérapeutique repose sur la confiance — si vous ne vous sentez pas à l'aise avec votre thérapeute, il est tout à fait normal de changer. Notre équipe peut vous aider à trouver un profil plus adapté, gratuitement.</p>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <div class="faq-item__question">
+                <h4>Que faire en cas d'urgence psychologique ?</h4>
+                <div class="faq-item__icon" aria-hidden="true">+</div>
+              </div>
+              <div class="faq-item__answer">
+                <p>Nafsoléa n'est pas un service d'urgence. Si vous traversez une crise sévère ou avez des pensées suicidaires, contactez immédiatement :</p>
+                <ul>
+                  <li><strong>3114</strong> — Numéro national de prévention du suicide (France, 24h/24)</li>
+                  <li><strong>15</strong> — SAMU (urgences médicales)</li>
+                  <li><strong>3020</strong> — En Algérie</li>
+                </ul>
+                <div class="faq-highlight">💙 Votre vie a de la valeur. En cas de crise, appelez le 3114 — des professionnels sont disponibles maintenant.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 👩‍⚕️ PSYCHOLOGUES -->
+        <div class="faq-section reveal" id="psychologues">
+          <div class="faq-section__header">
+            <div class="faq-section__icon" aria-hidden="true">👩‍⚕️</div>
+            <h2>Nos psychologues</h2>
+          </div>
+
+          <div class="faq__list">
+            <div class="faq-item">
+              <div class="faq-item__question">
+                <h4>Comment vos psychologues sont-ils sélectionnés ?</h4>
+                <div class="faq-item__icon" aria-hidden="true">+</div>
+              </div>
+              <div class="faq-item__answer">
+                <p>Chaque thérapeute passe par un processus de sélection rigoureux :</p>
+                <ul>
+                  <li>Vérification des diplômes (Master ou Doctorat en psychologie)</li>
+                  <li>Inscription à l'ordre ou au registre des psychologues</li>
+                  <li>Entretien clinique avec notre responsable scientifique</li>
+                  <li>Évaluation de la sensibilité culturelle et interculturelle</li>
+                  <li>Supervision continue et évaluation régulière</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <div class="faq-item__question">
+                <h4>La différence entre un psychologue, un psychiatre et un thérapeute ?</h4>
+                <div class="faq-item__icon" aria-hidden="true">+</div>
+              </div>
+              <div class="faq-item__answer">
+                <p><strong>Psychologue :</strong> Diplômé en psychologie (Master ou Doctorat), il accompagne par la parole, sans médicaments.</p>
+                <p><strong>Psychiatre :</strong> Médecin spécialisé en santé mentale. Peut prescrire des médicaments. Certains pratiquent aussi la thérapie.</p>
+                <p><strong>Thérapeute / psychothérapeute :</strong> Terme générique désignant tout professionnel pratiquant une thérapie. Sur Nafsoléa, tous nos thérapeutes sont des psychologues diplômés.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 🌍 LANGUES & CULTURE -->
+        <div class="faq-section reveal" id="langues">
+          <div class="faq-section__header">
+            <div class="faq-section__icon" aria-hidden="true">🌍</div>
+            <h2>Langues &amp; sensibilité culturelle</h2>
+          </div>
+
+          <div class="faq__list">
+            <div class="faq-item">
+              <div class="faq-item__question">
+                <h4>Puis-je consulter en arabe ? En darija ?</h4>
+                <div class="faq-item__icon" aria-hidden="true">+</div>
+              </div>
+              <div class="faq-item__answer">
+                <p>Oui. Plusieurs de nos psychologues parlent couramment l'arabe classique (الفصحى) et/ou le dialecte algérien (الدارجة). Vous pouvez filtrer par langue sur la page de nos psychologues et mélanger les langues en séance si vous le souhaitez.</p>
+                <div class="faq-highlight">💬 Vous n'avez pas à "traduire" votre vécu. Consultez dans la langue qui vous vient naturellement.</div>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <div class="faq-item__question">
+                <h4>Vos thérapeutes comprennent-ils la culture algérienne ?</h4>
+                <div class="faq-item__icon" aria-hidden="true">+</div>
+              </div>
+              <div class="faq-item__answer">
+                <p>C'est une priorité absolue dans notre sélection. Nos thérapeutes sont sensibilisés aux dynamiques familiales algériennes et maghrébines : la notion d'honneur, le poids des attentes parentales, la dualité entre tradition et modernité, les tensions de l'expatriation.</p>
+                <p>Plusieurs sont eux-mêmes issus de la diaspora algérienne ou ont vécu entre plusieurs cultures. Ils comprennent — sans que vous ayez à tout expliquer.</p>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <div class="faq-item__question">
+                <h4>La thérapie est-elle compatible avec l'islam ?</h4>
+                <div class="faq-item__icon" aria-hidden="true">+</div>
+              </div>
+              <div class="faq-item__answer">
+                <p>Oui. La psychothérapie n'est pas en opposition avec la foi — de nombreux érudits islamiques l'ont affirmé. Nos thérapeutes respectent vos convictions religieuses et ne cherchent pas à les remettre en question.</p>
+                <p>Si votre foi est une source de force pour vous, elle sera intégrée dans l'accompagnement. Si vous souhaitez explorer la relation entre votre vie spirituelle et votre bien-être mental, c'est tout à fait possible.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 💳 TARIFS -->
+        <div class="faq-section reveal" id="tarifs">
+          <div class="faq-section__header">
+            <div class="faq-section__icon" aria-hidden="true">💳</div>
+            <h2>Tarifs &amp; paiement</h2>
+          </div>
+
+          <div class="faq__list">
+            <div class="faq-item">
+              <div class="faq-item__question">
+                <h4>Combien coûte une séance ?</h4>
+                <div class="faq-item__icon" aria-hidden="true">+</div>
+              </div>
+              <div class="faq-item__answer">
+                <p>Les tarifs varient selon le thérapeute, entre <strong>50€ et 75€ par séance de 50 minutes</strong>. La première séance est toujours offerte — sans condition, sans engagement.</p>
+                <p>Nous proposons également des packs de 4 séances à tarif réduit (à partir de 200€), soit jusqu'à 20% d'économie par rapport aux séances individuelles.</p>
+                <div class="faq-highlight">🌱 Première séance gratuite pour tout nouveau patient, quel que soit le thérapeute choisi.</div>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <div class="faq-item__question">
+                <h4>Mes séances sont-elles remboursées ?</h4>
+                <div class="faq-item__icon" aria-hidden="true">+</div>
+              </div>
+              <div class="faq-item__answer">
+                <p>La Sécurité Sociale française ne rembourse pas encore les consultations chez le psychologue de manière systématique (sauf dispositif MonPsy dans certains cas). En revanche, de nombreuses mutuelles remboursent partiellement les séances en ligne.</p>
+                <ul>
+                  <li>Nous fournissons une facture détaillée après chaque séance</li>
+                  <li>Renseignez-vous auprès de votre mutuelle avec le code CCAM applicable</li>
+                  <li>En Algérie : consultez votre caisse d'assurance sociale</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <div class="faq-item__question">
+                <h4>Puis-je annuler ou reporter un rendez-vous ?</h4>
+                <div class="faq-item__icon" aria-hidden="true">+</div>
+              </div>
+              <div class="faq-item__answer">
+                <p>Oui. Vous pouvez annuler ou reporter gratuitement jusqu'à <strong>24 heures avant la séance</strong>. En cas d'annulation dans ce délai, la séance est comptabilisée. Pour les urgences, contactez-nous directement — nous trouverons toujours une solution humaine.</p>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <div class="faq-item__question">
+                <h4>Quels moyens de paiement acceptez-vous ?</h4>
+                <div class="faq-item__icon" aria-hidden="true">+</div>
+              </div>
+              <div class="faq-item__answer">
+                <p>Nous acceptons :</p>
+                <ul>
+                  <li>Toutes les cartes bancaires (Visa, Mastercard, American Express)</li>
+                  <li>Paypal</li>
+                  <li>Virement bancaire (pour les packs)</li>
+                  <li>Carte CIB / EDAHABIA pour les patients en Algérie (bientôt disponible)</li>
+                </ul>
+                <p>Tous les paiements sont sécurisés par notre partenaire Stripe (certifié PCI DSS niveau 1).</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 💻 TECHNIQUE -->
+        <div class="faq-section reveal" id="technique">
+          <div class="faq-section__header">
+            <div class="faq-section__icon" aria-hidden="true">💻</div>
+            <h2>Questions techniques</h2>
+          </div>
+
+          <div class="faq__list">
+            <div class="faq-item">
+              <div class="faq-item__question">
+                <h4>Ai-je besoin de télécharger une application ?</h4>
+                <div class="faq-item__icon" aria-hidden="true">+</div>
+              </div>
+              <div class="faq-item__answer">
+                <p>Non. Les séances se déroulent directement depuis votre navigateur web (Chrome, Firefox, Safari, Edge). Aucune installation n'est nécessaire. Il vous suffit d'un appareil avec une caméra et un micro — smartphone, tablette ou ordinateur.</p>
+                <div class="faq-highlight">📱 Compatible iPhone, Android, Mac et PC. Fonctionne avec une connexion 4G basique.</div>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <div class="faq-item__question">
+                <h4>Que se passe-t-il si ma connexion coupe pendant la séance ?</h4>
+                <div class="faq-item__icon" aria-hidden="true">+</div>
+              </div>
+              <div class="faq-item__answer">
+                <p>Pas de panique. Si la connexion est interrompue, le thérapeute vous rappellera via le lien de la séance ou par messagerie sécurisée. La séance sera prolongée du temps perdu — vous ne perdez aucune minute payée.</p>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <div class="faq-item__question">
+                <h4>Est-ce possible depuis l'Algérie ou d'autres pays ?</h4>
+                <div class="faq-item__icon" aria-hidden="true">+</div>
+              </div>
+              <div class="faq-item__answer">
+                <p>Oui. Nafsoléa fonctionne depuis tous les pays où vous avez une connexion internet. Nos thérapeutes s'adaptent aux fuseaux horaires de leurs patients — Algérie, Maroc, Tunisie, Canada, Belgique, etc.</p>
+                <p>Certains créneaux sont spécifiquement prévus pour les patients au Maghreb (après-midi / soir heure locale).</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ✨ EFFICACITÉ -->
+        <div class="faq-section reveal" id="efficacite">
+          <div class="faq-section__header">
+            <div class="faq-section__icon" aria-hidden="true">✨</div>
+            <h2>Efficacité &amp; thérapie en ligne</h2>
+          </div>
+
+          <div class="faq__list">
+            <div class="faq-item">
+              <div class="faq-item__question">
+                <h4>La thérapie en ligne est-elle vraiment efficace ?</h4>
+                <div class="faq-item__icon" aria-hidden="true">+</div>
+              </div>
+              <div class="faq-item__answer">
+                <p>Oui — et ce n'est pas qu'un argument marketing. De nombreuses études cliniques rigoureuses (OMS, Cochrane Library, APA) confirment que la psychothérapie en ligne est aussi efficace que la thérapie en présentiel pour la grande majorité des problématiques.</p>
+                <ul>
+                  <li>Anxiété et troubles anxieux : efficacité prouvée</li>
+                  <li>Dépression légère à modérée : efficacité prouvée</li>
+                  <li>Stress et burn-out : efficacité prouvée</li>
+                  <li>Trauma et PTSD (avec EMDR en ligne) : efficacité prouvée</li>
+                </ul>
+                <p>Ce qui compte, c'est la qualité de la relation thérapeutique — pas le support. Et beaucoup de patients rapportent même se sentir plus à l'aise pour parler depuis leur propre espace.</p>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <div class="faq-item__question">
+                <h4>Est-ce que la thérapie peut m'aider si j'ai une problématique "culturelle" spécifique ?</h4>
+                <div class="faq-item__icon" aria-hidden="true">+</div>
+              </div>
+              <div class="faq-item__answer">
+                <p>C'est précisément là que Nafsoléa fait la différence. Les problématiques liées à la double culture, aux attentes familiales, à la honte, à la pression sociale ou à l'expatriation sont des réalités cliniques reconnues — et nos thérapeutes y sont spécialement formés.</p>
+                <p>Vous n'avez pas à adapter votre souffrance à des cadres thérapeutiques "occidentaux". Ici, c'est l'inverse : le cadre s'adapte à vous.</p>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <div class="faq-item__question">
+                <h4>Comment savoir si j'ai vraiment besoin d'un psychologue ?</h4>
+                <div class="faq-item__icon" aria-hidden="true">+</div>
+              </div>
+              <div class="faq-item__answer">
+                <p>Si vous vous posez cette question, c'est souvent déjà une réponse. Vous n'avez pas besoin d'être "suffisamment malade" pour consulter. La thérapie n'est pas réservée aux crises graves — elle aide aussi à mieux se connaître, à prendre des décisions difficiles, à traverser des transitions de vie.</p>
+                <div class="faq-highlight">💙 Aller voir un psychologue, c'est comme aller chez le dentiste avant d'avoir une carie. C'est du soin préventif, pas de la faiblesse.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Vous avez encore une question ? -->
+        <div class="still-questions reveal">
+          <div style="font-size:2.5rem; margin-bottom:var(--space-3)" aria-hidden="true">💬</div>
+          <h3>Vous n'avez pas trouvé votre réponse ?</h3>
+          <p>Notre équipe est disponible pour répondre à toutes vos questions — sans jugement et en toute confidentialité.</p>
+          <div class="contact-options">
+            <a href="mailto:bonjour@nafsolea.com" class="contact-option">
+              <span class="contact-option__icon">📧</span>
+              bonjour@nafsolea.com
+            </a>
+            <a href="#" class="contact-option">
+              <span class="contact-option__icon">💬</span>
+              Chat en direct
+            </a>
+            <a href="rendez-vous.html" class="contact-option" style="background:var(--sage); border-color:var(--sage); color:white">
+              <span class="contact-option__icon">📅</span>
+              Prendre rendez-vous
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer__grid">
+      <div class="footer__brand">
+        <h3>Nafsoléa</h3>
+        <p>Une plateforme de téléconsultation psychologique culturellement adaptée pour la diaspora algérienne et maghrébine.</p>
+        <div class="footer__socials">
+          <a href="#" class="footer__social">📸</a>
+          <a href="#" class="footer__social">💼</a>
+          <a href="#" class="footer__social">📘</a>
+        </div>
+      </div>
+      <div class="footer__col">
+        <h5>Plateforme</h5>
+        <ul class="footer__links">
+          <li><a href="comment-ca-marche.html" class="footer__link">Comment ça marche</a></li>
+          <li><a href="psychologues.html" class="footer__link">Nos psychologues</a></li>
+          <li><a href="rendez-vous.html" class="footer__link">Prendre rendez-vous</a></li>
+          <li><a href="faq.html" class="footer__link">FAQ</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h5>Ressources</h5>
+        <ul class="footer__links">
+          <li><a href="blog.html" class="footer__link">Blog santé mentale</a></li>
+          <li><a href="a-propos.html" class="footer__link">À propos</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h5>Urgence</h5>
+        <ul class="footer__links">
+          <li><span class="footer__link" style="cursor:default">Suicide : 3114</span></li>
+          <li><span class="footer__link" style="cursor:default">SAMU : 15</span></li>
+          <li><a href="mailto:bonjour@nafsolea.com" class="footer__link">bonjour@nafsolea.com</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <p class="footer__copyright">© 2025 Nafsoléa. Tous droits réservés.</p>
+      <nav class="footer__legal">
+        <a href="#">Confidentialité</a>
+        <a href="#">CGU</a>
+        <a href="#">Mentions légales</a>
+      </nav>
+    </div>
+  </div>
+</footer>
+
+<button class="scroll-top" aria-label="Haut de page">↑</button>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/auth.js"></script>
+<script src="assets/js/main.js" defer></script>
+<script>
+  // FAQ sidebar active state on scroll
+  const sections = document.querySelectorAll('.faq-section');
+  const navLinks = document.querySelectorAll('.faq-nav__link');
+
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.id;
+          navLinks.forEach(link => {
+            link.classList.toggle('active', link.getAttribute('href') === '#' + id);
+          });
+        }
+      });
+    }, { rootMargin: '-20% 0px -70% 0px' });
+
+    sections.forEach(s => observer.observe(s));
+  }
+</script>
+</body>
+</html>

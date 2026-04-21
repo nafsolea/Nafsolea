@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Nafsoléa — Consultations psychologiques en ligne avec des thérapeutes arabophones et francophones. Espace sûr, confidentiel et culturellement adapté pour la diaspora algérienne.">
+  <meta name="keywords" content="psychologue en ligne, téléconsultation psychologique, arabe, algérien, expatrié, santé mentale, psy en ligne">
+  <meta property="og:title" content="Nafsoléa — Parlez à quelqu'un qui vous comprend vraiment">
+  <meta property="og:description" content="Des psychologues arabophones et francophones, disponibles en ligne, pour vous accompagner dans votre langue et votre culture.">
+  <meta property="og:type" content="website">
+  <title>Nafsoléa — Consultations psychologiques en ligne, culturellement adaptées</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<!-- ── NAVIGATION ───────────────────────────────────────────── -->
+<nav class="nav" role="navigation" aria-label="Navigation principale">
+  <div class="nav__inner">
+    <a href="index.html" class="nav__logo" aria-label="Nafsoléa - Accueil">
+      <div class="nav__logo-mark" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 36 36" fill="none">
+          <circle cx="18" cy="18" r="5" fill="white"/>
+          <line x1="18" y1="2" x2="18" y2="10" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="18" y1="26" x2="18" y2="34" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="2" y1="18" x2="10" y2="18" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="26" y1="18" x2="34" y2="18" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="6.7" y1="6.7" x2="11.7" y2="11.7" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+          <line x1="24.3" y1="24.3" x2="29.3" y2="29.3" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+          <line x1="29.3" y1="6.7" x2="24.3" y2="11.7" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+          <line x1="11.7" y1="24.3" x2="6.7" y2="29.3" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+        </svg>
+      </div>
+      Nafsoléa
+    </a>
+
+    <ul class="nav__links" role="list">
+      <li><a href="comment-ca-marche.html" class="nav__link">Comment ça marche</a></li>
+      <li><a href="psychologues.html" class="nav__link">Nos psychologues</a></li>
+      <li><a href="blog.html" class="nav__link">Ressources</a></li>
+      <li><a href="a-propos.html" class="nav__link">À propos</a></li>
+      <li><a href="faq.html" class="nav__link">FAQ</a></li>
+    </ul>
+
+    <div class="nav__actions">
+      <button class="nav__lang" aria-label="Changer la langue en arabe">FR | عربي</button>
+      <a href="rendez-vous.html" class="btn btn--primary btn--sm">Prendre RDV</a>
+    </div>
+
+    <button class="nav__hamburger" aria-label="Ouvrir le menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+
+  <div class="nav__mobile" role="menu">
+    <a href="comment-ca-marche.html" class="nav__mobile-link">Comment ça marche</a>
+    <a href="psychologues.html" class="nav__mobile-link">Nos psychologues</a>
+    <a href="blog.html" class="nav__mobile-link">Ressources</a>
+    <a href="a-propos.html" class="nav__mobile-link">À propos</a>
+    <a href="faq.html" class="nav__mobile-link">FAQ</a>
+    <a href="rendez-vous.html" class="btn btn--primary" style="margin-top:0.5rem;">Prendre rendez-vous</a>
+  </div>
+</nav>
+
+<!-- ── HERO ─────────────────────────────────────────────────── -->
+<section class="hero" aria-labelledby="hero-title">
+  <div class="container">
+    <div class="hero__inner">
+      <div class="hero__content">
+        <div class="hero__badge" role="status">Disponible 7j/7 — France, Algérie, monde entier</div>
+
+        <h1 id="hero-title">
+          Parlez à quelqu'un qui vous comprend <em>vraiment</em>
+        </h1>
+
+        <p class="hero__subtitle">
+          Des consultations psychologiques en ligne avec des thérapeutes arabophones et francophones —
+          adaptées à votre culture, vos valeurs, et votre vie.
+        </p>
+
+        <div class="btn-group">
+          <a href="rendez-vous.html" class="btn btn--primary btn--lg">
+            Prendre rendez-vous
+          </a>
+          <button class="btn btn--secondary btn--lg" data-quiz-open aria-label="Trouver mon psychologue avec le quiz">
+            Quel psy pour moi ?
+          </button>
+        </div>
+
+        <div class="hero__trust" role="list">
+          <div class="hero__trust-item" role="listitem">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+            100% confidentiel
+          </div>
+          <div class="hero__trust-item" role="listitem">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+            Psychologues diplômés
+          </div>
+          <div class="hero__trust-item" role="listitem">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+            Première séance offerte
+          </div>
+        </div>
+      </div>
+
+      <!-- Visual card -->
+      <div class="hero__visual" aria-hidden="true">
+        <div class="hero__card">
+          <div class="hero__card-avatar">👩‍⚕️</div>
+          <h4>Dr. Amira Mansouri</h4>
+          <p class="hero__card-role">Psychologue clinicienne · 8 ans d'expérience</p>
+          <div class="hero__card-tags">
+            <span class="tag tag--sage">Arabe · Français</span>
+            <span class="tag">Anxiété</span>
+            <span class="tag">Expatriation</span>
+            <span class="tag">Famille</span>
+          </div>
+          <div class="hero__card-availability">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            Disponible — prochain créneau : demain 10h
+          </div>
+          <a href="rendez-vous.html" class="btn btn--primary" style="width:100%">Réserver une séance</a>
+        </div>
+
+        <div class="hero__floating-1" aria-hidden="true">
+          🔒 Séance 100% sécurisée
+        </div>
+        <div class="hero__floating-2" aria-hidden="true">
+          ⭐ 4.9/5 — 312 avis
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── STATS ─────────────────────────────────────────────────── -->
+<section class="stats section--sm" aria-label="Chiffres clés">
+  <div class="container">
+    <div class="stats__grid">
+      <div class="stat-item reveal">
+        <div class="stat-item__number" data-counter="850" data-suffix="+">850+</div>
+        <div class="stat-item__label">Patients accompagnés</div>
+      </div>
+      <div class="stat-item reveal reveal-delay-1">
+        <div class="stat-item__number" data-counter="28" data-suffix="">28</div>
+        <div class="stat-item__label">Psychologues certifiés</div>
+      </div>
+      <div class="stat-item reveal reveal-delay-2">
+        <div class="stat-item__number" data-counter="15" data-suffix=" pays">15 pays</div>
+        <div class="stat-item__label">Consultations depuis</div>
+      </div>
+      <div class="stat-item reveal reveal-delay-3">
+        <div class="stat-item__number" data-counter="98" data-suffix="%">98%</div>
+        <div class="stat-item__label">Patients satisfaits</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── PROBLÈME ──────────────────────────────────────────────── -->
+<section class="problem section" aria-labelledby="problem-title">
+  <div class="container">
+    <div class="section-header">
+      <span class="label">Ce que vous vivez</span>
+      <h2 id="problem-title">Vous n'êtes pas seul(e)</h2>
+      <p>
+        La distance, la pression familiale, les attentes culturelles, la solitude...
+        La vie peut parfois peser lourd. Et trouver quelqu'un à qui parler — sans jugement,
+        qui comprend d'où vous venez — ce n'est pas toujours simple.
+      </p>
+    </div>
+
+    <div class="problem__cards">
+      <article class="problem-card reveal">
+        <div class="problem-card__icon" aria-hidden="true">✈️</div>
+        <h4>L'expatriation et ses défis silencieux</h4>
+        <p>Vivre loin de chez soi, entre deux cultures, entre deux langues. La solitude qu'on n'ose pas avouer. L'écart qui se creuse avec la famille restée au pays.</p>
+      </article>
+      <article class="problem-card reveal reveal-delay-1">
+        <div class="problem-card__icon" aria-hidden="true">⚖️</div>
+        <h4>Les tensions entre deux cultures</h4>
+        <p>Les attentes familiales d'un côté, votre vie construite de l'autre. Cette fatigue de devoir constamment naviguer entre des mondes différents.</p>
+      </article>
+      <article class="problem-card reveal reveal-delay-2">
+        <div class="problem-card__icon" aria-hidden="true">🤲</div>
+        <h4>La honte de demander de l'aide</h4>
+        <p>"Les nôtres ne font pas ça." Cette phrase qu'on entend, intérieure ou extérieure, qui empêche de prendre soin de soi. Ici, elle n'a pas sa place.</p>
+      </article>
+      <article class="problem-card reveal reveal-delay-3">
+        <div class="problem-card__icon" aria-hidden="true">💙</div>
+        <h4>L'anxiété et la charge émotionnelle</h4>
+        <p>Le stress du quotidien, les insomnies, la pression de performer, de tout gérer seul(e). Ce poids que l'on porte et que l'on minimise.</p>
+      </article>
+    </div>
+
+    <div style="text-align:center; margin-top:var(--space-10);">
+      <p style="color:rgba(255,255,255,0.7); font-size:1rem; margin-bottom:var(--space-5); max-width:none;">Tout cela est réel. Tout cela mérite d'être entendu.</p>
+      <a href="rendez-vous.html" class="btn btn--terracotta btn--lg">Commencer maintenant</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── SOLUTION ──────────────────────────────────────────────── -->
+<section class="solution section" aria-labelledby="solution-title">
+  <div class="container">
+    <div class="solution__inner">
+      <!-- Visual -->
+      <div class="solution__visual reveal" aria-hidden="true">
+        <div class="solution__mockup">
+          <div class="solution__mockup-header">
+            <div class="solution__avatar">🌿</div>
+            <div>
+              <div style="font-weight:700; font-size:0.95rem; color:var(--text)">Nafsoléa</div>
+              <div style="font-size:0.8rem; color:var(--sage-dark); font-weight:500">Votre espace de confiance</div>
+            </div>
+          </div>
+          <div class="solution__values">
+            <div class="value-row">
+              <div class="value-row__icon">🔒</div>
+              Séances 100% confidentielles et cryptées
+            </div>
+            <div class="value-row">
+              <div class="value-row__icon">🌍</div>
+              Psychologues arabophones &amp; francophones
+            </div>
+            <div class="value-row">
+              <div class="value-row__icon">🏡</div>
+              Depuis chez vous, sans déplacement
+            </div>
+            <div class="value-row">
+              <div class="value-row__icon">📅</div>
+              Disponible 7j/7, soir et weekend
+            </div>
+            <div class="value-row">
+              <div class="value-row__icon">💚</div>
+              Approche non jugeante et culturellement sensible
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div class="solution__content">
+        <span class="label">Notre réponse</span>
+        <h2 id="solution-title">Nafsoléa est là pour ça</h2>
+        <p class="lead" style="max-width:none">
+          Une plateforme conçue spécifiquement pour vous — qui comprend ce que c'est que de grandir entre deux cultures, de porter des attentes familiales, de chercher un soutien qui vous ressemble.
+        </p>
+
+        <div class="solution__feature reveal">
+          <div class="solution__feature-num">01</div>
+          <div>
+            <h4>Des psys qui vous comprennent</h4>
+            <p>Tous nos thérapeutes parlent votre langue — au sens propre et au sens figuré. Arabophones, bilingues, formés à la sensibilité interculturelle.</p>
+          </div>
+        </div>
+
+        <div class="solution__feature reveal reveal-delay-1">
+          <div class="solution__feature-num">02</div>
+          <div>
+            <h4>Un espace sans jugement</h4>
+            <p>Pas de regard de voisins, pas de famille qui passe. Une séance privée, depuis votre canapé, en toute sécurité émotionnelle.</p>
+          </div>
+        </div>
+
+        <div class="solution__feature reveal reveal-delay-2">
+          <div class="solution__feature-num">03</div>
+          <div>
+            <h4>Flexible et accessible</h4>
+            <p>Des créneaux le soir, le weekend, adaptés à votre fuseau horaire. Des tarifs transparents et des formules pour tous les budgets.</p>
+          </div>
+        </div>
+
+        <a href="comment-ca-marche.html" class="btn btn--secondary" style="margin-top:var(--space-4)">
+          Comment ça marche →
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── COMMENT ÇA MARCHE ─────────────────────────────────────── -->
+<section class="steps section" aria-labelledby="steps-title">
+  <div class="container">
+    <div class="section-header">
+      <span class="label">Simple comme bonjour</span>
+      <h2 id="steps-title">Commencer en 3 étapes</h2>
+      <p>Pas de paperasse, pas de liste d'attente. En quelques minutes, vous avez votre rendez-vous.</p>
+    </div>
+
+    <div class="steps__grid">
+      <article class="step-card reveal">
+        <div class="step-card__num" aria-hidden="true">1</div>
+        <h3>Choisissez votre psy</h3>
+        <p>Parcourez nos profils de thérapeutes. Filtrez par langue, spécialité ou disponibilité. Lisez leur approche, sentez qui vous inspire confiance.</p>
+      </article>
+      <article class="step-card reveal reveal-delay-1">
+        <div class="step-card__num" aria-hidden="true">2</div>
+        <h3>Réservez un créneau</h3>
+        <p>Sélectionnez le jour et l'heure qui vous conviennent, depuis votre téléphone ou ordinateur. Confirmation immédiate par email.</p>
+      </article>
+      <article class="step-card reveal reveal-delay-2">
+        <div class="step-card__num" aria-hidden="true">3</div>
+        <h3>Consultez depuis chez vous</h3>
+        <p>Rejoignez votre séance par vidéo, en toute sécurité. Pas d'installation, pas de compte à créer. Juste vous et votre thérapeute.</p>
+      </article>
+    </div>
+
+    <div style="text-align:center; margin-top:var(--space-10);">
+      <a href="rendez-vous.html" class="btn btn--primary btn--lg">Réserver ma première séance</a>
+      <p style="margin-top:var(--space-3); font-size:0.84rem; color:var(--text-muted); max-width:none;">✓ Première consultation offerte · Annulation gratuite jusqu'à 24h avant</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── NOS PSYCHOLOGUES ──────────────────────────────────────── -->
+<section class="section" style="background:var(--off-white)" aria-labelledby="psys-title">
+  <div class="container">
+    <div class="section-header">
+      <span class="label">Une équipe d'exception</span>
+      <h2 id="psys-title">Des thérapeutes qui vous ressemblent</h2>
+      <p>Chacun de nos psychologues est diplômé, certifié et formé à la sensibilité culturelle maghrébine.</p>
+    </div>
+
+    <div class="grid-3">
+      <!-- Psy 1 -->
+      <article class="psychologist-card reveal">
+        <div class="psychologist-card__header">
+          <div class="psychologist-card__photo-container" aria-hidden="true">👩‍⚕️</div>
+          <div class="psychologist-card__meta">
+            <h3>Dr. Amira Mansouri</h3>
+            <div class="psychologist-card__title">Psychologue clinicienne</div>
+            <div class="psychologist-card__langs">
+              <span class="lang-badge">FR</span>
+              <span class="lang-badge lang-badge--ar">عربي</span>
+            </div>
+          </div>
+        </div>
+        <div class="psychologist-card__body">
+          <div class="psychologist-card__specialties">
+            <span class="tag tag--sage">Anxiété</span>
+            <span class="tag tag--sage">Expatriation</span>
+            <span class="tag tag--sage">Famille</span>
+          </div>
+          <p class="psychologist-card__bio">
+            Née à Alger, formée à Paris, Amira accompagne depuis 8 ans des personnes vivant entre deux cultures. Son approche est centrée sur les ressources internes et l'histoire familiale.
+          </p>
+          <a href="rendez-vous.html" class="btn btn--primary btn--sm">Réserver</a>
+        </div>
+        <div class="psychologist-card__footer">
+          <div class="psychologist-card__price"><strong>60€</strong> / séance</div>
+          <span class="badge badge--available">● Disponible</span>
+        </div>
+      </article>
+
+      <!-- Psy 2 -->
+      <article class="psychologist-card reveal reveal-delay-1">
+        <div class="psychologist-card__header">
+          <div class="psychologist-card__photo-container" aria-hidden="true">👨‍⚕️</div>
+          <div class="psychologist-card__meta">
+            <h3>Dr. Karim Belhadj</h3>
+            <div class="psychologist-card__title">Psychothérapeute · TCC</div>
+            <div class="psychologist-card__langs">
+              <span class="lang-badge">FR</span>
+              <span class="lang-badge lang-badge--ar">عربي</span>
+            </div>
+          </div>
+        </div>
+        <div class="psychologist-card__body">
+          <div class="psychologist-card__specialties">
+            <span class="tag tag--sage">Dépression</span>
+            <span class="tag tag--sage">Stress</span>
+            <span class="tag tag--sage">Trauma</span>
+          </div>
+          <p class="psychologist-card__bio">
+            Karim utilise les thérapies cognitivo-comportementales (TCC) pour aider à reprendre le contrôle face à la dépression et aux phobies. Il privilégie un accompagnement concret et bienveillant.
+          </p>
+          <a href="rendez-vous.html" class="btn btn--primary btn--sm">Réserver</a>
+        </div>
+        <div class="psychologist-card__footer">
+          <div class="psychologist-card__price"><strong>55€</strong> / séance</div>
+          <span class="badge badge--available">● Disponible</span>
+        </div>
+      </article>
+
+      <!-- Psy 3 -->
+      <article class="psychologist-card reveal reveal-delay-2">
+        <div class="psychologist-card__header">
+          <div class="psychologist-card__photo-container" aria-hidden="true">👩‍⚕️</div>
+          <div class="psychologist-card__meta">
+            <h3>Mme. Nadia Cherif</h3>
+            <div class="psychologist-card__title">Psychologue · Couples & Relations</div>
+            <div class="psychologist-card__langs">
+              <span class="lang-badge">FR</span>
+              <span class="lang-badge lang-badge--ar">دارجة</span>
+            </div>
+          </div>
+        </div>
+        <div class="psychologist-card__body">
+          <div class="psychologist-card__specialties">
+            <span class="tag tag--sage">Couple</span>
+            <span class="tag tag--sage">Identité</span>
+            <span class="tag tag--sage">Rupture</span>
+          </div>
+          <p class="psychologist-card__bio">
+            Nadia accompagne les femmes maghrébines dans leur chemin vers l'affirmation de soi, les questions relationnelles et la reconstruction post-rupture, avec une profonde sensibilité culturelle.
+          </p>
+          <a href="rendez-vous.html" class="btn btn--primary btn--sm">Réserver</a>
+        </div>
+        <div class="psychologist-card__footer">
+          <div class="psychologist-card__price"><strong>65€</strong> / séance</div>
+          <span class="badge badge--available">● Disponible</span>
+        </div>
+      </article>
+    </div>
+
+    <div style="text-align:center; margin-top:var(--space-8);">
+      <a href="psychologues.html" class="btn btn--ghost">Voir tous nos psychologues →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── TÉMOIGNAGES ───────────────────────────────────────────── -->
+<section class="testimonials section" aria-labelledby="testimonials-title">
+  <div class="container">
+    <div class="section-header">
+      <span class="label">Ils ont franchi le pas</span>
+      <h2 id="testimonials-title">Ce qu'ils disent de Nafsoléa</h2>
+      <p>Des témoignages vrais, de personnes qui ont choisi de prendre soin d'elles.</p>
+    </div>
+
+    <div class="testimonials__grid">
+      <article class="testimonial-card reveal">
+        <div class="testimonial-card__stars" aria-label="5 étoiles sur 5">★★★★★</div>
+        <blockquote class="testimonial-card__quote">
+          "J'avais peur d'être jugée parce que dans ma famille, on ne parle pas de ces choses-là. Mais avec Dr. Amira, j'ai senti dès la première séance qu'elle comprenait vraiment mon contexte. Elle ne m'a pas fait sentir 'bizarre'."
+        </blockquote>
+        <div class="testimonial-card__author">
+          <div class="testimonial-card__avatar" aria-hidden="true">🌸</div>
+          <div>
+            <div class="testimonial-card__name">Samira K.</div>
+            <div class="testimonial-card__detail">Paris · Expatriée depuis 4 ans</div>
+          </div>
+        </div>
+      </article>
+
+      <article class="testimonial-card reveal reveal-delay-1">
+        <div class="testimonial-card__stars" aria-label="5 étoiles sur 5">★★★★★</div>
+        <blockquote class="testimonial-card__quote">
+          "Enfin un psy qui parle arabe ET qui comprend la dynamique familiale algérienne. Je n'avais pas à expliquer le contexte à chaque fois. On allait direct à l'essentiel."
+        </blockquote>
+        <div class="testimonial-card__author">
+          <div class="testimonial-card__avatar" aria-hidden="true">🌿</div>
+          <div>
+            <div class="testimonial-card__name">Yacine M.</div>
+            <div class="testimonial-card__detail">Lyon · Étudiant en master</div>
+          </div>
+        </div>
+      </article>
+
+      <article class="testimonial-card reveal reveal-delay-2">
+        <div class="testimonial-card__stars" aria-label="5 étoiles sur 5">★★★★★</div>
+        <blockquote class="testimonial-card__quote">
+          "Je consultais depuis Alger et je n'aurais jamais osé voir un psy en cabinet ici — le regard des voisins, la honte... Nafsoléa m'a permis de tout garder privé. Ça a changé ma vie."
+        </blockquote>
+        <div class="testimonial-card__author">
+          <div class="testimonial-card__avatar" aria-hidden="true">✨</div>
+          <div>
+            <div class="testimonial-card__name">Lina B.</div>
+            <div class="testimonial-card__detail">Alger · Professeure</div>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ── ENGAGEMENT ÉTHIQUE ────────────────────────────────────── -->
+<section class="ethics section" aria-labelledby="ethics-title">
+  <div class="container">
+    <div class="section-header">
+      <span class="label">Notre engagement</span>
+      <h2 id="ethics-title">Votre confiance, notre priorité absolue</h2>
+      <p>Nous avons construit Nafsoléa sur des valeurs qui ne sont pas négociables.</p>
+    </div>
+
+    <div class="ethics__grid">
+      <div class="ethics-item reveal">
+        <div class="ethics-item__icon" aria-hidden="true">🔐</div>
+        <h4>Confidentialité totale</h4>
+        <p>Vos séances sont chiffrées de bout en bout. Personne — ni famille, ni employeur — ne peut y accéder.</p>
+      </div>
+      <div class="ethics-item reveal reveal-delay-1">
+        <div class="ethics-item__icon" aria-hidden="true">🎓</div>
+        <h4>Psys certifiés</h4>
+        <p>Tous nos thérapeutes sont diplômés d'État, supervisés et vérifiés avant de rejoindre la plateforme.</p>
+      </div>
+      <div class="ethics-item reveal reveal-delay-2">
+        <div class="ethics-item__icon" aria-hidden="true">🤍</div>
+        <h4>Zéro jugement</h4>
+        <p>Votre culture, vos choix, votre histoire sont respectés. Ici, on accueille — on ne juge pas.</p>
+      </div>
+      <div class="ethics-item reveal reveal-delay-3">
+        <div class="ethics-item__icon" aria-hidden="true">🌍</div>
+        <h4>Sensibilité culturelle</h4>
+        <p>Nos thérapeutes comprennent les spécificités de la culture maghrébine, des familles, de la diaspora.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA FINAL ─────────────────────────────────────────────── -->
+<section class="cta-section section" aria-labelledby="cta-title">
+  <div class="container">
+    <h2 id="cta-title">Prendre soin de vous, c'est une force</h2>
+    <p>Pas une faiblesse. Pas un luxe. Un droit. Faites le premier pas — nous sommes là.</p>
+    <div class="btn-group" style="justify-content:center">
+      <a href="rendez-vous.html" class="btn btn--terracotta btn--lg">Réserver ma séance gratuite</a>
+      <button class="btn btn--ghost" data-quiz-open style="color:rgba(255,255,255,0.8); border-color:rgba(255,255,255,0.25);">
+        Quel psy pour moi ?
+      </button>
+    </div>
+    <p style="margin-top:var(--space-4); font-size:0.82rem; color:rgba(255,255,255,0.4); max-width:none;">
+      Aucun engagement · Paiement sécurisé · Annulation libre
+    </p>
+  </div>
+</section>
+
+<!-- ── NEWSLETTER ────────────────────────────────────────────── -->
+<section class="section--sm" style="background:var(--beige)">
+  <div class="container container--narrow">
+    <div class="newsletter">
+      <span class="label label-terracotta">Ressources gratuites</span>
+      <h3 style="margin-top:var(--space-2); margin-bottom:var(--space-3)">Des lectures pour prendre soin de vous</h3>
+      <p style="font-size:0.92rem; color:var(--text-light); margin-inline:auto">
+        Articles sur la santé mentale, conseils pratiques, ressources sur l'identité et la diaspora.
+        Chaque semaine dans votre boîte mail.
+      </p>
+      <form class="newsletter__form newsletter-form" novalidate aria-label="Inscription à la newsletter">
+        <input type="email" class="form-input" placeholder="votre@email.com" aria-label="Votre adresse email" required>
+        <button type="submit" class="btn btn--primary">S'inscrire</button>
+      </form>
+      <p style="font-size:0.76rem; color:var(--text-muted); margin-top:var(--space-3); max-width:none">
+        🔒 Aucun spam · Désabonnement en un clic · RGPD respecté
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ────────────────────────────────────────────────── -->
+<footer class="footer" role="contentinfo">
+  <div class="container">
+    <div class="footer__grid">
+      <div class="footer__brand">
+        <h3>Nafsoléa</h3>
+        <p>Une plateforme de téléconsultation psychologique culturellement adaptée, pour la diaspora algérienne et maghrébine du monde entier.</p>
+        <div class="footer__socials" aria-label="Réseaux sociaux">
+          <a href="#" class="footer__social" aria-label="Instagram">📸</a>
+          <a href="#" class="footer__social" aria-label="LinkedIn">💼</a>
+          <a href="#" class="footer__social" aria-label="Facebook">📘</a>
+          <a href="#" class="footer__social" aria-label="TikTok">🎵</a>
+        </div>
+      </div>
+
+      <div class="footer__col">
+        <h5>Plateforme</h5>
+        <nav aria-label="Liens plateforme">
+          <ul class="footer__links">
+            <li><a href="comment-ca-marche.html" class="footer__link">Comment ça marche</a></li>
+            <li><a href="psychologues.html" class="footer__link">Nos psychologues</a></li>
+            <li><a href="rendez-vous.html" class="footer__link">Prendre rendez-vous</a></li>
+            <li><a href="faq.html" class="footer__link">FAQ</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="footer__col">
+        <h5>Ressources</h5>
+        <nav aria-label="Liens ressources">
+          <ul class="footer__links">
+            <li><a href="blog.html" class="footer__link">Blog santé mentale</a></li>
+            <li><a href="blog.html" class="footer__link">Expatriation & identité</a></li>
+            <li><a href="blog.html" class="footer__link">Relations familiales</a></li>
+            <li><a href="a-propos.html" class="footer__link">À propos de nous</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="footer__col">
+        <h5>Contact</h5>
+        <ul class="footer__links">
+          <li><a href="mailto:bonjour@nafsolea.com" class="footer__link">bonjour@nafsolea.com</a></li>
+          <li><span class="footer__link" style="cursor:default">Urgence : 15 (SAMU)</span></li>
+          <li><span class="footer__link" style="cursor:default">Prévention suicide : 3114</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer__bottom">
+      <p class="footer__copyright">© 2025 Nafsoléa. Tous droits réservés.</p>
+      <nav class="footer__legal" aria-label="Liens légaux">
+        <a href="#">Confidentialité</a>
+        <a href="#">CGU</a>
+        <a href="#">Mentions légales</a>
+        <a href="#">Cookies</a>
+      </nav>
+    </div>
+  </div>
+</footer>
+
+<!-- ── QUIZ MODAL ────────────────────────────────────────────── -->
+<div class="quiz-overlay" role="dialog" aria-modal="true" aria-labelledby="quiz-title">
+  <div class="quiz-modal">
+    <button class="quiz-modal__close" aria-label="Fermer le quiz">✕</button>
+    <div class="quiz-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+      <div class="quiz-progress__bar" style="width:0%"></div>
+    </div>
+    <span class="label quiz-step" aria-live="polite">Question 1/4</span>
+    <h3 id="quiz-title" class="quiz-question" style="margin:var(--space-4) 0 var(--space-2)">
+      Qu'est-ce qui vous amène à chercher un soutien psychologique ?
+    </h3>
+    <div class="quiz-options" role="group" aria-label="Options de réponse"></div>
+  </div>
+</div>
+
+<!-- ── SCROLL TO TOP ─────────────────────────────────────────── -->
+<button class="scroll-top" aria-label="Remonter en haut de la page" title="Haut de page">↑</button>
+
+<!-- ── COOKIE BANNER ─────────────────────────────────────────── -->
+<div class="cookie-banner" role="complementary" aria-label="Consentement cookies">
+  <p>Nous utilisons des cookies pour améliorer votre expérience et analyser notre trafic. Vos données sont traitées conformément au RGPD.</p>
+  <div class="cookie-banner__actions">
+    <button class="btn btn--primary btn--sm cookie-accept">Accepter</button>
+    <button class="btn btn--ghost btn--sm cookie-decline" style="color:rgba(255,255,255,0.6); border-color:rgba(255,255,255,0.2)">Refuser</button>
+  </div>
+</div>
+
+<script src="assets/js/api.js"></script>
+<script src="assets/js/auth.js"></script>
+<script src="assets/js/main.js" defer></script>
+</body>
+</html>

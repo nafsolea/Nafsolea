@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="L'histoire de Nafsoléa — une plateforme née d'un besoin réel : rendre la santé mentale accessible, culturellement adaptée et déstigmatisée pour la diaspora maghrébine.">
+  <title>À propos — Nafsoléa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <style>
+    .founder-section {
+      background: var(--off-white);
+    }
+
+    .founder-inner {
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      gap: var(--space-16);
+      align-items: start;
+    }
+
+    .founder-card {
+      background: white;
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+      position: sticky;
+      top: 96px;
+    }
+
+    .founder-card__photo {
+      aspect-ratio: 4/3;
+      background: linear-gradient(160deg, var(--sage-pale) 0%, var(--beige-mid) 50%, var(--sage-light) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 6rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .founder-card__photo::before {
+      content: 'نفس';
+      position: absolute;
+      right: -10px;
+      bottom: -20px;
+      font-size: 8rem;
+      color: rgba(124,158,138,0.12);
+      font-family: serif;
+      line-height: 1;
+    }
+
+    .founder-card__body {
+      padding: var(--space-6);
+    }
+
+    .founder-card__body h3 {
+      font-size: 1.3rem;
+      margin-bottom: var(--space-1);
+    }
+
+    .founder-card__role {
+      font-size: 0.85rem;
+      color: var(--sage-dark);
+      font-weight: 600;
+      margin-bottom: var(--space-4);
+    }
+
+    .founder-card__body p {
+      font-size: 0.88rem;
+      color: var(--text-light);
+      line-height: 1.7;
+      max-width: none;
+    }
+
+    .founder-content h2 { margin-bottom: var(--space-6); }
+
+    .founder-content p {
+      font-size: 1rem;
+      line-height: 1.85;
+      color: var(--text-mid);
+      margin-bottom: var(--space-5);
+      max-width: none;
+    }
+
+    .story-highlight {
+      background: var(--sage-pale);
+      border-left: 4px solid var(--sage);
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      padding: var(--space-5) var(--space-6);
+      margin: var(--space-8) 0;
+    }
+
+    .story-highlight p {
+      font-family: var(--font-heading);
+      font-style: italic;
+      font-size: 1.15rem;
+      color: var(--sage-dark);
+      margin: 0;
+    }
+
+    .mission-section {
+      background: var(--beige);
+    }
+
+    .mission-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-16);
+      align-items: center;
+    }
+
+    .mission-visual {
+      background: white;
+      border-radius: var(--radius-xl);
+      padding: var(--space-8);
+      box-shadow: var(--shadow-md);
+    }
+
+    .mission-stat {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+      padding: var(--space-4) 0;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .mission-stat:last-child { border-bottom: none; }
+
+    .mission-stat__num {
+      font-family: var(--font-heading);
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--sage-dark);
+      min-width: 80px;
+    }
+
+    .mission-stat__text {
+      font-size: 0.88rem;
+      color: var(--text-light);
+      line-height: 1.5;
+    }
+
+    .values-section {
+      background: var(--off-white);
+    }
+
+    .values-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: var(--space-5);
+    }
+
+    .team-section {
+      background: white;
+    }
+
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: var(--space-5);
+    }
+
+    .team-card {
+      text-align: center;
+      background: var(--off-white);
+      border-radius: var(--radius-xl);
+      padding: var(--space-6);
+      border: 1px solid var(--border-light);
+      transition: transform var(--tr), box-shadow var(--tr);
+    }
+
+    .team-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .team-card__avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--sage-light), var(--sage));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.2rem;
+      margin: 0 auto var(--space-4);
+    }
+
+    .team-card h4 { font-size: 1rem; margin-bottom: var(--space-1); }
+    .team-card__role { font-size: 0.8rem; color: var(--sage-dark); font-weight: 600; margin-bottom: var(--space-3); }
+    .team-card p { font-size: 0.82rem; color: var(--text-muted); max-width: none; }
+
+    .commitment-section {
+      background: linear-gradient(160deg, var(--text) 0%, #3a3530 100%);
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .commitment-section::before {
+      content: 'نفسوليا';
+      position: absolute;
+      left: -2%;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 14rem;
+      opacity: 0.04;
+      color: white;
+      font-family: serif;
+      line-height: 1;
+      pointer-events: none;
+    }
+
+    .commitment-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--space-6);
+      position: relative;
+      z-index: 1;
+    }
+
+    .commitment-item {
+      padding: var(--space-6);
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--radius-lg);
+      transition: background var(--tr);
+    }
+
+    .commitment-item:hover { background: rgba(255,255,255,0.10); }
+
+    .commitment-item__icon { font-size: 2rem; margin-bottom: var(--space-3); }
+    .commitment-item h4 { color: white; font-size: 1rem; margin-bottom: var(--space-2); }
+    .commitment-item p { color: rgba(255,255,255,0.6); font-size: 0.85rem; max-width: none; }
+
+    @media (max-width: 1024px) {
+      .founder-inner { grid-template-columns: 1fr; }
+      .founder-card { position: static; max-width: 480px; }
+      .mission-inner { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 640px) {
+      .founder-card__photo { font-size: 4rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVIGATION -->
+<nav class="nav">
+  <div class="nav__inner">
+    <a href="index.html" class="nav__logo">
+      <div class="nav__logo-mark" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 36 36" fill="none">
+          <circle cx="18" cy="18" r="5" fill="white"/>
+          <line x1="18" y1="2" x2="18" y2="10" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="18" y1="26" x2="18" y2="34" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="2" y1="18" x2="10" y2="18" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="26" y1="18" x2="34" y2="18" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="6.7" y1="6.7" x2="11.7" y2="11.7" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+          <line x1="24.3" y1="24.3" x2="29.3" y2="29.3" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+          <line x1="29.3" y1="6.7" x2="24.3" y2="11.7" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+          <line x1="11.7" y1="24.3" x2="6.7" y2="29.3" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+        </svg>
+      </div>
+      Nafsoléa
+    </a>
+    <ul class="nav__links">
+      <li><a href="comment-ca-marche.html" class="nav__link">Comment ça marche</a></li>
+      <li><a href="psychologues.html" class="nav__link">Nos psychologues</a></li>
+      <li><a href="blog.html" class="nav__link">Ressources</a></li>
+      <li><a href="a-propos.html" class="nav__link active">À propos</a></li>
+      <li><a href="faq.html" class="nav__link">FAQ</a></li>
+    </ul>
+    <div class="nav__actions">
+      <button class="nav__lang">FR | عربي</button>
+      <a href="rendez-vous.html" class="btn btn--primary btn--sm">Prendre RDV</a>
+    </div>
+    <button class="nav__hamburger" aria-label="Menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <div class="nav__mobile">
+    <a href="comment-ca-marche.html" class="nav__mobile-link">Comment ça marche</a>
+    <a href="psychologues.html" class="nav__mobile-link">Nos psychologues</a>
+    <a href="blog.html" class="nav__mobile-link">Ressources</a>
+    <a href="a-propos.html" class="nav__mobile-link">À propos</a>
+    <a href="faq.html" class="nav__mobile-link">FAQ</a>
+    <a href="rendez-vous.html" class="btn btn--primary" style="margin-top:0.5rem">Prendre rendez-vous</a>
+  </div>
+</nav>
+
+<!-- PAGE HERO -->
+<section class="page-hero">
+  <div class="container container--narrow">
+    <span class="label">Notre histoire</span>
+    <h1>Pourquoi Nafsoléa existe</h1>
+    <p>Nafsoléa est née d'une conviction simple : prendre soin de sa santé mentale est un droit — pas un luxe, pas une honte, pas un tabou.</p>
+  </div>
+</section>
+
+<!-- HISTOIRE FONDATRICE -->
+<section class="founder-section section" aria-labelledby="story-title">
+  <div class="container">
+    <div class="founder-inner">
+
+      <!-- Founder card -->
+      <div class="founder-card reveal">
+        <div class="founder-card__photo" aria-hidden="true">🌿</div>
+        <div class="founder-card__body">
+          <h3>Yasmine Bouras</h3>
+          <div class="founder-card__role">Fondatrice & Directrice de Nafsoléa</div>
+          <p>Psychologue clinicienne, diplômée de Paris-VIII. Après 5 ans en cabinet à Paris et des années à écouter des patients coincés entre deux cultures, Yasmine a fondé Nafsoléa pour que personne ne soit obligé de choisir entre son identité et sa santé mentale.</p>
+        </div>
+      </div>
+
+      <!-- Story content -->
+      <div class="founder-content">
+        <span class="label">Le commencement</span>
+        <h2 id="story-title">Une histoire qui ressemble à la vôtre</h2>
+
+        <p>
+          Yasmine Bouras avait 26 ans quand elle a réalisé qu'elle avait besoin d'aide. Pas une aide médicale, pas une aide financière — juste quelqu'un à qui parler. Vraiment parler. En arabe parfois, en français d'autres fois. Quelqu'un qui n'aurait pas besoin qu'elle explique pourquoi la honte familiale est aussi lourde à porter que la dépression elle-même.
+        </p>
+
+        <p>
+          Elle a cherché. Longtemps. Et ce qu'elle a trouvé, c'était des cabinets pris d'assaut avec des mois d'attente, des thérapeutes qui hochaient la tête poliment mais ne comprenaient pas vraiment les dynamiques des familles algériennes, et une conviction sociale profonde que "chez nous, on ne fait pas ça".
+        </p>
+
+        <div class="story-highlight">
+          <p>"Je voulais un espace où je n'aurais pas à traduire mon âme avant de parler de ma douleur."</p>
+        </div>
+
+        <p>
+          Devenue psychologue à son tour, Yasmine a passé des années à recevoir cette même souffrance dans son cabinet parisien. Des femmes qui venaient en secret. Des hommes qui appelaient depuis leurs voitures pour ne pas être entendus. Des étudiants déracinés qui ne savaient plus à quel monde ils appartenaient.
+        </p>
+
+        <p>
+          En 2024, avec une équipe de thérapeutes arabophones et une vision claire, elle a lancé Nafsoléa — dont le nom vient du mot arabe <em>نفس</em> (nafs), qui signifie "âme", "souffle", "soi". Une plateforme pensée de l'intérieur, par des personnes qui ont vécu les mêmes réalités que leurs patients.
+        </p>
+
+        <p>
+          Aujourd'hui, Nafsoléa accompagne des centaines de personnes depuis la France, l'Algérie, la Belgique, le Canada — partout où il y a une âme qui cherche à être entendue sans avoir à s'excuser d'exister.
+        </p>
+
+        <div class="btn-group" style="margin-top:var(--space-6)">
+          <a href="rendez-vous.html" class="btn btn--primary">Commencer maintenant</a>
+          <a href="psychologues.html" class="btn btn--secondary">Rencontrer l'équipe</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MISSION -->
+<section class="mission-section section" aria-labelledby="mission-title">
+  <div class="container">
+    <div class="mission-inner">
+
+      <div>
+        <span class="label">Ce qui nous guide</span>
+        <h2 id="mission-title">Notre mission</h2>
+        <p class="lead" style="max-width:none">
+          Rendre la santé mentale accessible, culturellement adaptée et déstigmatisée pour toute personne issue des cultures maghrébines — en Algérie et dans la diaspora.
+        </p>
+
+        <blockquote class="about-quote">
+          Prendre soin de son âme n'est pas une faiblesse. C'est l'acte le plus courageux qui soit.
+        </blockquote>
+
+        <p style="color:var(--text-light); font-size:0.95rem; max-width:none">
+          Nous croyons que chaque personne mérite un espace sûr, confidentiel et non jugeant pour traverser les moments difficiles de la vie — qu'il s'agisse d'anxiété, de deuil, de rupture, de pression familiale ou simplement du poids de vivre entre deux mondes.
+        </p>
+      </div>
+
+      <div class="mission-visual reveal">
+        <div style="font-size:0.85rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--text-muted); margin-bottom:var(--space-5)">Nafsoléa en chiffres</div>
+        <div class="mission-stat">
+          <div class="mission-stat__num" data-counter="850" data-suffix="+">850+</div>
+          <div class="mission-stat__text">Patients accompagnés depuis le lancement, dans 15 pays différents</div>
+        </div>
+        <div class="mission-stat">
+          <div class="mission-stat__num" data-counter="28" data-suffix="">28</div>
+          <div class="mission-stat__text">Psychologues certifiés, arabophones et francophones, sélectionnés avec soin</div>
+        </div>
+        <div class="mission-stat">
+          <div class="mission-stat__num" data-counter="98" data-suffix="%">98%</div>
+          <div class="mission-stat__text">De patients satisfaits après leur première séance sur la plateforme</div>
+        </div>
+        <div class="mission-stat">
+          <div class="mission-stat__num" data-counter="4200" data-suffix="">4.2k</div>
+          <div class="mission-stat__text">Séances réalisées — chaque séance, une histoire de courage</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- VALEURS -->
+<section class="values-section section" aria-labelledby="values-title">
+  <div class="container">
+    <div class="section-header">
+      <span class="label">Ce en quoi nous croyons</span>
+      <h2 id="values-title">Nos valeurs fondatrices</h2>
+      <p>Ces valeurs ne sont pas des slogans. Ce sont les principes qui guident chaque décision que nous prenons.</p>
+    </div>
+
+    <div class="values-grid">
+      <article class="value-card reveal">
+        <div class="value-card__icon">🤝</div>
+        <div>
+          <h4>Dignité</h4>
+          <p>Chaque patient est reçu avec respect, quelle que soit sa situation, son niveau d'éducation, son histoire ou ses croyances. Ici, on ne juge pas — on accueille.</p>
+        </div>
+      </article>
+
+      <article class="value-card reveal reveal-delay-1">
+        <div class="value-card__icon">🌍</div>
+        <div>
+          <h4>Sensibilité culturelle</h4>
+          <p>Nos thérapeutes comprennent les dynamiques familiales maghrébines, le poids de la tradition, la dualité culturelle de l'expatriation. Ils parlent votre langue — au sens propre comme au sens figuré.</p>
+        </div>
+      </article>
+
+      <article class="value-card reveal reveal-delay-2">
+        <div class="value-card__icon">🔐</div>
+        <div>
+          <h4>Confidentialité absolue</h4>
+          <p>Le secret professionnel est inviolable. Aucune donnée ne sera jamais partagée, vendue ou transmise à qui que ce soit. C'est une promesse, pas une politique de confidentialité.</p>
+        </div>
+      </article>
+
+      <article class="value-card reveal reveal-delay-3">
+        <div class="value-card__icon">🎓</div>
+        <div>
+          <h4>Excellence clinique</h4>
+          <p>Tous nos thérapeutes sont diplômés d'État, supervisés régulièrement et soumis à un code de déontologie rigoureux. La qualité de soin n'est pas négociable.</p>
+        </div>
+      </article>
+
+      <article class="value-card reveal">
+        <div class="value-card__icon">💚</div>
+        <div>
+          <h4>Accessibilité</h4>
+          <p>Nous travaillons activement pour rendre nos tarifs accessibles, proposer des solutions de remboursement et ne jamais laisser l'argent être un obstacle au soin.</p>
+        </div>
+      </article>
+
+      <article class="value-card reveal reveal-delay-1">
+        <div class="value-card__icon">✨</div>
+        <div>
+          <h4>Déstigmatisation</h4>
+          <p>Nous portons un discours public sur la santé mentale dans les cultures arabophones — à travers nos ressources, notre blog et notre présence sur les réseaux sociaux.</p>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ÉQUIPE -->
+<section class="team-section section" aria-labelledby="team-title">
+  <div class="container">
+    <div class="section-header">
+      <span class="label">Les humains derrière Nafsoléa</span>
+      <h2 id="team-title">L'équipe fondatrice</h2>
+      <p>Une équipe pluridisciplinaire, animée par la même conviction : la santé mentale est un droit universel.</p>
+    </div>
+
+    <div class="team-grid">
+      <article class="team-card reveal">
+        <div class="team-card__avatar">🌿</div>
+        <h4>Yasmine Bouras</h4>
+        <div class="team-card__role">Fondatrice & DG</div>
+        <p>Psychologue clinicienne, Paris-VIII. 7 ans en cabinet, expatriée, fondatrice.</p>
+      </article>
+
+      <article class="team-card reveal reveal-delay-1">
+        <div class="team-card__avatar">💻</div>
+        <h4>Amine Zidane</h4>
+        <div class="team-card__role">CTO & Co-fondateur</div>
+        <p>Ingénieur logiciel. Architecte de la plateforme sécurisée Nafsoléa.</p>
+      </article>
+
+      <article class="team-card reveal reveal-delay-2">
+        <div class="team-card__avatar">📊</div>
+        <h4>Sarah Lemaire</h4>
+        <div class="team-card__role">Directrice des opérations</div>
+        <p>10 ans dans la healthtech. Garant de la qualité et de l'expérience patient.</p>
+      </article>
+
+      <article class="team-card reveal reveal-delay-3">
+        <div class="team-card__avatar">🎨</div>
+        <h4>Rania Mekki</h4>
+        <div class="team-card__role">Directrice de la communication</div>
+        <p>Spécialiste en marketing de la santé et déstigmatisation digitale.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ENGAGEMENTS -->
+<section class="commitment-section section" aria-labelledby="commitment-title">
+  <div class="container">
+    <div class="section-header">
+      <span class="label" style="color:var(--sage-light)">Nos promesses</span>
+      <h2 id="commitment-title" style="color:white">Ce à quoi nous nous engageons</h2>
+      <p style="color:rgba(255,255,255,0.7)">Des engagements concrets, pas des promesses marketing.</p>
+    </div>
+
+    <div class="commitment-grid">
+      <div class="commitment-item reveal">
+        <div class="commitment-item__icon">🔒</div>
+        <h4>Jamais vendre vos données</h4>
+        <p>Vos informations personnelles et le contenu de vos séances n'appartiennent qu'à vous. Jamais à des annonceurs, assureurs ou employeurs.</p>
+      </div>
+
+      <div class="commitment-item reveal reveal-delay-1">
+        <div class="commitment-item__icon">🎓</div>
+        <h4>Toujours vérifier nos psys</h4>
+        <p>Chaque thérapeute est vérifié, diplômé et supervisé avant de rejoindre la plateforme. Ce processus est continu, pas ponctuel.</p>
+      </div>
+
+      <div class="commitment-item reveal reveal-delay-2">
+        <div class="commitment-item__icon">💬</div>
+        <h4>Rester à votre écoute</h4>
+        <p>Notre équipe support répond sous 24h. Si quelque chose ne va pas avec votre séance, nous le réglons — sans discussion.</p>
+      </div>
+
+      <div class="commitment-item reveal reveal-delay-3">
+        <div class="commitment-item__icon">🌱</div>
+        <h4>Militer pour la santé mentale</h4>
+        <p>Nous ne faisons pas que vendre des séances. Nous publions des ressources gratuites, sensibilisons les communautés, brisons les tabous.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section section">
+  <div class="container">
+    <h2>Rejoignez des centaines de personnes qui ont fait le choix de se soigner</h2>
+    <p>Votre première séance est gratuite. Pas d'engagement. Juste un premier pas.</p>
+    <div class="btn-group" style="justify-content:center">
+      <a href="rendez-vous.html" class="btn btn--terracotta btn--lg">Réserver ma séance gratuite</a>
+      <a href="psychologues.html" class="btn btn--ghost" style="color:rgba(255,255,255,0.8); border-color:rgba(255,255,255,0.25)">Rencontrer nos psys</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer__grid">
+      <div class="footer__brand">
+        <h3>Nafsoléa</h3>
+        <p>Une plateforme de téléconsultation psychologique culturellement adaptée pour la diaspora algérienne et maghrébine.</p>
+        <div class="footer__socials">
+          <a href="#" class="footer__social">📸</a>
+          <a href="#" class="footer__social">💼</a>
+          <a href="#" class="footer__social">📘</a>
+        </div>
+      </div>
+      <div class="footer__col">
+        <h5>Plateforme</h5>
+        <ul class="footer__links">
+          <li><a href="comment-ca-marche.html" class="footer__link">Comment ça marche</a></li>
+          <li><a href="psychologues.html" class="footer__link">Nos psychologues</a></li>
+          <li><a href="rendez-vous.html" class="footer__link">Prendre rendez-vous</a></li>
+          <li><a href="faq.html" class="footer__link">FAQ</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h5>Ressources</h5>
+        <ul class="footer__links">
+          <li><a href="blog.html" class="footer__link">Blog santé mentale</a></li>
+          <li><a href="a-propos.html" class="footer__link">À propos</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h5>Urgence</h5>
+        <ul class="footer__links">
+          <li><span class="footer__link" style="cursor:default">SAMU : 15</span></li>
+          <li><span class="footer__link" style="cursor:default">Suicide : 3114</span></li>
+          <li><a href="mailto:bonjour@nafsolea.com" class="footer__link">bonjour@nafsolea.com</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <p class="footer__copyright">© 2025 Nafsoléa. Tous droits réservés.</p>
+      <nav class="footer__legal">
+        <a href="#">Confidentialité</a>
+        <a href="#">CGU</a>
+        <a href="#">Mentions légales</a>
+      </nav>
+    </div>
+  </div>
+</footer>
+
+<button class="scroll-top" aria-label="Haut de page">↑</button>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/auth.js"></script>
+<script src="assets/js/main.js" defer></script>
+</body>
+</html>

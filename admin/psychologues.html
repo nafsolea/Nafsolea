@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Psychologues — Admin Nafsoléa</title>
+  <link rel="stylesheet" href="../assets/css/admin.css">
+</head>
+<body>
+<div class="admin-layout">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar" id="sidebar">
+    <a href="index.html" class="sidebar__logo">
+      <div class="sidebar__logo-mark">
+        <svg width="16" height="16" viewBox="0 0 36 36" fill="none">
+          <circle cx="18" cy="18" r="5" fill="white"/>
+          <line x1="18" y1="2" x2="18" y2="10" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="18" y1="26" x2="18" y2="34" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="2" y1="18" x2="10" y2="18" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="26" y1="18" x2="34" y2="18" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <span class="sidebar__logo-text">Nafsoléa</span>
+      <span class="sidebar__logo-badge">Admin</span>
+    </a>
+    <nav class="sidebar__nav">
+      <span class="sidebar__section">Principal</span>
+      <a href="index.html" class="sidebar__link"><span class="link-icon">📊</span> Dashboard</a>
+      <span class="sidebar__section">Gestion</span>
+      <a href="utilisateurs.html" class="sidebar__link"><span class="link-icon">👥</span> Utilisateurs</a>
+      <a href="psychologues.html" class="sidebar__link active"><span class="link-icon">🧠</span> Psychologues
+        <span class="sidebar__badge" id="pendingBadge" style="display:none"></span>
+      </a>
+      <a href="rendez-vous.html" class="sidebar__link"><span class="link-icon">📅</span> Rendez-vous</a>
+      <a href="paiements.html" class="sidebar__link"><span class="link-icon">💳</span> Paiements</a>
+      <span class="sidebar__section">Contenu</span>
+      <a href="blog.html" class="sidebar__link"><span class="link-icon">📝</span> Blog / Articles</a>
+      <span class="sidebar__section">Système</span>
+      <a href="audit.html" class="sidebar__link"><span class="link-icon">🔍</span> Audit logs</a>
+      <a href="../index.html" class="sidebar__link" target="_blank"><span class="link-icon">🌐</span> Voir le site</a>
+    </nav>
+    <div class="sidebar__footer">
+      <div class="sidebar__user">
+        <div class="sidebar__avatar">A</div>
+        <div class="sidebar__user-info">
+          <div class="sidebar__user-name">Administrateur</div>
+          <div class="sidebar__user-role">Admin</div>
+        </div>
+      </div>
+      <button class="sidebar__logout" id="logoutBtn"><span>🚪</span> Se déconnecter</button>
+    </div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <main class="admin-main">
+    <div class="topbar">
+      <div class="topbar__left">
+        <h1 class="topbar__title">Psychologues</h1>
+        <span class="topbar__breadcrumb" id="totalLabel">Chargement…</span>
+      </div>
+      <div class="topbar__right">
+        <div class="search-input-wrap">
+          <span class="icon">🔍</span>
+          <input type="text" id="searchInput" placeholder="Nom, email, spécialité…">
+        </div>
+        <select class="filter-select" id="statusFilter">
+          <option value="">Tous les statuts</option>
+          <option value="PENDING">En attente</option>
+          <option value="APPROVED">Approuvés</option>
+          <option value="REJECTED">Rejetés</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="page-content">
+
+      <!-- Stats -->
+      <div class="stats-grid" id="statsGrid" style="grid-template-columns:repeat(3,1fr)">
+        <div class="stat-card yellow skeleton" style="height:100px"></div>
+        <div class="stat-card green skeleton" style="height:100px"></div>
+        <div class="stat-card rose skeleton" style="height:100px"></div>
+      </div>
+
+      <!-- Table -->
+      <div class="card">
+        <div class="card__header">
+          <span class="card__title">Liste des psychologues</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Psychologue</th>
+                <th>Email</th>
+                <th>Spécialités</th>
+                <th>Statut</th>
+                <th>Inscrit le</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="psyTable">
+              <tr><td colspan="6"><div class="skeleton" style="height:14px;margin:12px 16px"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card__footer">
+          <div class="pagination">
+            <span class="pagination__info" id="paginationInfo"></span>
+            <div class="pagination__pages" id="paginationPages"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Approve/Reject modal -->
+<div class="modal-overlay" id="actionModal">
+  <div class="modal">
+    <div class="modal__header">
+      <span class="modal__title" id="modalTitle">Confirmer</span>
+      <button class="modal__close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal__body">
+      <p id="modalBody" style="color:var(--text-muted);margin-bottom:12px;line-height:1.6"></p>
+      <div id="rejectReasonWrap" style="display:none">
+        <label style="font-size:.82rem;font-weight:600;display:block;margin-bottom:6px">Motif du rejet (optionnel)</label>
+        <textarea id="rejectReason" class="form-input" rows="3" placeholder="Diplôme non reconnu, informations incomplètes…" style="resize:vertical;font-family:inherit"></textarea>
+      </div>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn-outline" onclick="closeModal()">Annuler</button>
+      <button class="btn btn-danger" id="modalConfirmBtn">Confirmer</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="../assets/js/api.js"></script>
+<script src="../assets/js/auth.js"></script>
+<script>
+  if (!Auth.requireRole('ADMIN')) {}
+  document.getElementById('logoutBtn').addEventListener('click', () => Auth.logout());
+
+  let currentPage = 1;
+  let searchTimeout;
+  let pendingAction = null;
+  let allPsys = [];
+
+  function toast(msg, type = 'success') {
+    const t = document.createElement('div');
+    t.className = `toast ${type}`;
+    t.textContent = msg;
+    document.getElementById('toastContainer').appendChild(t);
+    requestAnimationFrame(() => t.classList.add('show'));
+    setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 400); }, 3500);
+  }
+
+  function fmtDate(d) {
+    if (!d) return '—';
+    return new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' });
+  }
+
+  function statusBadge(s) {
+    const map = { PENDING: ['pending', 'En attente'], APPROVED: ['approved', 'Approuvé'], REJECTED: ['rejected', 'Rejeté'] };
+    const [cls, label] = map[s] || ['inactive', s];
+    return `<span class="badge ${cls}">${label}</span>`;
+  }
+
+  function initials(p) {
+    return ((p.firstName?.[0] || '') + (p.lastName?.[0] || '')).toUpperCase() || '?';
+  }
+
+  // ── Load ──────────────────────────────────────────────────────────
+  async function loadPsychologists() {
+    try {
+      // Load all psychologists via users endpoint filtered by role
+      const res = await API.admin.users({ role: 'PSYCHOLOGIST', limit: 200 });
+      allPsys = (res.data || []).map(u => ({
+        ...u.psychologist,
+        userId: u.id,
+        email: u.email,
+        createdAt: u.createdAt,
+        isActive: u.isActive,
+      })).filter(p => p.id);
+
+      // Count by status
+      const counts = { PENDING: 0, APPROVED: 0, REJECTED: 0 };
+      allPsys.forEach(p => { if (counts[p.status] !== undefined) counts[p.status]++; });
+
+      // Stats
+      document.getElementById('statsGrid').innerHTML = `
+        <div class="stat-card yellow">
+          <div class="stat-card__header"><span class="stat-card__label">En attente</span><div class="stat-card__icon">⏳</div></div>
+          <div class="stat-card__value">${counts.PENDING}</div>
+          <div class="stat-card__trend ${counts.PENDING > 0 ? 'up' : ''}">Validation requise</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-card__header"><span class="stat-card__label">Approuvés</span><div class="stat-card__icon">✅</div></div>
+          <div class="stat-card__value">${counts.APPROVED}</div>
+          <div class="stat-card__trend up">Actifs sur la plateforme</div>
+        </div>
+        <div class="stat-card rose">
+          <div class="stat-card__header"><span class="stat-card__label">Rejetés</span><div class="stat-card__icon">❌</div></div>
+          <div class="stat-card__value">${counts.REJECTED}</div>
+          <div class="stat-card__trend">Profils non validés</div>
+        </div>
+      `;
+
+      // Pending badge in sidebar
+      if (counts.PENDING > 0) {
+        const b = document.getElementById('pendingBadge');
+        b.textContent = counts.PENDING;
+        b.style.display = '';
+      }
+
+      renderTable();
+    } catch (err) {
+      toast('Erreur: ' + err.message, 'error');
+    }
+  }
+
+  function renderTable() {
+    const search = document.getElementById('searchInput').value.toLowerCase().trim();
+    const statusF = document.getElementById('statusFilter').value;
+
+    let filtered = allPsys;
+    if (statusF) filtered = filtered.filter(p => p.status === statusF);
+    if (search) filtered = filtered.filter(p =>
+      `${p.firstName} ${p.lastName} ${p.email}`.toLowerCase().includes(search)
+    );
+
+    document.getElementById('totalLabel').textContent = `${filtered.length} psychologue${filtered.length !== 1 ? 's' : ''}`;
+
+    if (!filtered.length) {
+      document.getElementById('psyTable').innerHTML = `
+        <tr><td colspan="6">
+          <div class="empty-state"><span class="empty-state__icon">🧠</span><span class="empty-state__title">Aucun psychologue trouvé</span></div>
+        </td></tr>`;
+      document.getElementById('paginationInfo').textContent = '';
+      document.getElementById('paginationPages').innerHTML = '';
+      return;
+    }
+
+    const perPage = 15;
+    const pages = Math.ceil(filtered.length / perPage);
+    currentPage = Math.min(currentPage, pages);
+    const slice = filtered.slice((currentPage - 1) * perPage, currentPage * perPage);
+
+    document.getElementById('psyTable').innerHTML = slice.map(p => `
+      <tr>
+        <td>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:34px;height:34px;background:var(--blue-pale);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.82rem;color:var(--navy);flex-shrink:0">${initials(p)}</div>
+            <div>
+              <div class="td-bold">${p.firstName || ''} ${p.lastName || ''}</div>
+              <div class="td-muted" style="font-size:.75rem">${p.title || 'Psychologue'}</div>
+            </div>
+          </div>
+        </td>
+        <td class="td-muted">${p.email || '—'}</td>
+        <td>
+          <div style="display:flex;flex-wrap:wrap;gap:4px">
+            ${(p.specialties || []).slice(0, 2).map(s => `<span class="badge" style="font-size:.7rem">${s}</span>`).join('')}
+            ${(p.specialties || []).length > 2 ? `<span class="td-muted" style="font-size:.75rem">+${p.specialties.length - 2}</span>` : ''}
+          </div>
+        </td>
+        <td>${statusBadge(p.status)}</td>
+        <td class="td-muted">${fmtDate(p.createdAt)}</td>
+        <td>
+          <div class="actions-cell">
+            ${p.status === 'PENDING' ? `
+              <button class="btn btn-success btn-sm" onclick="doApprove('${p.id}', '${p.firstName} ${p.lastName}')">✓ Valider</button>
+              <button class="btn btn-danger btn-sm" onclick="doReject('${p.id}', '${p.firstName} ${p.lastName}')">✗ Rejeter</button>
+            ` : ''}
+            ${p.status === 'APPROVED' ? `
+              <button class="btn-action danger" title="Rejeter" onclick="doReject('${p.id}', '${p.firstName} ${p.lastName}')">🚫</button>
+            ` : ''}
+            ${p.status === 'REJECTED' ? `
+              <button class="btn btn-success btn-sm" onclick="doApprove('${p.id}', '${p.firstName} ${p.lastName}')">↩ Réactiver</button>
+            ` : ''}
+          </div>
+        </td>
+      </tr>
+    `).join('');
+
+    // Pagination
+    document.getElementById('paginationInfo').textContent =
+      `Page ${currentPage} sur ${pages} · ${filtered.length} résultats`;
+
+    const pagesEl = document.getElementById('paginationPages');
+    pagesEl.innerHTML = '';
+    if (pages > 1) {
+      const addBtn = (label, p, disabled = false) => {
+        const btn = document.createElement('button');
+        btn.className = 'page-btn' + (p === currentPage ? ' active' : '');
+        btn.textContent = label;
+        btn.disabled = disabled;
+        btn.addEventListener('click', () => { currentPage = p; renderTable(); });
+        pagesEl.appendChild(btn);
+      };
+      addBtn('←', currentPage - 1, currentPage === 1);
+      for (let i = 1; i <= pages; i++) {
+        if (i === 1 || i === pages || Math.abs(i - currentPage) <= 1) addBtn(i, i);
+        else if (Math.abs(i - currentPage) === 2) { const s = document.createElement('span'); s.textContent = '…'; s.style.padding = '0 4px'; pagesEl.appendChild(s); }
+      }
+      addBtn('→', currentPage + 1, currentPage === pages);
+    }
+  }
+
+  // ── Actions ───────────────────────────────────────────────────────
+  function doApprove(id, name) {
+    document.getElementById('modalTitle').textContent = 'Valider le profil';
+    document.getElementById('modalBody').textContent = `Voulez-vous valider le profil de "${name}" ? Il pourra accepter des patients.`;
+    document.getElementById('modalConfirmBtn').textContent = 'Valider';
+    document.getElementById('modalConfirmBtn').className = 'btn btn-success';
+    document.getElementById('rejectReasonWrap').style.display = 'none';
+    pendingAction = async () => {
+      try {
+        await API.admin.approve(id);
+        toast(`${name} validé(e) ✓`);
+        closeModal();
+        loadPsychologists();
+      } catch (e) { toast(e.message, 'error'); }
+    };
+    document.getElementById('actionModal').classList.add('show');
+  }
+
+  function doReject(id, name) {
+    document.getElementById('modalTitle').textContent = 'Rejeter le profil';
+    document.getElementById('modalBody').textContent = `Voulez-vous rejeter le profil de "${name}" ?`;
+    document.getElementById('modalConfirmBtn').textContent = 'Rejeter';
+    document.getElementById('modalConfirmBtn').className = 'btn btn-danger';
+    document.getElementById('rejectReasonWrap').style.display = '';
+    document.getElementById('rejectReason').value = '';
+    pendingAction = async () => {
+      const reason = document.getElementById('rejectReason').value.trim();
+      try {
+        await API.admin.reject(id, reason);
+        toast(`Profil de ${name} rejeté`, 'warning');
+        closeModal();
+        loadPsychologists();
+      } catch (e) { toast(e.message, 'error'); }
+    };
+    document.getElementById('actionModal').classList.add('show');
+  }
+
+  document.getElementById('modalConfirmBtn').addEventListener('click', () => { if (pendingAction) pendingAction(); });
+
+  function closeModal() {
+    document.getElementById('actionModal').classList.remove('show');
+    pendingAction = null;
+  }
+
+  // ── Search & filter ───────────────────────────────────────────────
+  document.getElementById('searchInput').addEventListener('input', () => {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => { currentPage = 1; renderTable(); }, 300);
+  });
+  document.getElementById('statusFilter').addEventListener('change', () => { currentPage = 1; renderTable(); });
+
+  loadPsychologists();
+</script>
+</body>
+</html>

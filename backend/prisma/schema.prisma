@@ -1,0 +1,389 @@
+// ─── Nafsoléa — Prisma Schema ─────────────────────────────────────
+// PostgreSQL · Prisma ORM
+// Health data: RGPD compliant, consultation notes AES-256 encrypted at app level
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ────────────────────────────────────────────────────────
+
+enum UserRole {
+  PATIENT
+  PSYCHOLOGIST
+  ADMIN
+}
+
+enum PsychologistStatus {
+  PENDING    // awaiting admin validation
+  APPROVED
+  REJECTED
+  SUSPENDED
+}
+
+enum AppointmentStatus {
+  PENDING_PAYMENT             // slot reserved, awaiting payment (15-min hold)
+  CONFIRMED                   // payment succeeded
+  IN_PROGRESS                 // session currently running
+  COMPLETED                   // session ended
+  CANCELLED_BY_PATIENT
+  CANCELLED_BY_PSYCHOLOGIST
+  NO_SHOW
+  EXPIRED                     // payment window lapsed, slot released
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+enum ArticleStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum NotificationType {
+  APPOINTMENT_CONFIRMED
+  APPOINTMENT_REMINDER_24H
+  APPOINTMENT_REMINDER_1H
+  APPOINTMENT_CANCELLED
+  PAYMENT_SUCCEEDED
+  PAYMENT_FAILED
+  PAYMENT_REFUNDED
+  PSYCHOLOGIST_APPROVED
+  PSYCHOLOGIST_REJECTED
+  NEW_REVIEW
+  SYSTEM
+}
+
+// ─── Users ────────────────────────────────────────────────────────
+
+model User {
+  id                   String    @id @default(cuid())
+  email                String    @unique
+  passwordHash         String    @map("password_hash")
+  role                 UserRole  @default(PATIENT)
+  isActive             Boolean   @default(true) @map("is_active")
+  emailVerifiedAt      DateTime? @map("email_verified_at")
+  emailVerifyToken     String?   @unique @map("email_verify_token")
+  resetPasswordToken   String?   @unique @map("reset_password_token")
+  resetPasswordExpires DateTime? @map("reset_password_expires")
+  lastLoginAt          DateTime? @map("last_login_at")
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime  @updatedAt @map("updated_at")
+
+  patient      Patient?
+  psychologist Psychologist?
+  refreshTokens RefreshToken[]
+  notifications Notification[]
+  auditLogs    AuditLog[]
+  articles     Article[]
+
+  @@index([email])
+  @@map("users")
+}
+
+// ─── Patients ─────────────────────────────────────────────────────
+
+model Patient {
+  id                String    @id @default(cuid())
+  userId            String    @unique @map("user_id")
+  firstName         String    @map("first_name")
+  lastName          String    @map("last_name")
+  dateOfBirth       DateTime? @map("date_of_birth")
+  phone             String?
+  languages         String[]  // ['fr', 'ar', 'en', 'ber']
+  preferredLanguage String    @default("fr") @map("preferred_language")
+  timezone          String    @default("Europe/Paris")
+  issues            String[]  // ['anxiety', 'depression', 'immigration_stress', 'grief', 'couples']
+  avatarUrl         String?   @map("avatar_url")
+  // RGPD
+  gdprConsentAt     DateTime? @map("gdpr_consent_at")
+  dataRetentionDate DateTime? @map("data_retention_date") // auto-delete date
+  anonymizedAt      DateTime? @map("anonymized_at")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  appointments Appointment[]
+  payments     Payment[]
+  reviews      Review[]
+
+  @@map("patients")
+}
+
+// ─── Psychologists ────────────────────────────────────────────────
+
+model Psychologist {
+  id              String             @id @default(cuid())
+  userId          String             @unique @map("user_id")
+  firstName       String             @map("first_name")
+  lastName        String             @map("last_name")
+  title           String             @default("Psychologue") // "Psychologue clinicien", "Dr."
+  bio             String?            @db.Text
+  specialties     String[]           // ['anxiety', 'trauma', 'couples', 'child', 'addiction']
+  languages       String[]           // ['fr', 'ar', 'en', 'ber']
+  timezone        String             @default("Europe/Paris")
+  avatarUrl       String?            @map("avatar_url")
+  diplomaUrl      String?            @map("diploma_url")   // S3 key (not public URL)
+  rppsNumber      String?            @map("rpps_number")   // French/EU registration number
+  yearsExperience Int?               @map("years_experience")
+  sessionRate     Decimal            @db.Decimal(10, 2) @map("session_rate") // EUR
+  sessionDuration Int                @default(60) @map("session_duration")   // minutes
+  status          PsychologistStatus @default(PENDING)
+  approvedAt      DateTime?          @map("approved_at")
+  approvedById    String?            @map("approved_by_id")
+  rejectionReason String?            @map("rejection_reason")
+  stripeAccountId String?            @map("stripe_account_id") // Stripe Connect
+  averageRating   Decimal?           @db.Decimal(3, 2) @map("average_rating")
+  totalSessions   Int                @default(0) @map("total_sessions")
+  createdAt       DateTime           @default(now()) @map("created_at")
+  updatedAt       DateTime           @updatedAt @map("updated_at")
+
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  availabilitySlots AvailabilitySlot[]
+  blockedSlots      BlockedSlot[]
+  appointments      Appointment[]
+  consultationNotes ConsultationNote[]
+  reviews           Review[]
+
+  @@index([status])
+  @@map("psychologists")
+}
+
+// ─── Availability ─────────────────────────────────────────────────
+
+model AvailabilitySlot {
+  id              String       @id @default(cuid())
+  psychologistId  String       @map("psychologist_id")
+  dayOfWeek       Int          @map("day_of_week") // 0=Sun, 1=Mon … 6=Sat
+  startTime       String       @map("start_time")  // "09:00"
+  endTime         String       @map("end_time")    // "17:00"
+  isActive        Boolean      @default(true) @map("is_active")
+
+  psychologist Psychologist @relation(fields: [psychologistId], references: [id], onDelete: Cascade)
+
+  @@unique([psychologistId, dayOfWeek, startTime])
+  @@map("availability_slots")
+}
+
+// One-off blocked periods (vacations, sick days, etc.)
+model BlockedSlot {
+  id             String       @id @default(cuid())
+  psychologistId String       @map("psychologist_id")
+  startsAt       DateTime     @map("starts_at")
+  endsAt         DateTime     @map("ends_at")
+  reason         String?
+
+  psychologist Psychologist @relation(fields: [psychologistId], references: [id], onDelete: Cascade)
+
+  @@index([psychologistId, startsAt])
+  @@map("blocked_slots")
+}
+
+// ─── Appointments ─────────────────────────────────────────────────
+
+model Appointment {
+  id                 String            @id @default(cuid())
+  patientId          String            @map("patient_id")
+  psychologistId     String            @map("psychologist_id")
+  scheduledAt        DateTime          @map("scheduled_at")     // UTC
+  durationMinutes    Int               @default(60) @map("duration_minutes")
+  status             AppointmentStatus @default(PENDING_PAYMENT)
+  // Video
+  videoRoomName      String?           @unique @map("video_room_name")   // Daily.co room name
+  videoRoomUrl       String?           @map("video_room_url")
+  patientToken       String?           @map("patient_token")             // encrypted
+  psychologistToken  String?           @map("psychologist_token")        // encrypted
+  // Patient input
+  patientNotes       String?           @map("patient_notes") @db.Text
+  // Cancellation
+  cancellationReason String?           @map("cancellation_reason")
+  cancelledAt        DateTime?         @map("cancelled_at")
+  cancelledBy        UserRole?         @map("cancelled_by")
+  // Reminders
+  reminderSent24h    Boolean           @default(false) @map("reminder_sent_24h")
+  reminderSent1h     Boolean           @default(false) @map("reminder_sent_1h")
+  // Lifecycle
+  paymentExpireAt    DateTime?         @map("payment_expire_at") // +15min from creation
+  startedAt          DateTime?         @map("started_at")
+  completedAt        DateTime?         @map("completed_at")
+  createdAt          DateTime          @default(now()) @map("created_at")
+  updatedAt          DateTime          @updatedAt @map("updated_at")
+
+  patient          Patient           @relation(fields: [patientId], references: [id])
+  psychologist     Psychologist      @relation(fields: [psychologistId], references: [id])
+  payment          Payment?
+  consultationNote ConsultationNote?
+  review           Review?
+
+  @@index([psychologistId, scheduledAt])
+  @@index([patientId, scheduledAt])
+  @@index([status])
+  @@map("appointments")
+}
+
+// ─── Payments ─────────────────────────────────────────────────────
+
+model Payment {
+  id                    String        @id @default(cuid())
+  appointmentId         String        @unique @map("appointment_id")
+  patientId             String        @map("patient_id")
+  amount                Decimal       @db.Decimal(10, 2)
+  currency              String        @default("EUR")
+  platformFee           Decimal?      @db.Decimal(10, 2) @map("platform_fee") // Nafsolea cut
+  psychologistPayout    Decimal?      @db.Decimal(10, 2) @map("psychologist_payout")
+  // Stripe
+  stripePaymentIntentId String?       @unique @map("stripe_payment_intent_id")
+  stripeClientSecret    String?       @map("stripe_client_secret")  // sent to frontend
+  status                PaymentStatus @default(PENDING)
+  // Refund
+  refundedAmount        Decimal?      @db.Decimal(10, 2) @map("refunded_amount")
+  stripeRefundId        String?       @unique @map("stripe_refund_id")
+  refundedAt            DateTime?     @map("refunded_at")
+  refundReason          String?       @map("refund_reason")
+  // Receipt
+  receiptUrl            String?       @map("receipt_url")
+  invoiceId             String?       @map("invoice_id")
+  metadata              Json?
+  createdAt             DateTime      @default(now()) @map("created_at")
+  updatedAt             DateTime      @updatedAt @map("updated_at")
+
+  appointment Appointment @relation(fields: [appointmentId], references: [id])
+  patient     Patient     @relation(fields: [patientId], references: [id])
+
+  @@index([stripePaymentIntentId])
+  @@map("payments")
+}
+
+// ─── Consultation Notes ───────────────────────────────────────────
+// AES-256-GCM encrypted at application level — never stored in plaintext
+
+model ConsultationNote {
+  id               String       @id @default(cuid())
+  appointmentId    String       @unique @map("appointment_id")
+  psychologistId   String       @map("psychologist_id")
+  contentEncrypted String       @map("content_encrypted") @db.Text
+  iv               String       // hex-encoded initialization vector
+  authTag          String       @map("auth_tag") // GCM authentication tag
+  createdAt        DateTime     @default(now()) @map("created_at")
+  updatedAt        DateTime     @updatedAt @map("updated_at")
+
+  appointment  Appointment  @relation(fields: [appointmentId], references: [id])
+  psychologist Psychologist @relation(fields: [psychologistId], references: [id])
+
+  @@map("consultation_notes")
+}
+
+// ─── Reviews ──────────────────────────────────────────────────────
+
+model Review {
+  id             String       @id @default(cuid())
+  appointmentId  String       @unique @map("appointment_id")
+  patientId      String       @map("patient_id")
+  psychologistId String       @map("psychologist_id")
+  rating         Int          // 1–5
+  comment        String?      @db.Text
+  isPublic       Boolean      @default(false) @map("is_public") // patient controls visibility
+  isVerified     Boolean      @default(true) @map("is_verified") // only post-completed sessions
+  createdAt      DateTime     @default(now()) @map("created_at")
+
+  appointment  Appointment  @relation(fields: [appointmentId], references: [id])
+  patient      Patient      @relation(fields: [patientId], references: [id])
+  psychologist Psychologist @relation(fields: [psychologistId], references: [id])
+
+  @@index([psychologistId, isPublic])
+  @@map("reviews")
+}
+
+// ─── Auth ─────────────────────────────────────────────────────────
+
+model RefreshToken {
+  id        String    @id @default(cuid())
+  userId    String    @map("user_id")
+  tokenHash String    @unique @map("token_hash") // bcrypt hash of token
+  expiresAt DateTime  @map("expires_at")
+  revokedAt DateTime? @map("revoked_at")
+  ipAddress String?   @map("ip_address")
+  userAgent String?   @map("user_agent")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+// ─── Notifications ────────────────────────────────────────────────
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String           @map("user_id")
+  type      NotificationType
+  title     String
+  body      String
+  isRead    Boolean          @default(false) @map("is_read")
+  metadata  Json?
+  sentAt    DateTime?        @map("sent_at")
+  readAt    DateTime?        @map("read_at")
+  createdAt DateTime         @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@index([userId, createdAt])
+  @@map("notifications")
+}
+
+// ─── Articles / Blog CMS ──────────────────────────────────────────
+
+model Article {
+  id          String        @id @default(cuid())
+  title       String
+  slug        String        @unique
+  excerpt     String?       @db.Text
+  content     String        @db.Text
+  imageUrl    String?       @map("image_url")
+  status      ArticleStatus @default(DRAFT)
+  category    String?
+  tags        String[]
+  authorId    String        @map("author_id")
+  readingTime Int?          @map("reading_time") // minutes
+  publishedAt DateTime?     @map("published_at")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+
+  author User @relation(fields: [authorId], references: [id])
+
+  @@index([status, publishedAt])
+  @@index([slug])
+  @@map("articles")
+}
+
+// ─── Audit Logs (RGPD + Security) ────────────────────────────────
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String?  @map("user_id")
+  action     String   // 'LOGIN', 'LOGOUT', 'BOOK_APPOINTMENT', 'VIEW_NOTES' …
+  resource   String?  // 'appointment', 'payment', 'consultation_note'
+  resourceId String?  @map("resource_id")
+  ipAddress  String?  @map("ip_address")
+  userAgent  String?  @map("user_agent")
+  metadata   Json?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@index([userId, createdAt])
+  @@index([action, createdAt])
+  @@map("audit_logs")
+}

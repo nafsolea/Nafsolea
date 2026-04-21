@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rendez-vous — Admin Nafsoléa</title>
+  <link rel="stylesheet" href="../assets/css/admin.css">
+</head>
+<body>
+<div class="admin-layout">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar" id="sidebar">
+    <a href="index.html" class="sidebar__logo">
+      <div class="sidebar__logo-mark">
+        <svg width="16" height="16" viewBox="0 0 36 36" fill="none">
+          <circle cx="18" cy="18" r="5" fill="white"/>
+          <line x1="18" y1="2" x2="18" y2="10" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="18" y1="26" x2="18" y2="34" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="2" y1="18" x2="10" y2="18" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="26" y1="18" x2="34" y2="18" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <span class="sidebar__logo-text">Nafsoléa</span>
+      <span class="sidebar__logo-badge">Admin</span>
+    </a>
+    <nav class="sidebar__nav">
+      <span class="sidebar__section">Principal</span>
+      <a href="index.html" class="sidebar__link"><span class="link-icon">📊</span> Dashboard</a>
+      <span class="sidebar__section">Gestion</span>
+      <a href="utilisateurs.html" class="sidebar__link"><span class="link-icon">👥</span> Utilisateurs</a>
+      <a href="psychologues.html" class="sidebar__link"><span class="link-icon">🧠</span> Psychologues</a>
+      <a href="rendez-vous.html" class="sidebar__link active"><span class="link-icon">📅</span> Rendez-vous</a>
+      <a href="paiements.html" class="sidebar__link"><span class="link-icon">💳</span> Paiements</a>
+      <span class="sidebar__section">Contenu</span>
+      <a href="blog.html" class="sidebar__link"><span class="link-icon">📝</span> Blog / Articles</a>
+      <span class="sidebar__section">Système</span>
+      <a href="audit.html" class="sidebar__link"><span class="link-icon">🔍</span> Audit logs</a>
+      <a href="../index.html" class="sidebar__link" target="_blank"><span class="link-icon">🌐</span> Voir le site</a>
+    </nav>
+    <div class="sidebar__footer">
+      <div class="sidebar__user">
+        <div class="sidebar__avatar">A</div>
+        <div class="sidebar__user-info">
+          <div class="sidebar__user-name">Administrateur</div>
+          <div class="sidebar__user-role">Admin</div>
+        </div>
+      </div>
+      <button class="sidebar__logout" id="logoutBtn"><span>🚪</span> Se déconnecter</button>
+    </div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <main class="admin-main">
+    <div class="topbar">
+      <div class="topbar__left">
+        <h1 class="topbar__title">Rendez-vous</h1>
+        <span class="topbar__breadcrumb" id="totalLabel">Chargement…</span>
+      </div>
+      <div class="topbar__right">
+        <input type="date" class="filter-select" id="dateFrom" title="Du">
+        <input type="date" class="filter-select" id="dateTo" title="Au">
+        <select class="filter-select" id="statusFilter">
+          <option value="">Tous les statuts</option>
+          <option value="PENDING_PAYMENT">Paiement en attente</option>
+          <option value="CONFIRMED">Confirmés</option>
+          <option value="COMPLETED">Terminés</option>
+          <option value="CANCELLED_BY_PATIENT">Annulés (patient)</option>
+          <option value="CANCELLED_BY_PSY">Annulés (psy)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="page-content">
+
+      <!-- Stats -->
+      <div class="stats-grid" id="statsGrid">
+        <div class="stat-card blue skeleton" style="height:100px"></div>
+        <div class="stat-card green skeleton" style="height:100px"></div>
+        <div class="stat-card yellow skeleton" style="height:100px"></div>
+        <div class="stat-card rose skeleton" style="height:100px"></div>
+      </div>
+
+      <!-- Table -->
+      <div class="card">
+        <div class="card__header">
+          <span class="card__title">Liste des rendez-vous</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Patient</th>
+                <th>Psychologue</th>
+                <th>Date &amp; heure</th>
+                <th>Statut</th>
+                <th>Montant</th>
+                <th>Créé le</th>
+              </tr>
+            </thead>
+            <tbody id="apptTable">
+              <tr><td colspan="6"><div class="skeleton" style="height:14px;margin:12px 16px"></div></td></tr>
+              <tr><td colspan="6"><div class="skeleton" style="height:14px;margin:12px 16px"></div></td></tr>
+              <tr><td colspan="6"><div class="skeleton" style="height:14px;margin:12px 16px"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card__footer">
+          <div class="pagination">
+            <span class="pagination__info" id="paginationInfo"></span>
+            <div class="pagination__pages" id="paginationPages"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="../assets/js/api.js"></script>
+<script src="../assets/js/auth.js"></script>
+<script>
+  if (!Auth.requireRole('ADMIN')) {}
+  document.getElementById('logoutBtn').addEventListener('click', () => Auth.logout());
+
+  let currentPage = 1;
+  let filterTimeout;
+
+  const STATUS_MAP = {
+    PENDING_PAYMENT:      ['pending',   'Paiement att.'],
+    CONFIRMED:            ['confirmed', 'Confirmé'],
+    COMPLETED:            ['completed', 'Terminé'],
+    CANCELLED_BY_PATIENT: ['inactive',  'Annulé (patient)'],
+    CANCELLED_BY_PSY:     ['inactive',  'Annulé (psy)'],
+  };
+
+  function toast(msg, type = 'success') {
+    const t = document.createElement('div');
+    t.className = `toast ${type}`;
+    t.textContent = msg;
+    document.getElementById('toastContainer').appendChild(t);
+    requestAnimationFrame(() => t.classList.add('show'));
+    setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 400); }, 3500);
+  }
+
+  function fmtDate(d) {
+    if (!d) return '—';
+    return new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' });
+  }
+
+  function fmtDateTime(d) {
+    if (!d) return '—';
+    return new Date(d).toLocaleString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  }
+
+  function statusBadge(s) {
+    const [cls, label] = STATUS_MAP[s] || ['inactive', s];
+    return `<span class="badge ${cls}">${label}</span>`;
+  }
+
+  async function loadAppointments(page = 1) {
+    const params = { page, limit: 20 };
+    const status = document.getElementById('statusFilter').value;
+    const from   = document.getElementById('dateFrom').value;
+    const to     = document.getElementById('dateTo').value;
+    if (status) params.status = status;
+    if (from)   params.from   = from;
+    if (to)     params.to     = to;
+
+    try {
+      const res = await API.admin.appointments(params);
+      const { data = [], meta = {} } = res;
+      currentPage = page;
+
+      document.getElementById('totalLabel').textContent =
+        `${meta.total ?? data.length} rendez-vous`;
+
+      // Stats cards (only on page 1 / unfiltered)
+      if (page === 1 && !status && !from && !to) {
+        const counts = { total: meta.total || 0, confirmed: 0, completed: 0, cancelled: 0 };
+        data.forEach(a => {
+          if (a.status === 'CONFIRMED')            counts.confirmed++;
+          if (a.status === 'COMPLETED')            counts.completed++;
+          if (a.status?.startsWith('CANCELLED'))   counts.cancelled++;
+        });
+        document.getElementById('statsGrid').innerHTML = `
+          <div class="stat-card blue">
+            <div class="stat-card__header"><span class="stat-card__label">Total</span><div class="stat-card__icon">📅</div></div>
+            <div class="stat-card__value">${counts.total}</div>
+            <div class="stat-card__trend up">Tous rendez-vous</div>
+          </div>
+          <div class="stat-card green">
+            <div class="stat-card__header"><span class="stat-card__label">Confirmés</span><div class="stat-card__icon">✅</div></div>
+            <div class="stat-card__value">${counts.confirmed}</div>
+            <div class="stat-card__trend up">À venir</div>
+          </div>
+          <div class="stat-card yellow">
+            <div class="stat-card__header"><span class="stat-card__label">Terminés</span><div class="stat-card__icon">🎯</div></div>
+            <div class="stat-card__value">${counts.completed}</div>
+            <div class="stat-card__trend up">Séances réalisées</div>
+          </div>
+          <div class="stat-card rose">
+            <div class="stat-card__header"><span class="stat-card__label">Annulés</span><div class="stat-card__icon">❌</div></div>
+            <div class="stat-card__value">${counts.cancelled}</div>
+            <div class="stat-card__trend">Ce chargement</div>
+          </div>
+        `;
+      }
+
+      if (!data.length) {
+        document.getElementById('apptTable').innerHTML = `
+          <tr><td colspan="6">
+            <div class="empty-state"><span class="empty-state__icon">📅</span><span class="empty-state__title">Aucun rendez-vous trouvé</span></div>
+          </td></tr>`;
+        document.getElementById('paginationInfo').textContent = '';
+        document.getElementById('paginationPages').innerHTML = '';
+        return;
+      }
+
+      document.getElementById('apptTable').innerHTML = data.map(a => `
+        <tr>
+          <td class="td-bold">${a.patient?.firstName ?? '—'} ${a.patient?.lastName ?? ''}</td>
+          <td class="td-muted">${a.psychologist?.firstName ?? '—'} ${a.psychologist?.lastName ?? ''}</td>
+          <td class="td-muted">${fmtDateTime(a.scheduledAt)}</td>
+          <td>${statusBadge(a.status)}</td>
+          <td class="td-bold">${a.payment?.amount != null ? Number(a.payment.amount).toFixed(2) + ' €' : '—'}</td>
+          <td class="td-muted">${fmtDate(a.createdAt)}</td>
+        </tr>
+      `).join('');
+
+      // Pagination
+      const pages = meta.pages || 1;
+      document.getElementById('paginationInfo').textContent =
+        `Page ${page} sur ${pages} · ${meta.total ?? data.length} résultats`;
+
+      const pagesEl = document.getElementById('paginationPages');
+      pagesEl.innerHTML = '';
+      if (pages > 1) {
+        const addBtn = (label, p, disabled = false) => {
+          const btn = document.createElement('button');
+          btn.className = 'page-btn' + (p === currentPage ? ' active' : '');
+          btn.textContent = label;
+          btn.disabled = disabled;
+          btn.addEventListener('click', () => loadAppointments(p));
+          pagesEl.appendChild(btn);
+        };
+        addBtn('←', page - 1, page === 1);
+        for (let i = 1; i <= pages; i++) {
+          if (i === 1 || i === pages || Math.abs(i - page) <= 1) addBtn(i, i);
+          else if (Math.abs(i - page) === 2) { const s = document.createElement('span'); s.textContent = '…'; s.style.padding = '0 4px'; pagesEl.appendChild(s); }
+        }
+        addBtn('→', page + 1, page === pages);
+      }
+
+    } catch (err) {
+      toast('Erreur: ' + err.message, 'error');
+    }
+  }
+
+  function onFilterChange() {
+    clearTimeout(filterTimeout);
+    filterTimeout = setTimeout(() => loadAppointments(1), 400);
+  }
+
+  document.getElementById('statusFilter').addEventListener('change', onFilterChange);
+  document.getElementById('dateFrom').addEventListener('change', onFilterChange);
+  document.getElementById('dateTo').addEventListener('change', onFilterChange);
+
+  // Default date range: last 30 days
+  const today = new Date();
+  const monthAgo = new Date(today);
+  monthAgo.setDate(today.getDate() - 30);
+  document.getElementById('dateTo').value = today.toISOString().split('T')[0];
+  document.getElementById('dateFrom').value = monthAgo.toISOString().split('T')[0];
+
+  loadAppointments(1);
+</script>
+</body>
+</html>

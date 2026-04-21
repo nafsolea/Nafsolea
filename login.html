@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connexion — Nafsoléa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <style>
+    .auth-page {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      background: var(--beige);
+    }
+
+    /* ── Left panel ── */
+    .auth-panel {
+      background: var(--sage-dark);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: var(--space-16);
+      position: relative;
+      overflow: hidden;
+    }
+    .auth-panel::before {
+      content: '';
+      position: absolute;
+      width: 400px; height: 400px;
+      border-radius: 60% 40% 70% 30% / 50% 60% 40% 50%;
+      background: rgba(85,133,181,.18);
+      top: -80px; right: -80px;
+      animation: blobDrift 8s ease-in-out infinite;
+    }
+    .auth-panel::after {
+      content: '';
+      position: absolute;
+      width: 300px; height: 300px;
+      border-radius: 40% 60% 30% 70% / 60% 40% 60% 40%;
+      background: rgba(175,59,110,.13);
+      bottom: -60px; left: -60px;
+      animation: blobDrift 10s ease-in-out infinite reverse;
+    }
+    .auth-panel__logo {
+      font-size: 2rem;
+      font-weight: 800;
+      color: white;
+      letter-spacing: -0.03em;
+      margin-bottom: var(--space-8);
+      position: relative; z-index: 1;
+    }
+    .auth-panel__tagline {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: rgba(255,255,255,.9);
+      text-align: center;
+      line-height: 1.5;
+      max-width: 320px;
+      position: relative; z-index: 1;
+    }
+    .auth-panel__tagline span {
+      color: var(--rose-light, #C884A6);
+    }
+    .auth-panel__features {
+      margin-top: var(--space-10);
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+      position: relative; z-index: 1;
+    }
+    .auth-panel__features li {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      color: rgba(255,255,255,.8);
+      font-size: .95rem;
+    }
+    .auth-panel__features li::before {
+      content: '✓';
+      width: 22px; height: 22px;
+      background: var(--sage);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .75rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      color: white;
+    }
+
+    /* ── Right panel (form) ── */
+    .auth-form-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-10);
+    }
+    .auth-form-box {
+      width: 100%;
+      max-width: 420px;
+    }
+    .auth-form-box__title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--sage-dark);
+      margin-bottom: var(--space-2);
+    }
+    .auth-form-box__subtitle {
+      color: var(--text-muted);
+      font-size: .95rem;
+      margin-bottom: var(--space-8);
+    }
+    .auth-form-box__subtitle a {
+      color: var(--sage);
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .auth-form-box__subtitle a:hover { text-decoration: underline; }
+
+    /* Form fields */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      margin-bottom: var(--space-5);
+    }
+    .form-group label {
+      font-weight: 600;
+      font-size: .9rem;
+      color: var(--sage-dark);
+    }
+    .form-group input, .form-group select, .form-group textarea {
+      padding: 14px 16px;
+      border: 2px solid #E2EAF3;
+      border-radius: var(--radius-md);
+      font-family: var(--font-body);
+      font-size: .95rem;
+      color: var(--text-dark);
+      background: white;
+      transition: border-color .2s, box-shadow .2s;
+      outline: none;
+    }
+    .form-group input:focus, .form-group select:focus {
+      border-color: var(--sage);
+      box-shadow: 0 0 0 4px rgba(85,133,181,.12);
+    }
+    .form-group input.error { border-color: var(--terracotta); }
+    .field-error {
+      font-size: .82rem;
+      color: var(--terracotta);
+      font-weight: 500;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-4);
+    }
+
+    /* Password toggle */
+    .password-wrap { position: relative; }
+    .password-wrap input { padding-right: 48px; width: 100%; box-sizing: border-box; }
+    .password-toggle {
+      position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer; color: var(--text-muted);
+      font-size: 1rem; line-height: 1;
+    }
+
+    /* Submit button */
+    .auth-submit {
+      width: 100%;
+      padding: 15px;
+      background: var(--terracotta);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      font-family: var(--font-body);
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s, transform .1s;
+      margin-top: var(--space-2);
+    }
+    .auth-submit:hover { background: #9a2f5e; transform: translateY(-1px); }
+    .auth-submit:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+    .auth-submit.loading { position: relative; color: transparent; }
+    .auth-submit.loading::after {
+      content: '';
+      position: absolute; top: 50%; left: 50%;
+      width: 20px; height: 20px;
+      border: 2px solid white; border-top-color: transparent;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      animation: spin .7s linear infinite;
+    }
+
+    /* Alert */
+    .alert {
+      padding: 14px 16px;
+      border-radius: var(--radius-md);
+      font-size: .9rem;
+      font-weight: 500;
+      margin-bottom: var(--space-5);
+      display: none;
+    }
+    .alert.error { background: #FEE2E2; color: #B91C1C; border: 1px solid #FECACA; }
+    .alert.success { background: #D1FAE5; color: #065F46; border: 1px solid #A7F3D0; }
+    .alert.show { display: block; }
+
+    /* Forgot password */
+    .forgot-link {
+      text-align: right;
+      margin-top: -var(--space-3);
+      margin-bottom: var(--space-5);
+    }
+    .forgot-link a {
+      font-size: .87rem;
+      color: var(--sage);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .forgot-link a:hover { text-decoration: underline; }
+
+    /* Divider */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin: var(--space-6) 0;
+      color: var(--text-muted);
+      font-size: .85rem;
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1; height: 1px; background: #E2EAF3;
+    }
+
+    @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+
+    @media (max-width: 768px) {
+      .auth-page { grid-template-columns: 1fr; }
+      .auth-panel { display: none; }
+    }
+  </style>
+</head>
+<body>
+<div class="auth-page">
+
+  <!-- ── Left decorative panel ── -->
+  <div class="auth-panel">
+    <a href="index.html" class="auth-panel__logo">Nafsoléa</a>
+    <p class="auth-panel__tagline">
+      Parlez à quelqu'un qui vous comprend<br>
+      <span>vraiment.</span>
+    </p>
+    <ul class="auth-panel__features">
+      <li>Psychologues arabophones et francophones</li>
+      <li>Consultations 100 % en ligne et sécurisées</li>
+      <li>Adapté à la diaspora maghrébine</li>
+      <li>Confidentialité et RGPD garantis</li>
+    </ul>
+  </div>
+
+  <!-- ── Login form ── -->
+  <div class="auth-form-wrap">
+    <div class="auth-form-box">
+      <h1 class="auth-form-box__title">Bon retour 👋</h1>
+      <p class="auth-form-box__subtitle">
+        Pas encore de compte ?
+        <a href="inscription.html">Créer un compte</a>
+      </p>
+
+      <div class="alert" id="alert" role="alert"></div>
+
+      <form id="loginForm" novalidate>
+        <div class="form-group">
+          <label for="email">Adresse email</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="vous@example.com"
+            autocomplete="email"
+            required
+          >
+          <span class="field-error" id="emailError"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Mot de passe</label>
+          <div class="password-wrap">
+            <input
+              type="password"
+              id="password"
+              name="password"
+              placeholder="••••••••"
+              autocomplete="current-password"
+              required
+            >
+            <button type="button" class="password-toggle" id="togglePassword" aria-label="Afficher le mot de passe">👁</button>
+          </div>
+          <span class="field-error" id="passwordError"></span>
+        </div>
+
+        <div class="forgot-link">
+          <a href="mot-de-passe-oublie.html">Mot de passe oublié ?</a>
+        </div>
+
+        <button type="submit" class="auth-submit" id="submitBtn">
+          Se connecter
+        </button>
+      </form>
+
+      <div class="divider">ou</div>
+
+      <p style="text-align:center;font-size:.9rem;color:var(--text-muted);">
+        Vous êtes psychologue ?
+        <a href="inscription.html?role=PSYCHOLOGIST" style="color:var(--sage);font-weight:600;text-decoration:none;">
+          Rejoignez notre équipe →
+        </a>
+      </p>
+    </div>
+  </div>
+
+</div>
+
+<script src="assets/js/api.js"></script>
+<script src="assets/js/auth.js"></script>
+<script>
+  // Redirect if already logged in
+  if (Auth.isLoggedIn()) {
+    const role = Auth.getRole();
+    window.location.href = role === 'ADMIN' ? 'admin/index.html' : 'rendez-vous.html';
+  }
+
+  const form = document.getElementById('loginForm');
+  const submitBtn = document.getElementById('submitBtn');
+  const alertBox = document.getElementById('alert');
+  const togglePassword = document.getElementById('togglePassword');
+  const passwordInput = document.getElementById('password');
+
+  // Password visibility toggle
+  togglePassword.addEventListener('click', () => {
+    const isText = passwordInput.type === 'text';
+    passwordInput.type = isText ? 'password' : 'text';
+    togglePassword.textContent = isText ? '👁' : '🙈';
+  });
+
+  function showAlert(message, type = 'error') {
+    alertBox.textContent = message;
+    alertBox.className = `alert ${type} show`;
+  }
+
+  function setLoading(loading) {
+    submitBtn.disabled = loading;
+    submitBtn.classList.toggle('loading', loading);
+    if (!loading) submitBtn.textContent = 'Se connecter';
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const email = document.getElementById('email').value.trim();
+    const password = passwordInput.value;
+
+    // Basic validation
+    let valid = true;
+    if (!email) {
+      document.getElementById('emailError').textContent = 'Email requis';
+      document.getElementById('email').classList.add('error');
+      valid = false;
+    }
+    if (!password) {
+      document.getElementById('passwordError').textContent = 'Mot de passe requis';
+      document.getElementById('password').classList.add('error');
+      valid = false;
+    }
+    if (!valid) return;
+
+    setLoading(true);
+    alertBox.className = 'alert';
+
+    try {
+      const data = await API.post('/auth/login', { email, password });
+      Auth.setSession(data);
+
+      // Redirect based on role
+      const redirect = new URLSearchParams(window.location.search).get('redirect');
+      if (redirect) {
+        window.location.href = redirect;
+      } else if (data.role === 'ADMIN') {
+        window.location.href = 'admin/index.html';
+      } else {
+        window.location.href = 'rendez-vous.html';
+      }
+    } catch (err) {
+      showAlert(err.message || 'Email ou mot de passe incorrect');
+      setLoading(false);
+    }
+  });
+
+  // Clear field errors on input
+  ['email', 'password'].forEach(id => {
+    document.getElementById(id).addEventListener('input', function() {
+      this.classList.remove('error');
+      document.getElementById(id + 'Error').textContent = '';
+    });
+  });
+</script>
+</body>
+</html>

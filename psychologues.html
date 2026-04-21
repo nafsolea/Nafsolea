@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Découvrez nos psychologues arabophones et francophones. Filtrez par langue, spécialité et disponibilité. Des thérapeutes diplômés, culturellement sensibles.">
+  <title>Nos psychologues — Nafsoléa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <style>
+    .psys-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: var(--space-6);
+    }
+
+    .search-bar {
+      display: flex;
+      gap: var(--space-3);
+      margin-bottom: var(--space-6);
+    }
+
+    .search-bar .form-input {
+      flex: 1;
+      background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%239B9B9B' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E") no-repeat 14px center;
+      padding-left: 44px;
+    }
+
+    .filters-panel {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: var(--space-6);
+      margin-bottom: var(--space-8);
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-6);
+      align-items: flex-end;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      flex: 1;
+      min-width: 160px;
+    }
+
+    .filter-group label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+    }
+
+    .psy-full-card {
+      background: white;
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      border: 1.5px solid var(--border-light);
+      transition: transform var(--tr), box-shadow var(--tr), border-color var(--tr);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .psy-full-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--sage-light);
+    }
+
+    .psy-full-card__header {
+      background: linear-gradient(160deg, var(--sage-pale) 0%, var(--beige) 100%);
+      padding: var(--space-6);
+    }
+
+    .psy-full-card__top {
+      display: flex;
+      gap: var(--space-4);
+      align-items: flex-start;
+      margin-bottom: var(--space-4);
+    }
+
+    .psy-avatar-lg {
+      width: 88px;
+      height: 88px;
+      border-radius: 50%;
+      border: 3px solid white;
+      box-shadow: var(--shadow-md);
+      background: linear-gradient(135deg, var(--sage-light), var(--sage));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      flex-shrink: 0;
+    }
+
+    .psy-full-card__info h3 {
+      font-size: 1.15rem;
+      margin-bottom: 4px;
+    }
+
+    .psy-full-card__role {
+      font-size: 0.82rem;
+      color: var(--sage-dark);
+      font-weight: 600;
+      margin-bottom: var(--space-3);
+    }
+
+    .psy-full-card__langs {
+      display: flex;
+      gap: var(--space-1);
+      margin-bottom: var(--space-2);
+    }
+
+    .psy-full-card__rating {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: 0.82rem;
+    }
+
+    .stars-sm { color: #F5A623; font-size: 0.85rem; }
+
+    .psy-full-card__body {
+      padding: var(--space-5) var(--space-6);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .psy-full-card__approach {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--terracotta);
+      margin-bottom: var(--space-2);
+    }
+
+    .psy-full-card__bio {
+      font-size: 0.88rem;
+      color: var(--text-light);
+      line-height: 1.65;
+      margin-bottom: var(--space-4);
+      max-width: none;
+      flex: 1;
+    }
+
+    .psy-full-card__specialties {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+      margin-bottom: var(--space-5);
+    }
+
+    .psy-full-card__footer {
+      padding: var(--space-4) var(--space-6);
+      border-top: 1px solid var(--border-light);
+      background: var(--off-white);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-3);
+    }
+
+    .psy-full-card__price {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .psy-full-card__price strong {
+      font-size: 1.2rem;
+      color: var(--text);
+      font-family: var(--font-heading);
+    }
+
+    .psy-full-card__price span {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .psy-full-card__actions {
+      display: flex;
+      gap: var(--space-2);
+    }
+
+    .availability-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.76rem;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+    }
+
+    .availability-badge--available {
+      background: rgba(90,185,100,0.1);
+      color: #3A8A48;
+    }
+
+    .availability-badge--soon {
+      background: rgba(245,166,35,0.1);
+      color: #B07D0A;
+    }
+
+    .psy-count {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: var(--space-6);
+    }
+
+    .cta-join {
+      background: linear-gradient(135deg, var(--beige) 0%, var(--sage-pale) 100%);
+      border-radius: var(--radius-xl);
+      padding: var(--space-10);
+      text-align: center;
+      border: 1.5px dashed var(--sage-light);
+      margin-top: var(--space-8);
+    }
+
+    @media (max-width: 640px) {
+      .filters-panel { gap: var(--space-4); }
+      .psy-full-card__footer { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVIGATION -->
+<nav class="nav">
+  <div class="nav__inner">
+    <a href="index.html" class="nav__logo">
+      <div class="nav__logo-mark" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 36 36" fill="none">
+          <circle cx="18" cy="18" r="5" fill="white"/>
+          <line x1="18" y1="2" x2="18" y2="10" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="18" y1="26" x2="18" y2="34" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="2" y1="18" x2="10" y2="18" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="26" y1="18" x2="34" y2="18" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="6.7" y1="6.7" x2="11.7" y2="11.7" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+          <line x1="24.3" y1="24.3" x2="29.3" y2="29.3" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+          <line x1="29.3" y1="6.7" x2="24.3" y2="11.7" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+          <line x1="11.7" y1="24.3" x2="6.7" y2="29.3" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+        </svg>
+      </div>
+      Nafsoléa
+    </a>
+    <ul class="nav__links">
+      <li><a href="comment-ca-marche.html" class="nav__link">Comment ça marche</a></li>
+      <li><a href="psychologues.html" class="nav__link active">Nos psychologues</a></li>
+      <li><a href="blog.html" class="nav__link">Ressources</a></li>
+      <li><a href="a-propos.html" class="nav__link">À propos</a></li>
+      <li><a href="faq.html" class="nav__link">FAQ</a></li>
+    </ul>
+    <div class="nav__actions">
+      <button class="nav__lang">FR | عربي</button>
+      <a href="rendez-vous.html" class="btn btn--primary btn--sm">Prendre RDV</a>
+    </div>
+    <button class="nav__hamburger" aria-label="Menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <div class="nav__mobile">
+    <a href="comment-ca-marche.html" class="nav__mobile-link">Comment ça marche</a>
+    <a href="psychologues.html" class="nav__mobile-link">Nos psychologues</a>
+    <a href="blog.html" class="nav__mobile-link">Ressources</a>
+    <a href="a-propos.html" class="nav__mobile-link">À propos</a>
+    <a href="faq.html" class="nav__mobile-link">FAQ</a>
+    <a href="rendez-vous.html" class="btn btn--primary" style="margin-top:0.5rem">Prendre rendez-vous</a>
+  </div>
+</nav>
+
+<!-- PAGE HERO -->
+<section class="page-hero">
+  <div class="container container--narrow">
+    <span class="label">Une équipe d'exception</span>
+    <h1>Nos psychologues</h1>
+    <p>Des thérapeutes diplômés, arabophones et francophones, formés à la sensibilité culturelle maghrébine. Chacun a été sélectionné avec soin.</p>
+  </div>
+</section>
+
+<!-- FILTRES -->
+<section class="section--sm" style="background:var(--off-white)">
+  <div class="container">
+
+    <!-- Barre de recherche -->
+    <div class="search-bar">
+      <input type="search" class="form-input" placeholder="Rechercher par nom, spécialité..." aria-label="Rechercher un psychologue">
+    </div>
+
+    <!-- Filtres -->
+    <div class="filters-panel" role="search" aria-label="Filtres">
+      <div class="filter-group">
+        <label for="filter-lang">Langue</label>
+        <select id="filter-lang" class="form-select" data-filter-type="lang">
+          <option value="all">Toutes les langues</option>
+          <option value="fr">Français</option>
+          <option value="ar">Arabe (عربي)</option>
+          <option value="darija">Darija (دارجة)</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="filter-spec">Spécialité</label>
+        <select id="filter-spec" class="form-select" data-filter-type="spec">
+          <option value="all">Toutes les spécialités</option>
+          <option value="anxiete">Anxiété &amp; Stress</option>
+          <option value="depression">Dépression</option>
+          <option value="famille">Relations familiales</option>
+          <option value="couple">Couple &amp; Rupture</option>
+          <option value="expatriation">Expatriation &amp; Identité</option>
+          <option value="trauma">Trauma &amp; Deuil</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="filter-gender">Genre</label>
+        <select id="filter-gender" class="form-select" data-filter-type="gender">
+          <option value="all">Tous les genres</option>
+          <option value="f">Femme</option>
+          <option value="m">Homme</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="filter-dispo">Disponibilité</label>
+        <select id="filter-dispo" class="form-select" data-filter-type="dispo">
+          <option value="all">Toutes disponibilités</option>
+          <option value="today">Disponible aujourd'hui</option>
+          <option value="week">Cette semaine</option>
+          <option value="weekend">Weekend</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Résultats -->
+    <p class="psy-count" aria-live="polite" id="psyCount">Chargement…</p>
+
+    <!-- Grille -->
+    <div class="psys-grid" id="psysGrid">
+
+      <!-- Psy 1 -->
+      <article class="psy-full-card reveal" data-filter="fr ar anxiete expatriation f">
+        <div class="psy-full-card__header">
+          <div class="psy-full-card__top">
+            <div class="psy-avatar-lg">👩‍⚕️</div>
+            <div class="psy-full-card__info">
+              <h3>Dr. Amira Mansouri</h3>
+              <div class="psy-full-card__role">Psychologue clinicienne · Docteur en psychologie</div>
+              <div class="psy-full-card__langs">
+                <span class="lang-badge">FR</span>
+                <span class="lang-badge lang-badge--ar">عربي</span>
+              </div>
+              <div class="psy-full-card__rating">
+                <span class="stars-sm">★★★★★</span>
+                <span style="color:var(--text-mid); font-weight:600">4.9</span>
+                <span style="color:var(--text-muted)">(87 avis)</span>
+              </div>
+            </div>
+          </div>
+          <span class="availability-badge availability-badge--available">● Disponible aujourd'hui</span>
+        </div>
+        <div class="psy-full-card__body">
+          <div class="psy-full-card__approach">Approche · TCC · Psychodynamique</div>
+          <p class="psy-full-card__bio">
+            Née à Alger, formée à Paris et spécialisée dans l'accompagnement des personnes vivant entre deux cultures. Amira travaille depuis 8 ans sur les questions d'anxiété, d'identité et d'expatriation avec une approche chaleureuse et culturellement ancrée.
+          </p>
+          <div class="psy-full-card__specialties">
+            <span class="tag tag--sage">Anxiété</span>
+            <span class="tag tag--sage">Expatriation</span>
+            <span class="tag tag--sage">Identité</span>
+            <span class="tag">Relations familiales</span>
+            <span class="tag">Stress professionnel</span>
+          </div>
+        </div>
+        <div class="psy-full-card__footer">
+          <div class="psy-full-card__price">
+            <strong>60€</strong>
+            <span>par séance de 50 min</span>
+          </div>
+          <div class="psy-full-card__actions">
+            <a href="rendez-vous.html" class="btn btn--primary btn--sm">Réserver</a>
+          </div>
+        </div>
+      </article>
+
+      <!-- Psy 2 -->
+      <article class="psy-full-card reveal reveal-delay-1" data-filter="fr ar depression trauma m">
+        <div class="psy-full-card__header">
+          <div class="psy-full-card__top">
+            <div class="psy-avatar-lg">👨‍⚕️</div>
+            <div class="psy-full-card__info">
+              <h3>Dr. Karim Belhadj</h3>
+              <div class="psy-full-card__role">Psychothérapeute · Spécialiste TCC</div>
+              <div class="psy-full-card__langs">
+                <span class="lang-badge">FR</span>
+                <span class="lang-badge lang-badge--ar">عربي</span>
+              </div>
+              <div class="psy-full-card__rating">
+                <span class="stars-sm">★★★★★</span>
+                <span style="color:var(--text-mid); font-weight:600">4.8</span>
+                <span style="color:var(--text-muted)">(63 avis)</span>
+              </div>
+            </div>
+          </div>
+          <span class="availability-badge availability-badge--available">● Disponible aujourd'hui</span>
+        </div>
+        <div class="psy-full-card__body">
+          <div class="psy-full-card__approach">Approche · TCC · EMDR · Pleine conscience</div>
+          <p class="psy-full-card__bio">
+            Karim est spécialisé dans la dépression, les phobies et le trauma. Avec 6 ans d'expérience, il utilise les thérapies cognitivo-comportementales et l'EMDR pour aider ses patients à reprendre le contrôle de leur vie, pas à pas, dans leur propre rythme.
+          </p>
+          <div class="psy-full-card__specialties">
+            <span class="tag tag--sage">Dépression</span>
+            <span class="tag tag--sage">Trauma &amp; PTSD</span>
+            <span class="tag tag--sage">Phobies</span>
+            <span class="tag">Stress chronique</span>
+            <span class="tag">Confiance en soi</span>
+          </div>
+        </div>
+        <div class="psy-full-card__footer">
+          <div class="psy-full-card__price">
+            <strong>55€</strong>
+            <span>par séance de 50 min</span>
+          </div>
+          <div class="psy-full-card__actions">
+            <a href="rendez-vous.html" class="btn btn--primary btn--sm">Réserver</a>
+          </div>
+        </div>
+      </article>
+
+      <!-- Psy 3 -->
+      <article class="psy-full-card reveal reveal-delay-2" data-filter="fr darija couple famille f">
+        <div class="psy-full-card__header">
+          <div class="psy-full-card__top">
+            <div class="psy-avatar-lg">👩‍⚕️</div>
+            <div class="psy-full-card__info">
+              <h3>Mme. Nadia Cherif</h3>
+              <div class="psy-full-card__role">Psychologue · Couples &amp; Identité</div>
+              <div class="psy-full-card__langs">
+                <span class="lang-badge">FR</span>
+                <span class="lang-badge lang-badge--ar">دارجة</span>
+              </div>
+              <div class="psy-full-card__rating">
+                <span class="stars-sm">★★★★★</span>
+                <span style="color:var(--text-mid); font-weight:600">4.9</span>
+                <span style="color:var(--text-muted)">(51 avis)</span>
+              </div>
+            </div>
+          </div>
+          <span class="availability-badge availability-badge--soon">◔ Prochain créneau : demain</span>
+        </div>
+        <div class="psy-full-card__body">
+          <div class="psy-full-card__approach">Approche · Systémique · Psychanalyse</div>
+          <p class="psy-full-card__bio">
+            Nadia accompagne les femmes et les couples dans leurs questionnements relationnels. Profondément ancrée dans la réalité des familles maghrébines, elle aide à naviguer les tensions entre attentes traditionnelles et vie contemporaine, sans jamais opposer les deux.
+          </p>
+          <div class="psy-full-card__specialties">
+            <span class="tag tag--sage">Couple</span>
+            <span class="tag tag--sage">Rupture</span>
+            <span class="tag tag--sage">Identité de genre</span>
+            <span class="tag">Relations familiales</span>
+            <span class="tag">Affirmation de soi</span>
+          </div>
+        </div>
+        <div class="psy-full-card__footer">
+          <div class="psy-full-card__price">
+            <strong>65€</strong>
+            <span>par séance de 50 min</span>
+          </div>
+          <div class="psy-full-card__actions">
+            <a href="rendez-vous.html" class="btn btn--primary btn--sm">Réserver</a>
+          </div>
+        </div>
+      </article>
+
+      <!-- Psy 4 -->
+      <article class="psy-full-card reveal" data-filter="fr ar anxiete famille m">
+        <div class="psy-full-card__header">
+          <div class="psy-full-card__top">
+            <div class="psy-avatar-lg" style="background:linear-gradient(135deg,var(--terracotta-pale),var(--terracotta-light))">👨‍⚕️</div>
+            <div class="psy-full-card__info">
+              <h3>Dr. Youcef Aït-Ahmed</h3>
+              <div class="psy-full-card__role">Psychologue · Adolescents &amp; Jeunes adultes</div>
+              <div class="psy-full-card__langs">
+                <span class="lang-badge">FR</span>
+                <span class="lang-badge lang-badge--ar">عربي</span>
+              </div>
+              <div class="psy-full-card__rating">
+                <span class="stars-sm">★★★★★</span>
+                <span style="color:var(--text-mid); font-weight:600">4.7</span>
+                <span style="color:var(--text-muted)">(42 avis)</span>
+              </div>
+            </div>
+          </div>
+          <span class="availability-badge availability-badge--available">● Disponible aujourd'hui</span>
+        </div>
+        <div class="psy-full-card__body">
+          <div class="psy-full-card__approach">Approche · Humaniste · ACT</div>
+          <p class="psy-full-card__bio">
+            Youcef travaille principalement avec les jeunes adultes (18-35 ans) en quête de sens, confrontés aux pressions familiales et aux questionnements identitaires. Son approche humaniste crée un espace de dialogue ouvert, bienveillant et respectueux des valeurs culturelles.
+          </p>
+          <div class="psy-full-card__specialties">
+            <span class="tag tag--sage">Questionnement identitaire</span>
+            <span class="tag tag--sage">Pression familiale</span>
+            <span class="tag">Anxiété sociale</span>
+            <span class="tag">Orientation professionnelle</span>
+          </div>
+        </div>
+        <div class="psy-full-card__footer">
+          <div class="psy-full-card__price">
+            <strong>50€</strong>
+            <span>par séance de 50 min</span>
+          </div>
+          <div class="psy-full-card__actions">
+            <a href="rendez-vous.html" class="btn btn--primary btn--sm">Réserver</a>
+          </div>
+        </div>
+      </article>
+
+      <!-- Psy 5 -->
+      <article class="psy-full-card reveal reveal-delay-1" data-filter="fr ar trauma deuil f">
+        <div class="psy-full-card__header">
+          <div class="psy-full-card__top">
+            <div class="psy-avatar-lg" style="background:linear-gradient(135deg,#E8D5C4,#C9A882)">👩‍⚕️</div>
+            <div class="psy-full-card__info">
+              <h3>Dr. Leila Benali</h3>
+              <div class="psy-full-card__role">Psychiatre &amp; Psychothérapeute</div>
+              <div class="psy-full-card__langs">
+                <span class="lang-badge">FR</span>
+                <span class="lang-badge lang-badge--ar">عربي</span>
+              </div>
+              <div class="psy-full-card__rating">
+                <span class="stars-sm">★★★★★</span>
+                <span style="color:var(--text-mid); font-weight:600">5.0</span>
+                <span style="color:var(--text-muted)">(28 avis)</span>
+              </div>
+            </div>
+          </div>
+          <span class="availability-badge availability-badge--soon">◔ Prochain créneau : après-demain</span>
+        </div>
+        <div class="psy-full-card__body">
+          <div class="psy-full-card__approach">Approche · EMDR · Thérapie du deuil · Trauma complexe</div>
+          <p class="psy-full-card__bio">
+            Leila est psychiatre et psychothérapeute, spécialisée dans les traumatismes complexes, les deuils et les violences. Avec une formation en EMDR et une sensibilité particulière pour les histoires migratoires, elle accompagne avec douceur et compétence.
+          </p>
+          <div class="psy-full-card__specialties">
+            <span class="tag tag--sage">Trauma complexe</span>
+            <span class="tag tag--sage">Deuil</span>
+            <span class="tag tag--sage">Violence psychologique</span>
+            <span class="tag">Burn-out</span>
+          </div>
+        </div>
+        <div class="psy-full-card__footer">
+          <div class="psy-full-card__price">
+            <strong>75€</strong>
+            <span>par séance de 50 min</span>
+          </div>
+          <div class="psy-full-card__actions">
+            <a href="rendez-vous.html" class="btn btn--primary btn--sm">Réserver</a>
+          </div>
+        </div>
+      </article>
+
+      <!-- Psy 6 -->
+      <article class="psy-full-card reveal reveal-delay-2" data-filter="fr anxiete couple m">
+        <div class="psy-full-card__header">
+          <div class="psy-full-card__top">
+            <div class="psy-avatar-lg" style="background:linear-gradient(135deg,#C5D8CC,#8AB5A0)">👨‍⚕️</div>
+            <div class="psy-full-card__info">
+              <h3>M. Rachid Khelili</h3>
+              <div class="psy-full-card__role">Psychologue du travail &amp; EMDR</div>
+              <div class="psy-full-card__langs">
+                <span class="lang-badge">FR</span>
+              </div>
+              <div class="psy-full-card__rating">
+                <span class="stars-sm">★★★★☆</span>
+                <span style="color:var(--text-mid); font-weight:600">4.6</span>
+                <span style="color:var(--text-muted)">(35 avis)</span>
+              </div>
+            </div>
+          </div>
+          <span class="availability-badge availability-badge--available">● Disponible aujourd'hui</span>
+        </div>
+        <div class="psy-full-card__body">
+          <div class="psy-full-card__approach">Approche · Psychologie du travail · EMDR · TCC</div>
+          <p class="psy-full-card__bio">
+            Rachid accompagne principalement les professionnels en burn-out, en reconversion ou souffrant d'anxiété liée au travail. Comprenant les enjeux particuliers des cadres et entrepreneurs immigrés, il offre un espace de recul bienveillant et concret.
+          </p>
+          <div class="psy-full-card__specialties">
+            <span class="tag tag--sage">Burn-out</span>
+            <span class="tag tag--sage">Reconversion</span>
+            <span class="tag">Anxiété professionnelle</span>
+            <span class="tag">Gestion du stress</span>
+          </div>
+        </div>
+        <div class="psy-full-card__footer">
+          <div class="psy-full-card__price">
+            <strong>60€</strong>
+            <span>par séance de 50 min</span>
+          </div>
+          <div class="psy-full-card__actions">
+            <a href="rendez-vous.html" class="btn btn--primary btn--sm">Réserver</a>
+          </div>
+        </div>
+      </article>
+
+    </div>
+
+    <!-- Load more -->
+    <div style="text-align:center;margin-top:var(--space-8);margin-bottom:var(--space-4)">
+      <button class="btn btn--ghost" id="loadMoreBtn" style="display:none">Charger plus de psychologues</button>
+    </div>
+
+    <!-- Rejoindre l'équipe -->
+    <div class="cta-join reveal">
+      <div style="font-size:2rem; margin-bottom:var(--space-3)" aria-hidden="true">🌿</div>
+      <h3 style="margin-bottom:var(--space-3)">Vous êtes psychologue ?</h3>
+      <p style="color:var(--text-light); font-size:0.95rem; margin-bottom:var(--space-6); margin-inline:auto">
+        Rejoignez une plateforme pensée pour les thérapeutes arabophones et francophones qui souhaitent accompagner la diaspora maghrébine. Flexibilité, impact, communauté.
+      </p>
+      <a href="mailto:psys@nafsolea.com" class="btn btn--secondary">En savoir plus →</a>
+    </div>
+
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer__grid">
+      <div class="footer__brand">
+        <h3>Nafsoléa</h3>
+        <p>Une plateforme de téléconsultation psychologique culturellement adaptée pour la diaspora algérienne et maghrébine.</p>
+        <div class="footer__socials">
+          <a href="#" class="footer__social">📸</a>
+          <a href="#" class="footer__social">💼</a>
+          <a href="#" class="footer__social">📘</a>
+        </div>
+      </div>
+      <div class="footer__col">
+        <h5>Plateforme</h5>
+        <ul class="footer__links">
+          <li><a href="comment-ca-marche.html" class="footer__link">Comment ça marche</a></li>
+          <li><a href="psychologues.html" class="footer__link">Nos psychologues</a></li>
+          <li><a href="rendez-vous.html" class="footer__link">Prendre rendez-vous</a></li>
+          <li><a href="faq.html" class="footer__link">FAQ</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h5>Ressources</h5>
+        <ul class="footer__links">
+          <li><a href="blog.html" class="footer__link">Blog santé mentale</a></li>
+          <li><a href="a-propos.html" class="footer__link">À propos</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h5>Urgence</h5>
+        <ul class="footer__links">
+          <li><span class="footer__link" style="cursor:default">SAMU : 15</span></li>
+          <li><span class="footer__link" style="cursor:default">Suicide : 3114</span></li>
+          <li><a href="mailto:bonjour@nafsolea.com" class="footer__link">bonjour@nafsolea.com</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <p class="footer__copyright">© 2025 Nafsoléa. Tous droits réservés.</p>
+      <nav class="footer__legal">
+        <a href="#">Confidentialité</a>
+        <a href="#">CGU</a>
+        <a href="#">Mentions légales</a>
+      </nav>
+    </div>
+  </div>
+</footer>
+
+<button class="scroll-top" aria-label="Haut de page">↑</button>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/auth.js"></script>
+<script>
+// ── Psychologist listing — dynamic API ────────────────────────────
+
+const SPEC_MAP = {
+  anxiete: 'Anxiété', depression: 'Dépression', famille: 'Relations familiales',
+  couple: 'Couple', expatriation: 'Expatriation', trauma: 'Trauma',
+};
+
+let currentPage = 1;
+let isLoading   = false;
+let hasMore     = true;
+let searchTimer;
+
+function fmtAvailability(psy) {
+  if (psy.nextAvailableSlot) {
+    const d = new Date(psy.nextAvailableSlot);
+    const today = new Date();
+    const diff  = Math.floor((d - today) / 86400000);
+    if (diff <= 0) return `<span class="availability-badge availability-badge--available">● Disponible aujourd'hui</span>`;
+    if (diff === 1) return `<span class="availability-badge availability-badge--soon">◔ Demain</span>`;
+    return `<span class="availability-badge availability-badge--soon">◔ Dans ${diff} jours</span>`;
+  }
+  return `<span class="availability-badge availability-badge--available">● Disponible</span>`;
+}
+
+function langBadges(langs = []) {
+  const map = { fr: 'FR', ar: 'عربي', darija: 'دارجة', en: 'EN' };
+  return langs.map(l => {
+    const isAr = l === 'ar' || l === 'darija';
+    return `<span class="lang-badge${isAr ? ' lang-badge--ar' : ''}">${map[l] || l.toUpperCase()}</span>`;
+  }).join('');
+}
+
+function stars(rating) {
+  const r = Math.round(rating || 0);
+  return '★'.repeat(r) + '☆'.repeat(5 - r);
+}
+
+function renderCard(p, delay = '') {
+  const name      = `${p.firstName || ''} ${p.lastName || ''}`.trim();
+  const specialties = (p.specialties || []).slice(0, 5);
+  const reviewCount = p.reviewCount || 0;
+  const avgRating   = p.averageRating ? Number(p.averageRating).toFixed(1) : null;
+
+  return `
+    <article class="psy-full-card reveal ${delay}">
+      <div class="psy-full-card__header">
+        <div class="psy-full-card__top">
+          <div class="psy-avatar-lg">${p.gender === 'M' ? '👨‍⚕️' : '👩‍⚕️'}</div>
+          <div class="psy-full-card__info">
+            <h3>${name || 'Psychologue'}</h3>
+            <div class="psy-full-card__role">${p.title || 'Psychologue clinicien(ne)'}</div>
+            <div class="psy-full-card__langs">${langBadges(p.languages || [])}</div>
+            ${avgRating ? `
+            <div class="psy-full-card__rating">
+              <span class="stars-sm">${stars(avgRating)}</span>
+              <span style="color:var(--text-mid);font-weight:600">${avgRating}</span>
+              <span style="color:var(--text-muted)">(${reviewCount} avis)</span>
+            </div>` : ''}
+          </div>
+        </div>
+        ${fmtAvailability(p)}
+      </div>
+      <div class="psy-full-card__body">
+        ${p.approachSummary ? `<div class="psy-full-card__approach">Approche · ${p.approachSummary}</div>` : ''}
+        <p class="psy-full-card__bio">${p.bio || 'Psychologue spécialisé(e) dans l\'accompagnement de la diaspora maghrébine.'}</p>
+        <div class="psy-full-card__specialties">
+          ${specialties.map(s => `<span class="tag tag--sage">${s}</span>`).join('')}
+        </div>
+      </div>
+      <div class="psy-full-card__footer">
+        <div class="psy-full-card__price">
+          <strong>${p.sessionPrice ? p.sessionPrice + '€' : '—'}</strong>
+          <span>par séance de 50 min</span>
+        </div>
+        <div class="psy-full-card__actions">
+          <a href="rendez-vous.html?psy=${p.id}" class="btn btn--primary btn--sm">Réserver</a>
+        </div>
+      </div>
+    </article>
+  `;
+}
+
+function skeletonCards(n) {
+  return Array.from({length: n}, () => `
+    <article class="psy-full-card">
+      <div class="psy-full-card__header">
+        <div class="psy-full-card__top">
+          <div class="psy-avatar-lg skeleton" style="font-size:0"></div>
+          <div style="flex:1;padding-top:4px">
+            <div class="skeleton" style="height:16px;width:70%;margin-bottom:8px;border-radius:4px"></div>
+            <div class="skeleton" style="height:12px;width:50%;margin-bottom:8px;border-radius:4px"></div>
+            <div class="skeleton" style="height:20px;width:80px;border-radius:20px"></div>
+          </div>
+        </div>
+        <div class="skeleton" style="height:24px;width:160px;border-radius:20px;margin-top:8px"></div>
+      </div>
+      <div class="psy-full-card__body">
+        <div class="skeleton" style="height:12px;margin-bottom:6px;border-radius:4px"></div>
+        <div class="skeleton" style="height:12px;width:80%;margin-bottom:6px;border-radius:4px"></div>
+        <div class="skeleton" style="height:12px;width:60%;border-radius:4px"></div>
+      </div>
+      <div class="psy-full-card__footer" style="justify-content:space-between">
+        <div class="skeleton" style="height:28px;width:60px;border-radius:4px"></div>
+        <div class="skeleton" style="height:36px;width:90px;border-radius:8px"></div>
+      </div>
+    </article>
+  `).join('');
+}
+
+async function loadPsychologists(page = 1, append = false) {
+  if (isLoading) return;
+  isLoading = true;
+
+  const loadMoreBtn = document.getElementById('loadMoreBtn');
+  if (loadMoreBtn) { loadMoreBtn.disabled = true; loadMoreBtn.textContent = 'Chargement…'; }
+
+  if (!append) {
+    document.getElementById('psysGrid').innerHTML = skeletonCards(6);
+    document.getElementById('psyCount').textContent = 'Chargement…';
+  }
+
+  // Collect filter values
+  const search   = document.querySelector('input[type="search"]')?.value?.trim() || '';
+  const langVal  = document.getElementById('filter-lang')?.value;
+  const specVal  = document.getElementById('filter-spec')?.value;
+  const genderVal= document.getElementById('filter-gender')?.value;
+
+  const params = { page, limit: 6 };
+  if (search && search !== '')           params.search   = search;
+  if (langVal   && langVal   !== 'all')  params.language = langVal;
+  if (specVal   && specVal   !== 'all')  params.specialty= SPEC_MAP[specVal] || specVal;
+  if (genderVal && genderVal !== 'all')  params.gender   = genderVal.toUpperCase();
+
+  try {
+    const res  = await API.psychologists.list(params);
+    const psys = res.data || res || [];
+    const meta = res.meta || {};
+
+    hasMore      = page < (meta.pages || 1);
+    currentPage  = page;
+
+    document.getElementById('psyCount').textContent =
+      `${meta.total ?? psys.length} psychologue${(meta.total ?? psys.length) !== 1 ? 's' : ''} disponibles`;
+
+    const html = psys.map((p, i) => renderCard(p, i % 2 === 1 ? 'reveal-delay-1' : '')).join('');
+
+    if (append) {
+      document.getElementById('psysGrid').insertAdjacentHTML('beforeend', html);
+    } else {
+      document.getElementById('psysGrid').innerHTML = html || `
+        <div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--text-muted)">
+          <div style="font-size:3rem;margin-bottom:16px">🔍</div>
+          <div>Aucun psychologue ne correspond à ces critères.</div>
+        </div>`;
+    }
+
+    if (loadMoreBtn) {
+      loadMoreBtn.style.display = hasMore ? '' : 'none';
+      loadMoreBtn.disabled      = false;
+      loadMoreBtn.textContent   = 'Charger plus de psychologues';
+    }
+  } catch {
+    // Fallback: keep static HTML that was already in DOM before JS ran
+    document.getElementById('psyCount').textContent = 'Psychologues disponibles';
+    // Restore static skeletons are already gone — show a message
+    if (!append) {
+      document.getElementById('psysGrid').innerHTML = `
+        <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted)">
+          Impossible de charger les profils. <button onclick="loadPsychologists(1)" style="color:var(--sage-dark);border:none;background:none;cursor:pointer;text-decoration:underline">Réessayer</button>
+        </div>`;
+    }
+    if (loadMoreBtn) loadMoreBtn.style.display = 'none';
+  } finally {
+    isLoading = false;
+  }
+}
+
+// ── Filter listeners ──────────────────────────────────────────────
+document.querySelector('input[type="search"]')?.addEventListener('input', () => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => loadPsychologists(1), 400);
+});
+
+document.querySelectorAll('[data-filter-type]').forEach(sel => {
+  sel.addEventListener('change', () => loadPsychologists(1));
+});
+
+document.getElementById('loadMoreBtn')?.addEventListener('click', () => {
+  loadPsychologists(currentPage + 1, true);
+});
+
+// ── Check ?psy= param on rendez-vous.html link ────────────────────
+// (rendez-vous.html will read window.location.search to pre-select the psy)
+
+loadPsychologists(1);
+</script>
+<script src="assets/js/main.js" defer></script>
+</body>
+</html>

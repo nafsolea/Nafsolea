@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog / Articles — Admin Nafsoléa</title>
+  <link rel="stylesheet" href="../assets/css/admin.css">
+</head>
+<body>
+<div class="admin-layout">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+    <a href="index.html" class="sidebar__logo">
+      <div class="sidebar__logo-mark">
+        <svg width="16" height="16" viewBox="0 0 36 36" fill="none">
+          <circle cx="18" cy="18" r="5" fill="white"/>
+          <line x1="18" y1="2" x2="18" y2="10" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="18" y1="26" x2="18" y2="34" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="2" y1="18" x2="10" y2="18" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="26" y1="18" x2="34" y2="18" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <span class="sidebar__logo-text">Nafsoléa</span>
+      <span class="sidebar__logo-badge">Admin</span>
+    </a>
+    <nav class="sidebar__nav">
+      <span class="sidebar__section">Principal</span>
+      <a href="index.html" class="sidebar__link"><span class="link-icon">📊</span> Dashboard</a>
+      <span class="sidebar__section">Gestion</span>
+      <a href="utilisateurs.html" class="sidebar__link"><span class="link-icon">👥</span> Utilisateurs</a>
+      <a href="psychologues.html" class="sidebar__link"><span class="link-icon">🧠</span> Psychologues</a>
+      <a href="rendez-vous.html" class="sidebar__link"><span class="link-icon">📅</span> Rendez-vous</a>
+      <a href="paiements.html" class="sidebar__link"><span class="link-icon">💳</span> Paiements</a>
+      <span class="sidebar__section">Contenu</span>
+      <a href="blog.html" class="sidebar__link active"><span class="link-icon">📝</span> Blog / Articles</a>
+      <span class="sidebar__section">Système</span>
+      <a href="audit.html" class="sidebar__link"><span class="link-icon">🔍</span> Audit logs</a>
+      <a href="../index.html" class="sidebar__link" target="_blank"><span class="link-icon">🌐</span> Voir le site</a>
+    </nav>
+    <div class="sidebar__footer">
+      <div class="sidebar__user">
+        <div class="sidebar__avatar">A</div>
+        <div class="sidebar__user-info">
+          <div class="sidebar__user-name">Administrateur</div>
+          <div class="sidebar__user-role">Admin</div>
+        </div>
+      </div>
+      <button class="sidebar__logout" id="logoutBtn"><span>🚪</span> Se déconnecter</button>
+    </div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <main class="admin-main">
+
+    <div class="topbar">
+      <div class="topbar__left">
+        <h1 class="topbar__title">Blog & Articles</h1>
+        <span class="topbar__breadcrumb" id="statsLabel">Chargement…</span>
+      </div>
+      <div class="topbar__right">
+        <div class="search-input-wrap">
+          <span class="icon">🔍</span>
+          <input type="text" id="searchInput" placeholder="Rechercher un article…">
+        </div>
+        <select class="filter-select" id="statusFilter">
+          <option value="">Tous les statuts</option>
+          <option value="PUBLISHED">Publiés</option>
+          <option value="DRAFT">Brouillons</option>
+        </select>
+        <a href="article.html" class="topbar__btn">+ Nouvel article</a>
+      </div>
+    </div>
+
+    <div class="page-content">
+
+      <!-- Stats row -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px" id="blogStats">
+        <div class="card" style="padding:20px 24px">
+          <div style="font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);margin-bottom:8px">Total articles</div>
+          <div style="font-size:2rem;font-weight:800;color:var(--navy)" id="statTotal">—</div>
+        </div>
+        <div class="card" style="padding:20px 24px">
+          <div style="font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);margin-bottom:8px">Publiés</div>
+          <div style="font-size:2rem;font-weight:800;color:var(--green)" id="statPublished">—</div>
+        </div>
+        <div class="card" style="padding:20px 24px">
+          <div style="font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);margin-bottom:8px">Brouillons</div>
+          <div style="font-size:2rem;font-weight:800;color:var(--yellow)" id="statDraft">—</div>
+        </div>
+      </div>
+
+      <!-- Articles table -->
+      <div class="card">
+        <div class="card__header">
+          <span class="card__title">Tous les articles</span>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:40px"><input type="checkbox" id="selectAll" title="Tout sélectionner"></th>
+                <th>Titre</th>
+                <th>Catégorie</th>
+                <th>Auteur</th>
+                <th>Statut</th>
+                <th>Lecture</th>
+                <th>Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="articlesTable">
+              <tr><td colspan="8"><div class="skeleton" style="height:14px;margin:14px 16px"></div></td></tr>
+              <tr><td colspan="8"><div class="skeleton" style="height:14px;margin:14px 16px"></div></td></tr>
+              <tr><td colspan="8"><div class="skeleton" style="height:14px;margin:14px 16px"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Bulk actions -->
+        <div class="card__footer" id="bulkBar" style="display:none">
+          <div style="display:flex;align-items:center;gap:12px">
+            <span id="selectedCount" style="font-size:.87rem;font-weight:600;color:var(--navy)"></span>
+            <button class="btn btn-success btn-sm" onclick="bulkPublish()">✓ Publier la sélection</button>
+            <button class="btn btn-danger btn-sm" onclick="bulkDelete()">🗑 Supprimer la sélection</button>
+          </div>
+        </div>
+
+        <div class="card__footer" id="paginationBar">
+          <div class="pagination">
+            <span class="pagination__info" id="paginationInfo"></span>
+            <div class="pagination__pages" id="paginationPages"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- Delete confirm modal -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal">
+    <div class="modal__header">
+      <span class="modal__title">Supprimer l'article</span>
+      <button class="modal__close" onclick="closeDeleteModal()">✕</button>
+    </div>
+    <div class="modal__body">
+      <p style="color:var(--text-muted);line-height:1.6">
+        Voulez-vous vraiment supprimer l'article <strong id="deleteTitle"></strong> ?
+        Cette action est <strong>irréversible</strong>.
+      </p>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn-outline" onclick="closeDeleteModal()">Annuler</button>
+      <button class="btn btn-danger" id="confirmDeleteBtn">Supprimer définitivement</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="../assets/js/api.js"></script>
+<script src="../assets/js/auth.js"></script>
+<script>
+  if (!Auth.requireRole('ADMIN')) {}
+  document.getElementById('logoutBtn').addEventListener('click', () => Auth.logout());
+
+  let currentPage = 1;
+  let allArticles = [];
+  let selectedIds = new Set();
+  let deleteTargetId = null;
+  let searchTimeout;
+
+  function toast(msg, type = 'success') {
+    const t = document.createElement('div');
+    t.className = `toast ${type}`;
+    t.textContent = msg;
+    document.getElementById('toastContainer').appendChild(t);
+    requestAnimationFrame(() => t.classList.add('show'));
+    setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 400); }, 3500);
+  }
+
+  function fmtDate(d) {
+    if (!d) return '—';
+    return new Date(d).toLocaleDateString('fr-FR', { day:'2-digit', month:'short', year:'numeric' });
+  }
+
+  // ── Load stats ────────────────────────────────────────────────────
+  async function loadStats() {
+    try {
+      const s = await API.articles.adminStats();
+      document.getElementById('statTotal').textContent = s.total;
+      document.getElementById('statPublished').textContent = s.published;
+      document.getElementById('statDraft').textContent = s.draft;
+      document.getElementById('statsLabel').textContent = `${s.total} articles au total`;
+    } catch {}
+  }
+
+  // ── Load articles ──────────────────────────────────────────────────
+  async function loadArticles(page = 1) {
+    const status = document.getElementById('statusFilter').value;
+    const params = { page, limit: 15 };
+    if (status) params.status = status;
+
+    try {
+      const res = await API.articles.adminAll(params);
+      const { data, meta } = res;
+      currentPage = page;
+      selectedIds.clear();
+      updateBulkBar();
+
+      if (data.length === 0) {
+        document.getElementById('articlesTable').innerHTML = `
+          <tr><td colspan="8">
+            <div class="empty-state">
+              <span class="empty-state__icon">📝</span>
+              <span class="empty-state__title">Aucun article</span>
+              <span class="empty-state__desc">Créez votre premier article pour alimenter le blog.</span>
+              <a href="article.html" class="btn btn-rose" style="margin-top:12px">+ Créer un article</a>
+            </div>
+          </td></tr>`;
+        document.getElementById('paginationBar').style.display = 'none';
+        return;
+      }
+
+      // Search filter client-side
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const filtered = search ? data.filter(a => a.title.toLowerCase().includes(search)) : data;
+
+      document.getElementById('articlesTable').innerHTML = filtered.map(a => {
+        const authorName = a.author?.patient
+          ? `${a.author.patient.firstName} ${a.author.patient.lastName}`
+          : a.author?.email || '—';
+        return `
+          <tr data-id="${a.id}">
+            <td><input type="checkbox" class="row-check" value="${a.id}" onchange="toggleSelect('${a.id}', this.checked)"></td>
+            <td>
+              <div class="td-bold" style="max-width:280px">${a.title}</div>
+              ${a.excerpt ? `<div class="td-muted" style="font-size:.78rem;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:280px">${a.excerpt}</div>` : ''}
+            </td>
+            <td class="td-muted">${a.category || '—'}</td>
+            <td class="td-muted">${authorName}</td>
+            <td>
+              <span class="badge ${a.status === 'PUBLISHED' ? 'published' : 'draft'}">
+                ${a.status === 'PUBLISHED' ? 'Publié' : 'Brouillon'}
+              </span>
+            </td>
+            <td class="td-muted">${a.readingTime ? a.readingTime + ' min' : '—'}</td>
+            <td class="td-muted">${fmtDate(a.publishedAt || a.createdAt)}</td>
+            <td>
+              <div class="actions-cell">
+                <a href="article.html?id=${a.id}" class="btn-action" title="Modifier">✏️</a>
+                ${a.status === 'DRAFT'
+                  ? `<button class="btn-action success" title="Publier" onclick="toggleStatus('${a.id}', 'PUBLISHED', this)">✓</button>`
+                  : `<button class="btn-action" title="Dépublier" onclick="toggleStatus('${a.id}', 'DRAFT', this)">⏸</button>`
+                }
+                ${a.status === 'PUBLISHED'
+                  ? `<a href="../blog.html?article=${a.slug || a.id}" target="_blank" class="btn-action" title="Voir sur le site">🔗</a>`
+                  : ''
+                }
+                <button class="btn-action danger" title="Supprimer" onclick="openDeleteModal('${a.id}', '${a.title.replace(/'/g,"\\'")}')">🗑</button>
+              </div>
+            </td>
+          </tr>`;
+      }).join('');
+
+      // Pagination
+      document.getElementById('paginationBar').style.display = '';
+      document.getElementById('paginationInfo').textContent =
+        `Page ${meta.page} / ${meta.pages} · ${meta.total} articles`;
+
+      renderPagination(meta);
+
+    } catch (err) {
+      toast('Erreur: ' + err.message, 'error');
+    }
+  }
+
+  function renderPagination(meta) {
+    const wrap = document.getElementById('paginationPages');
+    wrap.innerHTML = '';
+    if (meta.pages <= 1) return;
+
+    const add = (label, p, disabled = false) => {
+      const btn = document.createElement('button');
+      btn.className = 'page-btn' + (p === currentPage ? ' active' : '');
+      btn.textContent = label;
+      btn.disabled = disabled;
+      btn.onclick = () => loadArticles(p);
+      wrap.appendChild(btn);
+    };
+    add('←', currentPage - 1, currentPage === 1);
+    for (let i = 1; i <= meta.pages; i++) add(i, i);
+    add('→', currentPage + 1, currentPage === meta.pages);
+  }
+
+  // ── Status toggle ──────────────────────────────────────────────────
+  async function toggleStatus(id, newStatus, btn) {
+    btn.disabled = true;
+    try {
+      await API.articles.update(id, { status: newStatus });
+      toast(newStatus === 'PUBLISHED' ? 'Article publié ✓' : 'Article dépublié', 'success');
+      loadArticles(currentPage);
+      loadStats();
+    } catch (e) {
+      toast(e.message, 'error');
+      btn.disabled = false;
+    }
+  }
+
+  // ── Delete ────────────────────────────────────────────────────────
+  function openDeleteModal(id, title) {
+    deleteTargetId = id;
+    document.getElementById('deleteTitle').textContent = `"${title}"`;
+    document.getElementById('deleteModal').classList.add('show');
+  }
+
+  function closeDeleteModal() {
+    document.getElementById('deleteModal').classList.remove('show');
+    deleteTargetId = null;
+  }
+
+  document.getElementById('confirmDeleteBtn').addEventListener('click', async () => {
+    if (!deleteTargetId) return;
+    try {
+      await API.articles.delete(deleteTargetId);
+      toast('Article supprimé', 'warning');
+      closeDeleteModal();
+      loadArticles(currentPage);
+      loadStats();
+    } catch (e) { toast(e.message, 'error'); }
+  });
+
+  // ── Bulk selection ────────────────────────────────────────────────
+  function toggleSelect(id, checked) {
+    if (checked) selectedIds.add(id);
+    else selectedIds.delete(id);
+    updateBulkBar();
+  }
+
+  document.getElementById('selectAll').addEventListener('change', function() {
+    document.querySelectorAll('.row-check').forEach(cb => {
+      cb.checked = this.checked;
+      toggleSelect(cb.value, this.checked);
+    });
+  });
+
+  function updateBulkBar() {
+    const bar = document.getElementById('bulkBar');
+    const count = selectedIds.size;
+    bar.style.display = count > 0 ? '' : 'none';
+    document.getElementById('selectedCount').textContent = `${count} article(s) sélectionné(s)`;
+  }
+
+  async function bulkPublish() {
+    if (selectedIds.size === 0) return;
+    try {
+      await Promise.all([...selectedIds].map(id => API.articles.update(id, { status: 'PUBLISHED' })));
+      toast(`${selectedIds.size} articles publiés ✓`);
+      loadArticles(currentPage);
+      loadStats();
+    } catch (e) { toast(e.message, 'error'); }
+  }
+
+  async function bulkDelete() {
+    if (selectedIds.size === 0) return;
+    if (!confirm(`Supprimer ${selectedIds.size} article(s) ? Action irréversible.`)) return;
+    try {
+      await Promise.all([...selectedIds].map(id => API.articles.delete(id)));
+      toast(`${selectedIds.size} articles supprimés`, 'warning');
+      loadArticles(currentPage);
+      loadStats();
+    } catch (e) { toast(e.message, 'error'); }
+  }
+
+  // ── Search & filter ───────────────────────────────────────────────
+  document.getElementById('searchInput').addEventListener('input', () => {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => loadArticles(1), 350);
+  });
+  document.getElementById('statusFilter').addEventListener('change', () => loadArticles(1));
+
+  // ── Init ──────────────────────────────────────────────────────────
+  loadStats();
+  loadArticles();
+
+  // Handle ?action=new from dashboard
+  if (new URLSearchParams(location.search).get('action') === 'new') {
+    window.location.href = 'article.html';
+  }
+</script>
+</body>
+</html>

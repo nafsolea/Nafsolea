@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Paiements — Admin Nafsoléa</title>
+  <link rel="stylesheet" href="../assets/css/admin.css">
+</head>
+<body>
+<div class="admin-layout">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar" id="sidebar">
+    <a href="index.html" class="sidebar__logo">
+      <div class="sidebar__logo-mark">
+        <svg width="16" height="16" viewBox="0 0 36 36" fill="none">
+          <circle cx="18" cy="18" r="5" fill="white"/>
+          <line x1="18" y1="2" x2="18" y2="10" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="18" y1="26" x2="18" y2="34" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="2" y1="18" x2="10" y2="18" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="26" y1="18" x2="34" y2="18" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <span class="sidebar__logo-text">Nafsoléa</span>
+      <span class="sidebar__logo-badge">Admin</span>
+    </a>
+    <nav class="sidebar__nav">
+      <span class="sidebar__section">Principal</span>
+      <a href="index.html" class="sidebar__link"><span class="link-icon">📊</span> Dashboard</a>
+      <span class="sidebar__section">Gestion</span>
+      <a href="utilisateurs.html" class="sidebar__link"><span class="link-icon">👥</span> Utilisateurs</a>
+      <a href="psychologues.html" class="sidebar__link"><span class="link-icon">🧠</span> Psychologues</a>
+      <a href="rendez-vous.html" class="sidebar__link"><span class="link-icon">📅</span> Rendez-vous</a>
+      <a href="paiements.html" class="sidebar__link active"><span class="link-icon">💳</span> Paiements</a>
+      <span class="sidebar__section">Contenu</span>
+      <a href="blog.html" class="sidebar__link"><span class="link-icon">📝</span> Blog / Articles</a>
+      <span class="sidebar__section">Système</span>
+      <a href="audit.html" class="sidebar__link"><span class="link-icon">🔍</span> Audit logs</a>
+      <a href="../index.html" class="sidebar__link" target="_blank"><span class="link-icon">🌐</span> Voir le site</a>
+    </nav>
+    <div class="sidebar__footer">
+      <div class="sidebar__user">
+        <div class="sidebar__avatar">A</div>
+        <div class="sidebar__user-info">
+          <div class="sidebar__user-name">Administrateur</div>
+          <div class="sidebar__user-role">Admin</div>
+        </div>
+      </div>
+      <button class="sidebar__logout" id="logoutBtn"><span>🚪</span> Se déconnecter</button>
+    </div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <main class="admin-main">
+    <div class="topbar">
+      <div class="topbar__left">
+        <h1 class="topbar__title">Paiements</h1>
+        <span class="topbar__breadcrumb" id="totalLabel">Chargement…</span>
+      </div>
+      <div class="topbar__right">
+        <input type="date" class="filter-select" id="dateFrom" title="Du">
+        <input type="date" class="filter-select" id="dateTo" title="Au">
+        <button class="topbar__btn" id="applyBtn">Appliquer</button>
+      </div>
+    </div>
+
+    <div class="page-content">
+
+      <!-- Revenue stat cards -->
+      <div class="stats-grid" id="statsGrid">
+        <div class="stat-card green skeleton" style="height:110px"></div>
+        <div class="stat-card blue skeleton" style="height:110px"></div>
+        <div class="stat-card yellow skeleton" style="height:110px"></div>
+        <div class="stat-card rose skeleton" style="height:110px"></div>
+      </div>
+
+      <!-- Payments table -->
+      <div class="card">
+        <div class="card__header">
+          <span class="card__title">Transactions</span>
+          <div style="display:flex;gap:8px">
+            <select class="filter-select" id="statusFilter" style="font-size:.82rem">
+              <option value="">Tous les statuts</option>
+              <option value="SUCCEEDED">Réussis</option>
+              <option value="PENDING">En attente</option>
+              <option value="FAILED">Échoués</option>
+              <option value="REFUNDED">Remboursés</option>
+              <option value="PARTIALLY_REFUNDED">Partiellement remboursés</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Patient</th>
+                <th>Psychologue</th>
+                <th>Montant</th>
+                <th>Commission</th>
+                <th>Statut</th>
+                <th>Date</th>
+                <th>Réf. Stripe</th>
+              </tr>
+            </thead>
+            <tbody id="paymentsTable">
+              <tr><td colspan="7"><div class="skeleton" style="height:14px;margin:12px 16px"></div></td></tr>
+              <tr><td colspan="7"><div class="skeleton" style="height:14px;margin:12px 16px"></div></td></tr>
+              <tr><td colspan="7"><div class="skeleton" style="height:14px;margin:12px 16px"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card__footer">
+          <div class="pagination">
+            <span class="pagination__info" id="paginationInfo"></span>
+            <div class="pagination__pages" id="paginationPages"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="../assets/js/api.js"></script>
+<script src="../assets/js/auth.js"></script>
+<script>
+  if (!Auth.requireRole('ADMIN')) {}
+  document.getElementById('logoutBtn').addEventListener('click', () => Auth.logout());
+
+  let currentPage = 1;
+
+  const STATUS_MAP = {
+    SUCCEEDED:           ['confirmed',  'Réussi'],
+    PENDING:             ['pending',    'En attente'],
+    FAILED:              ['inactive',   'Échoué'],
+    REFUNDED:            ['draft',      'Remboursé'],
+    PARTIALLY_REFUNDED:  ['pending',    'Part. remboursé'],
+  };
+
+  function toast(msg, type = 'success') {
+    const t = document.createElement('div');
+    t.className = `toast ${type}`;
+    t.textContent = msg;
+    document.getElementById('toastContainer').appendChild(t);
+    requestAnimationFrame(() => t.classList.add('show'));
+    setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 400); }, 3500);
+  }
+
+  function fmtDate(d) {
+    if (!d) return '—';
+    return new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' });
+  }
+
+  function fmtEur(n) {
+    if (n == null) return '—';
+    return Number(n).toFixed(2) + ' €';
+  }
+
+  function statusBadge(s) {
+    const [cls, label] = STATUS_MAP[s] || ['inactive', s];
+    return `<span class="badge ${cls}">${label}</span>`;
+  }
+
+  // ── Load revenue stats ────────────────────────────────────────────
+  async function loadRevenue() {
+    const from = document.getElementById('dateFrom').value;
+    const to   = document.getElementById('dateTo').value;
+    try {
+      const rev = await API.admin.revenue(from, to);
+      document.getElementById('statsGrid').innerHTML = `
+        <div class="stat-card green">
+          <div class="stat-card__header"><span class="stat-card__label">Revenus totaux</span><div class="stat-card__icon">💶</div></div>
+          <div class="stat-card__value">${fmtEur(rev.total)}</div>
+          <div class="stat-card__trend up">Paiements réussis</div>
+        </div>
+        <div class="stat-card blue">
+          <div class="stat-card__header"><span class="stat-card__label">Commission plateforme</span><div class="stat-card__icon">🏦</div></div>
+          <div class="stat-card__value">${fmtEur(rev.platformFee ?? (rev.total * 0.15))}</div>
+          <div class="stat-card__trend up">15% des transactions</div>
+        </div>
+        <div class="stat-card yellow">
+          <div class="stat-card__header"><span class="stat-card__label">Reversé aux psys</span><div class="stat-card__icon">👩‍⚕️</div></div>
+          <div class="stat-card__value">${fmtEur(rev.psyShare ?? (rev.total * 0.85))}</div>
+          <div class="stat-card__trend up">85% des transactions</div>
+        </div>
+        <div class="stat-card rose">
+          <div class="stat-card__header"><span class="stat-card__label">Remboursements</span><div class="stat-card__icon">↩️</div></div>
+          <div class="stat-card__value">${fmtEur(rev.refunded ?? 0)}</div>
+          <div class="stat-card__trend">Sur la période</div>
+        </div>
+      `;
+    } catch {
+      // Revenue endpoint may not be available — show placeholder
+      document.getElementById('statsGrid').innerHTML = `
+        <div class="stat-card green"><div class="stat-card__header"><span class="stat-card__label">Revenus totaux</span><div class="stat-card__icon">💶</div></div><div class="stat-card__value">—</div><div class="stat-card__trend">Non disponible</div></div>
+        <div class="stat-card blue"><div class="stat-card__header"><span class="stat-card__label">Commission</span><div class="stat-card__icon">🏦</div></div><div class="stat-card__value">—</div><div class="stat-card__trend">Non disponible</div></div>
+        <div class="stat-card yellow"><div class="stat-card__header"><span class="stat-card__label">Reversé psys</span><div class="stat-card__icon">👩‍⚕️</div></div><div class="stat-card__value">—</div><div class="stat-card__trend">Non disponible</div></div>
+        <div class="stat-card rose"><div class="stat-card__header"><span class="stat-card__label">Remboursements</span><div class="stat-card__icon">↩️</div></div><div class="stat-card__value">—</div><div class="stat-card__trend">Non disponible</div></div>
+      `;
+    }
+  }
+
+  // ── Load payment rows via appointments ────────────────────────────
+  async function loadPayments(page = 1) {
+    const from   = document.getElementById('dateFrom').value;
+    const to     = document.getElementById('dateTo').value;
+    const status = document.getElementById('statusFilter').value;
+
+    const params = { page, limit: 20 };
+    if (from)   params.from = from;
+    if (to)     params.to   = to;
+    // Filter by payment status — pass as query param; backend maps it
+    if (status) params.paymentStatus = status;
+
+    try {
+      const res = await API.admin.appointments(params);
+      const { data = [], meta = {} } = res;
+      currentPage = page;
+
+      // Only show rows that have a payment
+      const withPayment = data.filter(a => a.payment);
+      document.getElementById('totalLabel').textContent =
+        `${meta.total ?? data.length} transactions`;
+
+      if (!withPayment.length) {
+        document.getElementById('paymentsTable').innerHTML = `
+          <tr><td colspan="7">
+            <div class="empty-state"><span class="empty-state__icon">💳</span><span class="empty-state__title">Aucune transaction sur cette période</span></div>
+          </td></tr>`;
+        document.getElementById('paginationInfo').textContent = '';
+        document.getElementById('paginationPages').innerHTML = '';
+        return;
+      }
+
+      document.getElementById('paymentsTable').innerHTML = withPayment.map(a => {
+        const p = a.payment;
+        const amount = p.amount ?? 0;
+        const fee    = p.platformFee ?? (amount * 0.15);
+        const short  = p.stripePaymentIntentId
+          ? p.stripePaymentIntentId.slice(-8)
+          : '—';
+        return `
+          <tr>
+            <td class="td-bold">${a.patient?.firstName ?? '—'} ${a.patient?.lastName ?? ''}</td>
+            <td class="td-muted">${a.psychologist?.firstName ?? '—'} ${a.psychologist?.lastName ?? ''}</td>
+            <td class="td-bold">${fmtEur(amount)}</td>
+            <td class="td-muted">${fmtEur(fee)}</td>
+            <td>${statusBadge(p.status)}</td>
+            <td class="td-muted">${fmtDate(p.createdAt || a.createdAt)}</td>
+            <td><code style="font-size:.75rem;color:var(--text-muted)">…${short}</code></td>
+          </tr>
+        `;
+      }).join('');
+
+      // Pagination
+      const pages = meta.pages || 1;
+      document.getElementById('paginationInfo').textContent =
+        `Page ${page} sur ${pages} · ${meta.total ?? data.length} résultats`;
+
+      const pagesEl = document.getElementById('paginationPages');
+      pagesEl.innerHTML = '';
+      if (pages > 1) {
+        const addBtn = (label, p, disabled = false) => {
+          const btn = document.createElement('button');
+          btn.className = 'page-btn' + (p === currentPage ? ' active' : '');
+          btn.textContent = label;
+          btn.disabled = disabled;
+          btn.addEventListener('click', () => loadPayments(p));
+          pagesEl.appendChild(btn);
+        };
+        addBtn('←', page - 1, page === 1);
+        for (let i = 1; i <= pages; i++) {
+          if (i === 1 || i === pages || Math.abs(i - page) <= 1) addBtn(i, i);
+          else if (Math.abs(i - page) === 2) { const s = document.createElement('span'); s.textContent = '…'; s.style.padding = '0 4px'; pagesEl.appendChild(s); }
+        }
+        addBtn('→', page + 1, page === pages);
+      }
+
+    } catch (err) {
+      toast('Erreur: ' + err.message, 'error');
+    }
+  }
+
+  function applyFilters() {
+    loadRevenue();
+    loadPayments(1);
+  }
+
+  document.getElementById('applyBtn').addEventListener('click', applyFilters);
+  document.getElementById('statusFilter').addEventListener('change', () => loadPayments(1));
+
+  // Default: current month
+  const now = new Date();
+  document.getElementById('dateFrom').value = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+  document.getElementById('dateTo').value   = now.toISOString().split('T')[0];
+
+  applyFilters();
+</script>
+</body>
+</html>

@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Ressources et articles sur la santé mentale dans la culture maghrébine, l'expatriation, les relations familiales, l'anxiété et la déstigmatisation.">
+  <title>Ressources & Blog — Nafsoléa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <style>
+    .blog-hero-article {
+      background: white;
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      margin-bottom: var(--space-10);
+      border: 1px solid var(--border-light);
+      transition: transform var(--tr), box-shadow var(--tr);
+    }
+
+    .blog-hero-article:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-xl);
+    }
+
+    .blog-hero-article__image {
+      background: linear-gradient(160deg, var(--sage-pale) 0%, var(--sage-light) 40%, var(--sage) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 5rem;
+      min-height: 320px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .blog-hero-article__image::before {
+      content: 'نفس';
+      position: absolute;
+      right: -10px;
+      bottom: -20px;
+      font-size: 10rem;
+      opacity: 0.08;
+      color: white;
+      font-family: serif;
+    }
+
+    .blog-hero-article__featured {
+      position: absolute;
+      top: var(--space-4);
+      left: var(--space-4);
+      background: var(--terracotta);
+      color: white;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 4px 12px;
+      border-radius: var(--radius-full);
+    }
+
+    .blog-hero-article__body {
+      padding: var(--space-10);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .blog-hero-article__category {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--sage-dark);
+      margin-bottom: var(--space-3);
+    }
+
+    .blog-hero-article__title {
+      font-family: var(--font-heading);
+      font-size: clamp(1.4rem, 2.5vw, 1.9rem);
+      font-weight: 700;
+      line-height: 1.3;
+      color: var(--text);
+      margin-bottom: var(--space-4);
+    }
+
+    .blog-hero-article__excerpt {
+      font-size: 0.95rem;
+      color: var(--text-light);
+      line-height: 1.7;
+      margin-bottom: var(--space-6);
+      max-width: none;
+    }
+
+    .blog-hero-article__meta {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-bottom: var(--space-5);
+    }
+
+    .blog-hero-article__author {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-weight: 600;
+      color: var(--text-mid);
+    }
+
+    .blog-hero-article__author-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--sage-light), var(--sage));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+    }
+
+    /* Category tabs */
+    .blog-categories {
+      display: flex;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+      margin-bottom: var(--space-8);
+      padding-bottom: var(--space-6);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .blog-cat-tab {
+      font-size: 0.84rem;
+      font-weight: 600;
+      padding: var(--space-2) var(--space-4);
+      border-radius: var(--radius-full);
+      border: 1.5px solid var(--border);
+      color: var(--text-mid);
+      background: white;
+      cursor: pointer;
+      transition: all var(--tr);
+    }
+
+    .blog-cat-tab:hover { border-color: var(--sage-light); color: var(--sage-dark); }
+    .blog-cat-tab.active { background: var(--sage); border-color: var(--sage); color: white; }
+
+    /* Articles grid */
+    .blog-main-grid {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: var(--space-8);
+      align-items: start;
+    }
+
+    .blog-articles-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-5);
+    }
+
+    /* Sidebar */
+    .blog-sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-5);
+      position: sticky;
+      top: 88px;
+    }
+
+    .sidebar-widget {
+      background: white;
+      border-radius: var(--radius-xl);
+      padding: var(--space-6);
+      border: 1px solid var(--border-light);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .sidebar-widget h4 {
+      font-size: 1rem;
+      margin-bottom: var(--space-4);
+      padding-bottom: var(--space-3);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar-article {
+      display: flex;
+      gap: var(--space-3);
+      padding: var(--space-3) 0;
+      border-bottom: 1px solid var(--border-light);
+      cursor: pointer;
+      transition: all var(--tr);
+    }
+
+    .sidebar-article:last-child { border-bottom: none; }
+    .sidebar-article:hover .sidebar-article__title { color: var(--sage-dark); }
+
+    .sidebar-article__thumb {
+      width: 64px;
+      height: 64px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, var(--sage-pale), var(--beige-mid));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      flex-shrink: 0;
+    }
+
+    .sidebar-article__title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.4;
+      margin-bottom: var(--space-1);
+      transition: color var(--tr);
+    }
+
+    .sidebar-article__meta {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+    }
+
+    .tag-cloud {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+    }
+
+    .tag-cloud-item {
+      font-size: 0.8rem;
+      padding: var(--space-1) var(--space-3);
+      border-radius: var(--radius-full);
+      background: var(--beige);
+      border: 1px solid var(--border);
+      color: var(--text-mid);
+      cursor: pointer;
+      transition: all var(--tr);
+    }
+
+    .tag-cloud-item:hover {
+      background: var(--sage-pale);
+      border-color: var(--sage-light);
+      color: var(--sage-dark);
+    }
+
+    /* Article card enhanced */
+    .blog-card-lg .blog-card__image { font-size: 2.5rem; }
+
+    @media (max-width: 1024px) {
+      .blog-main-grid { grid-template-columns: 1fr; }
+      .blog-sidebar { position: static; }
+    }
+
+    @media (max-width: 768px) {
+      .blog-hero-article { grid-template-columns: 1fr; }
+      .blog-hero-article__image { min-height: 200px; }
+      .blog-articles-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVIGATION -->
+<nav class="nav">
+  <div class="nav__inner">
+    <a href="index.html" class="nav__logo">
+      <div class="nav__logo-mark" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 36 36" fill="none">
+          <circle cx="18" cy="18" r="5" fill="white"/>
+          <line x1="18" y1="2" x2="18" y2="10" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="18" y1="26" x2="18" y2="34" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="2" y1="18" x2="10" y2="18" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="26" y1="18" x2="34" y2="18" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="6.7" y1="6.7" x2="11.7" y2="11.7" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+          <line x1="24.3" y1="24.3" x2="29.3" y2="29.3" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+          <line x1="29.3" y1="6.7" x2="24.3" y2="11.7" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+          <line x1="11.7" y1="24.3" x2="6.7" y2="29.3" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+        </svg>
+      </div>
+      Nafsoléa
+    </a>
+    <ul class="nav__links">
+      <li><a href="comment-ca-marche.html" class="nav__link">Comment ça marche</a></li>
+      <li><a href="psychologues.html" class="nav__link">Nos psychologues</a></li>
+      <li><a href="blog.html" class="nav__link active">Ressources</a></li>
+      <li><a href="a-propos.html" class="nav__link">À propos</a></li>
+      <li><a href="faq.html" class="nav__link">FAQ</a></li>
+    </ul>
+    <div class="nav__actions">
+      <button class="nav__lang">FR | عربي</button>
+      <a href="rendez-vous.html" class="btn btn--primary btn--sm">Prendre RDV</a>
+    </div>
+    <button class="nav__hamburger" aria-label="Menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <div class="nav__mobile">
+    <a href="comment-ca-marche.html" class="nav__mobile-link">Comment ça marche</a>
+    <a href="psychologues.html" class="nav__mobile-link">Nos psychologues</a>
+    <a href="blog.html" class="nav__mobile-link">Ressources</a>
+    <a href="a-propos.html" class="nav__mobile-link">À propos</a>
+    <a href="faq.html" class="nav__mobile-link">FAQ</a>
+    <a href="rendez-vous.html" class="btn btn--primary" style="margin-top:0.5rem">Prendre rendez-vous</a>
+  </div>
+</nav>
+
+<!-- PAGE HERO -->
+<section class="page-hero">
+  <div class="container container--narrow">
+    <span class="label">Ressources gratuites</span>
+    <h1>Lire, comprendre, avancer</h1>
+    <p>Des articles écrits par nos psychologues sur la santé mentale, la culture maghrébine, l'expatriation et le quotidien émotionnel.</p>
+  </div>
+</section>
+
+<!-- BLOG CONTENT -->
+<section class="section" style="background:var(--off-white)">
+  <div class="container">
+
+    <!-- Article à la une -->
+    <div id="heroArticleWrap">
+      <div class="blog-hero-article skeleton" style="min-height:320px;border-radius:var(--radius-xl);margin-bottom:var(--space-10)"></div>
+    </div>
+
+    <!-- Catégories -->
+    <div class="blog-categories" role="tablist" aria-label="Catégories d'articles">
+      <button class="blog-cat-tab active" role="tab" aria-selected="true" data-category="">Tous les articles</button>
+      <button class="blog-cat-tab" role="tab" aria-selected="false" data-category="Santé mentale &amp; culture">Santé mentale &amp; culture</button>
+      <button class="blog-cat-tab" role="tab" aria-selected="false" data-category="Expatriation">Expatriation</button>
+      <button class="blog-cat-tab" role="tab" aria-selected="false" data-category="Relations familiales">Relations familiales</button>
+      <button class="blog-cat-tab" role="tab" aria-selected="false" data-category="Anxiété &amp; dépression">Anxiété &amp; dépression</button>
+      <button class="blog-cat-tab" role="tab" aria-selected="false" data-category="Identité">Identité</button>
+      <button class="blog-cat-tab" role="tab" aria-selected="false" data-category="Couple &amp; relations">Couple &amp; relations</button>
+    </div>
+
+    <!-- Main layout -->
+    <div class="blog-main-grid">
+
+      <!-- Articles grid -->
+      <div>
+        <div class="blog-articles-grid" id="articlesGrid">
+          <!-- Skeleton placeholders -->
+          <article class="blog-card"><div class="blog-card__image skeleton" style="font-size:0"></div><div class="blog-card__body"><div class="skeleton" style="height:11px;width:60%;margin-bottom:10px;border-radius:4px"></div><div class="skeleton" style="height:18px;margin-bottom:8px;border-radius:4px"></div><div class="skeleton" style="height:14px;width:80%;margin-bottom:4px;border-radius:4px"></div><div class="skeleton" style="height:14px;width:60%;border-radius:4px"></div></div></article>
+          <article class="blog-card"><div class="blog-card__image skeleton" style="font-size:0"></div><div class="blog-card__body"><div class="skeleton" style="height:11px;width:55%;margin-bottom:10px;border-radius:4px"></div><div class="skeleton" style="height:18px;margin-bottom:8px;border-radius:4px"></div><div class="skeleton" style="height:14px;width:75%;margin-bottom:4px;border-radius:4px"></div><div class="skeleton" style="height:14px;width:55%;border-radius:4px"></div></div></article>
+          <article class="blog-card"><div class="blog-card__image skeleton" style="font-size:0"></div><div class="blog-card__body"><div class="skeleton" style="height:11px;width:65%;margin-bottom:10px;border-radius:4px"></div><div class="skeleton" style="height:18px;margin-bottom:8px;border-radius:4px"></div><div class="skeleton" style="height:14px;width:85%;margin-bottom:4px;border-radius:4px"></div><div class="skeleton" style="height:14px;width:50%;border-radius:4px"></div></div></article>
+          <article class="blog-card"><div class="blog-card__image skeleton" style="font-size:0"></div><div class="blog-card__body"><div class="skeleton" style="height:11px;width:50%;margin-bottom:10px;border-radius:4px"></div><div class="skeleton" style="height:18px;margin-bottom:8px;border-radius:4px"></div><div class="skeleton" style="height:14px;width:70%;margin-bottom:4px;border-radius:4px"></div><div class="skeleton" style="height:14px;width:65%;border-radius:4px"></div></div></article>
+        </div>
+
+        <!-- Load more -->
+        <div style="text-align:center; margin-top:var(--space-8)">
+          <button class="btn btn--ghost" id="loadMoreBtn" style="display:none">Charger plus d'articles</button>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <aside class="blog-sidebar" aria-label="Sidebar blog">
+
+        <!-- Articles populaires -->
+        <div class="sidebar-widget">
+          <h4>Les plus lus</h4>
+          <div id="mostReadList">
+            <div class="sidebar-article" style="border:none">
+              <div class="sidebar-article__thumb skeleton" style="font-size:0"></div>
+              <div style="flex:1"><div class="skeleton" style="height:12px;margin-bottom:6px;border-radius:4px"></div><div class="skeleton" style="height:12px;width:60%;border-radius:4px"></div></div>
+            </div>
+            <div class="sidebar-article" style="border:none">
+              <div class="sidebar-article__thumb skeleton" style="font-size:0"></div>
+              <div style="flex:1"><div class="skeleton" style="height:12px;margin-bottom:6px;border-radius:4px"></div><div class="skeleton" style="height:12px;width:50%;border-radius:4px"></div></div>
+            </div>
+            <div class="sidebar-article" style="border:none">
+              <div class="sidebar-article__thumb skeleton" style="font-size:0"></div>
+              <div style="flex:1"><div class="skeleton" style="height:12px;margin-bottom:6px;border-radius:4px"></div><div class="skeleton" style="height:12px;width:65%;border-radius:4px"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Newsletter -->
+        <div class="sidebar-widget" style="background:var(--sage-pale); border-color:var(--sage-light)">
+          <div style="font-size:1.8rem; margin-bottom:var(--space-3)">🌿</div>
+          <h4 style="border-color:rgba(124,158,138,0.2)">Ressources dans votre boîte mail</h4>
+          <p style="font-size:0.85rem; color:var(--text-light); margin-bottom:var(--space-4); max-width:none">
+            Un article par semaine, rédigé par nos psychologues. Gratuit, sans spam.
+          </p>
+          <form class="newsletter-form" novalidate>
+            <input type="email" class="form-input" placeholder="votre@email.com" style="margin-bottom:var(--space-3)" required>
+            <button type="submit" class="btn btn--primary" style="width:100%">S'abonner</button>
+          </form>
+        </div>
+
+        <!-- Tags -->
+        <div class="sidebar-widget">
+          <h4>Explorer par thème</h4>
+          <div class="tag-cloud">
+            <span class="tag-cloud-item">Anxiété</span>
+            <span class="tag-cloud-item">Expatriation</span>
+            <span class="tag-cloud-item">Famille</span>
+            <span class="tag-cloud-item">Identité</span>
+            <span class="tag-cloud-item">Dépression</span>
+            <span class="tag-cloud-item">Couple</span>
+            <span class="tag-cloud-item">Trauma</span>
+            <span class="tag-cloud-item">Burn-out</span>
+            <span class="tag-cloud-item">Confiance en soi</span>
+            <span class="tag-cloud-item">Foi</span>
+            <span class="tag-cloud-item">Sommeil</span>
+            <span class="tag-cloud-item">Deuil</span>
+            <span class="tag-cloud-item">Solitude</span>
+            <span class="tag-cloud-item">Rupture</span>
+          </div>
+        </div>
+
+        <!-- CTA psy -->
+        <div class="sidebar-widget" style="background:var(--text); border-color:var(--text)">
+          <div style="font-size:1.8rem; margin-bottom:var(--space-3)">💬</div>
+          <h4 style="color:white; border-color:rgba(255,255,255,0.1)">Vous avez besoin d'en parler ?</h4>
+          <p style="font-size:0.85rem; color:rgba(255,255,255,0.6); margin-bottom:var(--space-4); max-width:none">
+            Les ressources aident — mais une séance avec un psychologue va plus loin. Première séance gratuite.
+          </p>
+          <a href="rendez-vous.html" class="btn btn--terracotta" style="width:100%">Prendre rendez-vous</a>
+        </div>
+
+      </aside>
+    </div>
+
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer__grid">
+      <div class="footer__brand">
+        <h3>Nafsoléa</h3>
+        <p>Une plateforme de téléconsultation psychologique culturellement adaptée pour la diaspora algérienne et maghrébine.</p>
+        <div class="footer__socials">
+          <a href="#" class="footer__social">📸</a>
+          <a href="#" class="footer__social">💼</a>
+          <a href="#" class="footer__social">📘</a>
+        </div>
+      </div>
+      <div class="footer__col">
+        <h5>Plateforme</h5>
+        <ul class="footer__links">
+          <li><a href="comment-ca-marche.html" class="footer__link">Comment ça marche</a></li>
+          <li><a href="psychologues.html" class="footer__link">Nos psychologues</a></li>
+          <li><a href="rendez-vous.html" class="footer__link">Prendre rendez-vous</a></li>
+          <li><a href="faq.html" class="footer__link">FAQ</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h5>Ressources</h5>
+        <ul class="footer__links">
+          <li><a href="blog.html" class="footer__link">Blog santé mentale</a></li>
+          <li><a href="a-propos.html" class="footer__link">À propos</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h5>Urgence</h5>
+        <ul class="footer__links">
+          <li><span class="footer__link" style="cursor:default">SAMU : 15</span></li>
+          <li><span class="footer__link" style="cursor:default">Suicide : 3114</span></li>
+          <li><a href="mailto:bonjour@nafsolea.com" class="footer__link">bonjour@nafsolea.com</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <p class="footer__copyright">© 2025 Nafsoléa. Tous droits réservés.</p>
+      <nav class="footer__legal">
+        <a href="#">Confidentialité</a>
+        <a href="#">CGU</a>
+        <a href="#">Mentions légales</a>
+      </nav>
+    </div>
+  </div>
+</footer>
+
+<button class="scroll-top" aria-label="Haut de page">↑</button>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/auth.js"></script>
+<script src="assets/js/main.js" defer></script>
+<script>
+  const CATEGORY_EMOJIS = {
+    'Santé mentale & culture': '🧠',
+    'Expatriation': '✈️',
+    'Relations familiales': '👨‍👩‍👧',
+    'Anxiété & dépression': '😰',
+    'Identité': '🪞',
+    'Couple & relations': '💔',
+    'Bien-être': '🌿',
+    'Parentalité': '🍼',
+  };
+
+  let currentPage = 1;
+  let currentCategory = '';
+  let isLoading = false;
+  let hasMore = true;
+
+  function catEmoji(cat) {
+    return CATEGORY_EMOJIS[cat] || '📖';
+  }
+
+  function fmtDate(d) {
+    if (!d) return '';
+    return new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+  }
+
+  function authorName(article) {
+    const psy = article.author?.psychologist;
+    if (psy) return `${psy.firstName} ${psy.lastName}`;
+    return 'Équipe Nafsoléa';
+  }
+
+  // ── Hero article ────────────────────────────────────────────────────
+  function renderHero(article) {
+    const wrap = document.getElementById('heroArticleWrap');
+    if (!article) { wrap.style.display = 'none'; return; }
+    const imgStyle = article.imageUrl
+      ? `background-image:url('${article.imageUrl}');background-size:cover;background-position:center`
+      : '';
+    const imgContent = article.imageUrl ? '' : catEmoji(article.category);
+    wrap.innerHTML = `
+      <article class="blog-hero-article reveal" aria-label="Article à la une">
+        <div class="blog-hero-article__image" aria-hidden="true" style="${imgStyle}">
+          ${imgContent}
+          <span class="blog-hero-article__featured">À la une</span>
+        </div>
+        <div class="blog-hero-article__body">
+          <div class="blog-hero-article__category">${article.category || 'Ressources'}</div>
+          <h2 class="blog-hero-article__title">${article.title}</h2>
+          <p class="blog-hero-article__excerpt">${article.excerpt || ''}</p>
+          <div class="blog-hero-article__meta">
+            <div class="blog-hero-article__author">
+              <div class="blog-hero-article__author-avatar">👩‍⚕️</div>
+              ${authorName(article)}
+            </div>
+            <span>·</span>
+            <span>${fmtDate(article.publishedAt || article.createdAt)}</span>
+            <span>·</span>
+            <span>${article.readingTime || '?'} min de lecture</span>
+          </div>
+          <a href="lire.html?slug=${article.slug}" class="btn btn--primary">Lire l'article →</a>
+        </div>
+      </article>
+    `;
+  }
+
+  // ── Article card ────────────────────────────────────────────────────
+  function renderCard(article, delay = '') {
+    const imgHtml = article.imageUrl
+      ? `<div class="blog-card__image" aria-hidden="true" style="background-image:url('${article.imageUrl}');background-size:cover;background-position:center;font-size:0"></div>`
+      : `<div class="blog-card__image" aria-hidden="true">${catEmoji(article.category)}</div>`;
+    return `
+      <article class="blog-card reveal ${delay}">
+        <a href="lire.html?slug=${article.slug}" style="text-decoration:none;color:inherit;display:flex;flex-direction:column;height:100%">
+          ${imgHtml}
+          <div class="blog-card__body">
+            <div class="blog-card__category">${article.category || 'Ressources'}</div>
+            <h3 class="blog-card__title">${article.title}</h3>
+            <p class="blog-card__excerpt">${article.excerpt || ''}</p>
+            <div class="blog-card__meta">
+              <div class="blog-card__read-time">⏱️ ${article.readingTime || '?'} min</div>
+              <span>${authorName(article)}</span>
+            </div>
+          </div>
+        </a>
+      </article>
+    `;
+  }
+
+  // ── Sidebar most-read ───────────────────────────────────────────────
+  function renderMostRead(articles) {
+    const el = document.getElementById('mostReadList');
+    if (!el || !articles.length) return;
+    el.innerHTML = articles.map(a => `
+      <a href="lire.html?slug=${a.slug}" class="sidebar-article" style="text-decoration:none">
+        <div class="sidebar-article__thumb">${catEmoji(a.category)}</div>
+        <div>
+          <div class="sidebar-article__title">${a.title}</div>
+          <div class="sidebar-article__meta">${a.readingTime || '?'} min de lecture</div>
+        </div>
+      </a>
+    `).join('');
+  }
+
+  // ── Load articles ───────────────────────────────────────────────────
+  async function loadArticles(page = 1, append = false) {
+    if (isLoading) return;
+    isLoading = true;
+
+    const loadMoreBtn = document.getElementById('loadMoreBtn');
+    if (loadMoreBtn) { loadMoreBtn.textContent = 'Chargement…'; loadMoreBtn.disabled = true; }
+
+    try {
+      const params = { page, limit: 8 };
+      if (currentCategory) params.category = currentCategory;
+
+      const res = await API.articles.list(params);
+      const articles = res.data || [];
+      const meta = res.meta || {};
+
+      hasMore = page < (meta.pages || 1);
+      currentPage = page;
+
+      if (page === 1) {
+        if (!currentCategory && articles.length > 0) {
+          renderHero(articles[0]);
+          renderGrid(articles.slice(1), false);
+          renderMostRead(articles.slice(0, 4));
+        } else {
+          document.getElementById('heroArticleWrap').style.display = 'none';
+          renderGrid(articles, false);
+          renderMostRead(articles.slice(0, 4));
+        }
+      } else {
+        renderGrid(articles, true);
+      }
+
+      if (articles.length === 0 && page === 1) {
+        document.getElementById('articlesGrid').innerHTML = `
+          <div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--text-muted)">
+            <div style="font-size:3rem;margin-bottom:16px">📭</div>
+            <div>Aucun article dans cette catégorie pour le moment.</div>
+          </div>`;
+      }
+
+      if (loadMoreBtn) {
+        loadMoreBtn.style.display = hasMore ? '' : 'none';
+        loadMoreBtn.textContent = "Charger plus d'articles";
+        loadMoreBtn.disabled = false;
+      }
+    } catch (err) {
+      console.warn('API indisponible, affichage du contenu statique de démonstration.');
+      if (page === 1) renderFallback();
+      if (loadMoreBtn) loadMoreBtn.style.display = 'none';
+    } finally {
+      isLoading = false;
+    }
+  }
+
+  function renderGrid(articles, append) {
+    const grid = document.getElementById('articlesGrid');
+    const html = articles.map((a, i) => renderCard(a, i % 2 === 1 ? 'reveal-delay-1' : '')).join('');
+    if (append) grid.insertAdjacentHTML('beforeend', html);
+    else grid.innerHTML = html || '';
+  }
+
+  // ── Fallback static content (shown when API unreachable) ────────────
+  function renderFallback() {
+    const heroWrap = document.getElementById('heroArticleWrap');
+    heroWrap.innerHTML = `
+      <article class="blog-hero-article reveal" aria-label="Article à la une">
+        <div class="blog-hero-article__image" aria-hidden="true">🧠<span class="blog-hero-article__featured">À la une</span></div>
+        <div class="blog-hero-article__body">
+          <div class="blog-hero-article__category">Santé mentale &amp; culture</div>
+          <h2 class="blog-hero-article__title">"Va voir un psy" : pourquoi cette phrase est encore taboue dans nos familles</h2>
+          <p class="blog-hero-article__excerpt">Dans de nombreuses familles maghrébines, parler de santé mentale reste un sujet délicat — associé à la honte ou à la faiblesse. Mais d'où vient ce tabou ? Et comment le dépasser sans renier ses racines ?</p>
+          <div class="blog-hero-article__meta">
+            <div class="blog-hero-article__author"><div class="blog-hero-article__author-avatar">👩‍⚕️</div>Dr. Amira Mansouri</div>
+            <span>·</span><span>8 min de lecture</span>
+          </div>
+          <a href="#" class="btn btn--primary">Lire l'article →</a>
+        </div>
+      </article>`;
+
+    const STATIC = [
+      { emoji:'✈️', cat:'Expatriation', title:'La solitude de l\'expatrié : ce qu\'on ne dit pas', excerpt:'Entre la nostalgie du bled, la pression de "réussir" et la difficulté de créer de vraies connexions...', time:6, author:'Dr. Karim Belhadj' },
+      { emoji:'👨‍👩‍👧', cat:'Relations familiales', title:'Comment parler à ses parents de ses problèmes émotionnels ?', excerpt:'Ils vous aiment, mais ils ne comprennent pas forcément. Comment ouvrir ce dialogue difficile...', time:7, author:'Mme. Nadia Cherif' },
+      { emoji:'😰', cat:'Anxiété &amp; dépression', title:'7 signes que votre anxiété dépasse la "simple fatigue"', excerpt:'On minimise souvent. "C\'est le stress du boulot", "ça va passer". Mais il y a des signaux à ne pas ignorer...', time:5, author:'Dr. Amira Mansouri' },
+      { emoji:'🪞', cat:'Identité', title:'Être algérien en France : la fatigue identitaire', excerpt:'Cette épuisante négociation permanente entre ce qu\'on est, ce qu\'on devrait être, et ce qu\'on veut devenir...', time:9, author:'Dr. Youcef Aït-Ahmed' },
+      { emoji:'💔', cat:'Couple &amp; relations', title:'Rupture amoureuse : comment traverser la douleur sans se perdre', excerpt:'La rupture n\'est pas seulement une perte affective. C\'est souvent une crise identitaire profonde...', time:6, author:'Mme. Nadia Cherif' },
+      { emoji:'🙏', cat:'Santé mentale &amp; culture', title:'Foi et psychologie : deux alliées, pas deux ennemies', excerpt:'Beaucoup de nos patients pensent devoir choisir entre la foi et la thérapie. Mais est-ce vraiment le cas ?', time:8, author:'Dr. Leila Benali' },
+    ];
+    document.getElementById('articlesGrid').innerHTML = STATIC.map((a, i) => `
+      <article class="blog-card reveal ${i % 2 === 1 ? 'reveal-delay-1' : ''}">
+        <div class="blog-card__image" aria-hidden="true">${a.emoji}</div>
+        <div class="blog-card__body">
+          <div class="blog-card__category">${a.cat}</div>
+          <h3 class="blog-card__title">${a.title}</h3>
+          <p class="blog-card__excerpt">${a.excerpt}</p>
+          <div class="blog-card__meta">
+            <div class="blog-card__read-time">⏱️ ${a.time} min</div>
+            <span>${a.author}</span>
+          </div>
+        </div>
+      </article>`).join('');
+
+    document.getElementById('mostReadList').innerHTML = STATIC.slice(0, 4).map(a => `
+      <div class="sidebar-article">
+        <div class="sidebar-article__thumb">${a.emoji}</div>
+        <div>
+          <div class="sidebar-article__title">${a.title}</div>
+          <div class="sidebar-article__meta">${a.time} min de lecture</div>
+        </div>
+      </div>`).join('');
+  }
+
+  // ── Category tabs ───────────────────────────────────────────────────
+  document.querySelectorAll('.blog-cat-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.blog-cat-tab').forEach(t => {
+        t.classList.remove('active');
+        t.setAttribute('aria-selected', 'false');
+      });
+      tab.classList.add('active');
+      tab.setAttribute('aria-selected', 'true');
+
+      currentCategory = tab.dataset.category || '';
+      document.getElementById('heroArticleWrap').style.display = '';
+      document.getElementById('articlesGrid').innerHTML = `
+        <article class="blog-card"><div class="blog-card__image skeleton" style="font-size:0"></div><div class="blog-card__body"><div class="skeleton" style="height:11px;width:60%;margin-bottom:10px;border-radius:4px"></div><div class="skeleton" style="height:18px;margin-bottom:8px;border-radius:4px"></div><div class="skeleton" style="height:40px;border-radius:4px"></div></div></article>
+        <article class="blog-card"><div class="blog-card__image skeleton" style="font-size:0"></div><div class="blog-card__body"><div class="skeleton" style="height:11px;width:55%;margin-bottom:10px;border-radius:4px"></div><div class="skeleton" style="height:18px;margin-bottom:8px;border-radius:4px"></div><div class="skeleton" style="height:40px;border-radius:4px"></div></div></article>`;
+      document.getElementById('loadMoreBtn').style.display = 'none';
+      loadArticles(1);
+    });
+  });
+
+  // ── Load more ───────────────────────────────────────────────────────
+  document.getElementById('loadMoreBtn').addEventListener('click', () => {
+    loadArticles(currentPage + 1, true);
+  });
+
+  // ── Init ────────────────────────────────────────────────────────────
+  loadArticles(1);
+</script>
+</body>
+</html>

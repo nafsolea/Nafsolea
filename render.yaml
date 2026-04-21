@@ -1,0 +1,92 @@
+# ─── Nafsoléa — Render Blueprint ─────────────────────────────────
+# Déploiement automatique du backend NestJS sur Render.
+# La base de données Postgres vient de Neon (externe) — pas de base ici.
+# Le Redis vient d'Upstash (externe).
+#
+# Usage :
+#   1. Pousse ce repo sur GitHub
+#   2. Dans Render → "New +" → "Blueprint" → sélectionne ce repo
+#   3. Render détecte ce fichier et crée le service automatiquement
+#   4. Remplis les variables marquées `sync: false` dans le dashboard Render
+services:
+  - type: web
+    name: nafsolea-api
+    runtime: docker
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: frankfurt                       # Serveur le plus proche de la France
+    healthCheckPath: /api/v1/articles       # Endpoint public qui valide que l'app est up
+    envVars:
+      # ─── Application ─────────────────────────────────────────────
+      - key: NODE_ENV
+        value: production
+      - key: API_PREFIX
+        value: api/v1
+
+      # ─── Secrets générés automatiquement par Render ──────────────
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      # ⚠️ Clé de test pour la bêta. À régénérer en production avec :
+      # openssl rand -hex 32  (doit faire 64 caractères hexa)
+      - key: ENCRYPTION_KEY
+        value: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+
+      # ─── À remplir manuellement dans le dashboard Render ─────────
+      - key: DATABASE_URL
+        sync: false                           # Collé depuis Neon
+      - key: REDIS_HOST
+        sync: false                           # Depuis Upstash
+      - key: REDIS_PORT
+        sync: false
+      - key: REDIS_PASSWORD
+        sync: false
+      - key: FRONTEND_URL
+        sync: false                           # URL Netlify, ex: https://nafsolea.netlify.app
+
+      # ─── Stripe (mode TEST en bêta) ──────────────────────────────
+      - key: STRIPE_SECRET_KEY
+        value: sk_test_placeholder_replace_me
+      - key: STRIPE_PUBLISHABLE_KEY
+        value: pk_test_placeholder_replace_me
+      - key: STRIPE_WEBHOOK_SECRET
+        value: whsec_placeholder
+      - key: STRIPE_CURRENCY
+        value: EUR
+
+      # ─── Daily.co (visio) ────────────────────────────────────────
+      - key: DAILY_API_KEY
+        value: placeholder_replace_after_signup
+      - key: DAILY_API_URL
+        value: https://api.daily.co/v1
+
+      # ─── Email (SendGrid, placeholder pour le bêta) ──────────────
+      - key: SENDGRID_API_KEY
+        value: SG.placeholder_replace_after_signup
+      - key: EMAIL_FROM
+        value: noreply@nafsolea.com
+      - key: EMAIL_FROM_NAME
+        value: Nafsoléa
+
+      # ─── AWS S3 (uploads — placeholders) ─────────────────────────
+      - key: AWS_ACCESS_KEY_ID
+        value: placeholder
+      - key: AWS_SECRET_ACCESS_KEY
+        value: placeholder
+      - key: AWS_REGION
+        value: eu-west-3
+      - key: AWS_S3_BUCKET
+        value: nafsolea-uploads
+
+      # ─── Rate limiting ────────────────────────────────────────────
+      - key: THROTTLE_TTL
+        value: 60
+      - key: THROTTLE_LIMIT
+        value: 100
+
+      # ─── Bêta : auto-vérification des emails ────────────────────
+      # À retirer en production quand SendGrid sera configuré.
+      - key: BETA_AUTO_VERIFY_EMAIL
+        value: "true"

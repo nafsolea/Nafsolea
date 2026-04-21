@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Article Nafsoléa">
+  <title>Chargement… — Nafsoléa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <style>
+    /* ── Article hero ── */
+    .art-hero {
+      padding-top: calc(72px + var(--space-12));
+      padding-bottom: var(--space-12);
+      background: linear-gradient(170deg, var(--sage-pale) 0%, var(--off-white) 100%);
+      border-bottom: 1px solid var(--border-light);
+    }
+    .art-breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-bottom: var(--space-5);
+    }
+    .art-breadcrumb a { color: var(--sage-dark); text-decoration: none; }
+    .art-breadcrumb a:hover { text-decoration: underline; }
+    .art-breadcrumb span { opacity: 0.4; }
+    .art-category {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--sage-dark);
+      background: var(--sage-pale);
+      border: 1px solid var(--sage-light);
+      padding: 4px 12px;
+      border-radius: var(--radius-full);
+      margin-bottom: var(--space-4);
+    }
+    .art-title {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 800;
+      line-height: 1.2;
+      color: var(--text);
+      margin-bottom: var(--space-5);
+      max-width: 800px;
+    }
+    .art-meta {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: var(--space-3);
+      font-size: 0.84rem;
+      color: var(--text-muted);
+    }
+    .art-author {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-weight: 600;
+      color: var(--text-mid);
+    }
+    .art-author-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--sage-light), var(--sage));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+    }
+    .art-meta-dot { opacity: 0.35; }
+
+    /* ── Article layout ── */
+    .art-layout {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: var(--space-10);
+      align-items: start;
+      padding-top: var(--space-10);
+      padding-bottom: var(--space-16);
+    }
+
+    /* ── Article image banner ── */
+    .art-banner {
+      width: 100%;
+      height: 380px;
+      object-fit: cover;
+      border-radius: var(--radius-xl);
+      margin-bottom: var(--space-8);
+      display: block;
+    }
+    .art-banner-placeholder {
+      width: 100%;
+      height: 320px;
+      border-radius: var(--radius-xl);
+      background: linear-gradient(160deg, var(--sage-pale) 0%, var(--beige) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 5rem;
+      margin-bottom: var(--space-8);
+    }
+
+    /* ── Article content ── */
+    .art-content {
+      font-size: 1.05rem;
+      line-height: 1.8;
+      color: var(--text-light);
+      max-width: 720px;
+    }
+    .art-content h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text);
+      margin: var(--space-8) 0 var(--space-4);
+      line-height: 1.3;
+    }
+    .art-content h3 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text);
+      margin: var(--space-6) 0 var(--space-3);
+    }
+    .art-content p { margin-bottom: var(--space-5); }
+    .art-content ul, .art-content ol {
+      padding-left: 1.5em;
+      margin-bottom: var(--space-5);
+    }
+    .art-content li { margin-bottom: var(--space-2); }
+    .art-content blockquote {
+      border-left: 3px solid var(--sage);
+      padding: var(--space-4) var(--space-6);
+      background: var(--sage-pale);
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      margin: var(--space-6) 0;
+      font-style: italic;
+      color: var(--text-mid);
+    }
+    .art-content a { color: var(--sage-dark); }
+    .art-content strong { color: var(--text); font-weight: 600; }
+    .art-content img {
+      max-width: 100%;
+      border-radius: var(--radius-lg);
+      margin: var(--space-4) 0;
+    }
+
+    /* ── Tags row ── */
+    .art-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+      margin-top: var(--space-8);
+      padding-top: var(--space-6);
+      border-top: 1px solid var(--border-light);
+    }
+    .art-tag {
+      font-size: 0.8rem;
+      padding: var(--space-1) var(--space-3);
+      border-radius: var(--radius-full);
+      background: var(--beige);
+      border: 1px solid var(--border);
+      color: var(--text-mid);
+    }
+
+    /* ── Share row ── */
+    .art-share {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin-top: var(--space-6);
+      padding-top: var(--space-5);
+      border-top: 1px solid var(--border-light);
+      font-size: 0.84rem;
+      color: var(--text-muted);
+    }
+    .share-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-2) var(--space-4);
+      border-radius: var(--radius-full);
+      font-size: 0.8rem;
+      font-weight: 600;
+      border: 1.5px solid var(--border);
+      background: white;
+      color: var(--text-mid);
+      cursor: pointer;
+      transition: all var(--tr);
+      text-decoration: none;
+    }
+    .share-btn:hover { border-color: var(--sage-light); color: var(--sage-dark); }
+
+    /* ── Sidebar ── */
+    .art-sidebar {
+      position: sticky;
+      top: 88px;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-5);
+    }
+    .art-widget {
+      background: white;
+      border-radius: var(--radius-xl);
+      padding: var(--space-5);
+      border: 1px solid var(--border-light);
+      box-shadow: var(--shadow-sm);
+    }
+    .art-widget h4 {
+      font-size: 0.9rem;
+      font-weight: 700;
+      margin-bottom: var(--space-4);
+      padding-bottom: var(--space-3);
+      border-bottom: 1px solid var(--border-light);
+      color: var(--text);
+    }
+
+    /* Author widget */
+    .author-card {
+      display: flex;
+      gap: var(--space-3);
+      align-items: flex-start;
+    }
+    .author-avatar-lg {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--sage-light), var(--sage));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      flex-shrink: 0;
+    }
+    .author-name { font-weight: 700; font-size: 0.9rem; color: var(--text); margin-bottom: 2px; }
+    .author-role { font-size: 0.78rem; color: var(--text-muted); margin-bottom: var(--space-2); }
+    .author-bio { font-size: 0.82rem; color: var(--text-light); line-height: 1.6; }
+
+    /* Related articles widget */
+    .related-item {
+      display: flex;
+      gap: var(--space-3);
+      padding: var(--space-3) 0;
+      border-bottom: 1px solid var(--border-light);
+      text-decoration: none;
+      transition: all var(--tr);
+    }
+    .related-item:last-child { border-bottom: none; }
+    .related-thumb {
+      width: 52px;
+      height: 52px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, var(--sage-pale), var(--beige));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      flex-shrink: 0;
+    }
+    .related-title {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.4;
+      transition: color var(--tr);
+    }
+    .related-item:hover .related-title { color: var(--sage-dark); }
+    .related-meta { font-size: 0.75rem; color: var(--text-muted); margin-top: 3px; }
+
+    /* CTA widget */
+    .cta-widget {
+      background: var(--text);
+      border-color: var(--text);
+    }
+    .cta-widget h4 { color: white; border-color: rgba(255,255,255,0.1); }
+
+    /* ── Skeleton ── */
+    .art-skeleton-title {
+      height: 44px; border-radius: 6px; margin-bottom: 16px; max-width: 700px;
+    }
+    .art-skeleton-meta { height: 18px; border-radius: 4px; margin-bottom: 40px; max-width: 380px; }
+    .art-skeleton-banner { height: 320px; border-radius: var(--radius-xl); margin-bottom: var(--space-8); }
+    .art-skeleton-line { height: 16px; border-radius: 4px; margin-bottom: 12px; }
+
+    /* ── Not found ── */
+    .art-not-found {
+      text-align: center;
+      padding: var(--space-20) var(--space-4);
+    }
+    .art-not-found .icon { font-size: 4rem; margin-bottom: var(--space-4); }
+    .art-not-found h2 { margin-bottom: var(--space-3); }
+    .art-not-found p { color: var(--text-light); margin-bottom: var(--space-6); }
+
+    @media (max-width: 1024px) {
+      .art-layout { grid-template-columns: 1fr; }
+      .art-sidebar { position: static; }
+    }
+    @media (max-width: 640px) {
+      .art-title { font-size: 1.6rem; }
+      .art-banner-placeholder { height: 200px; font-size: 3.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVIGATION -->
+<nav class="nav">
+  <div class="nav__inner">
+    <a href="index.html" class="nav__logo">
+      <div class="nav__logo-mark" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 36 36" fill="none">
+          <circle cx="18" cy="18" r="5" fill="white"/>
+          <line x1="18" y1="2" x2="18" y2="10" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="18" y1="26" x2="18" y2="34" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="2" y1="18" x2="10" y2="18" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="26" y1="18" x2="34" y2="18" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="6.7" y1="6.7" x2="11.7" y2="11.7" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+          <line x1="24.3" y1="24.3" x2="29.3" y2="29.3" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+          <line x1="29.3" y1="6.7" x2="24.3" y2="11.7" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+          <line x1="11.7" y1="24.3" x2="6.7" y2="29.3" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+        </svg>
+      </div>
+      Nafsoléa
+    </a>
+    <ul class="nav__links">
+      <li><a href="comment-ca-marche.html" class="nav__link">Comment ça marche</a></li>
+      <li><a href="psychologues.html" class="nav__link">Nos psychologues</a></li>
+      <li><a href="blog.html" class="nav__link active">Ressources</a></li>
+      <li><a href="a-propos.html" class="nav__link">À propos</a></li>
+      <li><a href="faq.html" class="nav__link">FAQ</a></li>
+    </ul>
+    <div class="nav__actions">
+      <button class="nav__lang">FR | عربي</button>
+      <a href="rendez-vous.html" class="btn btn--primary btn--sm">Prendre RDV</a>
+    </div>
+    <button class="nav__hamburger" aria-label="Menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <div class="nav__mobile">
+    <a href="comment-ca-marche.html" class="nav__mobile-link">Comment ça marche</a>
+    <a href="psychologues.html" class="nav__mobile-link">Nos psychologues</a>
+    <a href="blog.html" class="nav__mobile-link">Ressources</a>
+    <a href="a-propos.html" class="nav__mobile-link">À propos</a>
+    <a href="faq.html" class="nav__mobile-link">FAQ</a>
+    <a href="rendez-vous.html" class="btn btn--primary" style="margin-top:0.5rem">Prendre rendez-vous</a>
+  </div>
+</nav>
+
+<!-- ARTICLE HERO -->
+<div class="art-hero" id="artHero">
+  <div class="container">
+    <!-- Skeleton while loading -->
+    <div class="skeleton" style="height:14px;width:220px;border-radius:4px;margin-bottom:20px"></div>
+    <div class="skeleton" style="height:12px;width:120px;border-radius:20px;margin-bottom:18px"></div>
+    <div class="skeleton art-skeleton-title"></div>
+    <div class="skeleton" style="height:22px;width:60%;border-radius:4px;margin-bottom:12px"></div>
+    <div class="skeleton art-skeleton-meta"></div>
+  </div>
+</div>
+
+<!-- ARTICLE BODY -->
+<section style="background:var(--off-white)">
+  <div class="container">
+    <div class="art-layout">
+      <!-- Main content -->
+      <div id="artMain">
+        <div class="skeleton art-skeleton-banner"></div>
+        <div class="art-content">
+          <div class="skeleton art-skeleton-line" style="width:100%"></div>
+          <div class="skeleton art-skeleton-line" style="width:92%"></div>
+          <div class="skeleton art-skeleton-line" style="width:97%"></div>
+          <div class="skeleton art-skeleton-line" style="width:85%"></div>
+          <div class="skeleton art-skeleton-line" style="width:100%;margin-top:24px"></div>
+          <div class="skeleton art-skeleton-line" style="width:88%"></div>
+          <div class="skeleton art-skeleton-line" style="width:95%"></div>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <aside class="art-sidebar" id="artSidebar">
+        <div class="art-widget">
+          <div class="skeleton" style="height:14px;width:80px;margin-bottom:16px;border-radius:4px"></div>
+          <div class="author-card">
+            <div class="author-avatar-lg skeleton" style="font-size:0"></div>
+            <div style="flex:1">
+              <div class="skeleton" style="height:14px;margin-bottom:8px;border-radius:4px"></div>
+              <div class="skeleton" style="height:12px;width:70%;border-radius:4px"></div>
+            </div>
+          </div>
+        </div>
+        <div class="art-widget">
+          <div class="skeleton" style="height:14px;width:120px;margin-bottom:16px;border-radius:4px"></div>
+          <div class="skeleton" style="height:60px;border-radius:8px;margin-bottom:8px"></div>
+          <div class="skeleton" style="height:60px;border-radius:8px"></div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer__grid">
+      <div class="footer__brand">
+        <h3>Nafsoléa</h3>
+        <p>Une plateforme de téléconsultation psychologique culturellement adaptée pour la diaspora algérienne et maghrébine.</p>
+        <div class="footer__socials">
+          <a href="#" class="footer__social">📸</a>
+          <a href="#" class="footer__social">💼</a>
+          <a href="#" class="footer__social">📘</a>
+        </div>
+      </div>
+      <div class="footer__col">
+        <h5>Plateforme</h5>
+        <ul class="footer__links">
+          <li><a href="comment-ca-marche.html" class="footer__link">Comment ça marche</a></li>
+          <li><a href="psychologues.html" class="footer__link">Nos psychologues</a></li>
+          <li><a href="rendez-vous.html" class="footer__link">Prendre rendez-vous</a></li>
+          <li><a href="faq.html" class="footer__link">FAQ</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h5>Ressources</h5>
+        <ul class="footer__links">
+          <li><a href="blog.html" class="footer__link">Blog santé mentale</a></li>
+          <li><a href="a-propos.html" class="footer__link">À propos</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h5>Urgence</h5>
+        <ul class="footer__links">
+          <li><span class="footer__link" style="cursor:default">SAMU : 15</span></li>
+          <li><span class="footer__link" style="cursor:default">Suicide : 3114</span></li>
+          <li><a href="mailto:bonjour@nafsolea.com" class="footer__link">bonjour@nafsolea.com</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <p class="footer__copyright">© 2025 Nafsoléa. Tous droits réservés.</p>
+      <nav class="footer__legal">
+        <a href="#">Confidentialité</a>
+        <a href="#">CGU</a>
+        <a href="#">Mentions légales</a>
+      </nav>
+    </div>
+  </div>
+</footer>
+
+<button class="scroll-top" aria-label="Haut de page">↑</button>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/auth.js"></script>
+<script src="assets/js/main.js" defer></script>
+<script>
+  const CATEGORY_EMOJIS = {
+    'Santé mentale & culture': '🧠', 'Expatriation': '✈️',
+    'Relations familiales': '👨‍👩‍👧', 'Anxiété & dépression': '😰',
+    'Identité': '🪞', 'Couple & relations': '💔',
+    'Bien-être': '🌿', 'Parentalité': '🍼',
+  };
+
+  function catEmoji(cat) { return CATEGORY_EMOJIS[cat] || '📖'; }
+
+  function fmtDate(d) {
+    if (!d) return '';
+    return new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+  }
+
+  function authorName(article) {
+    const psy = article.author?.psychologist;
+    return psy ? `${psy.firstName} ${psy.lastName}` : 'Équipe Nafsoléa';
+  }
+
+  function authorRole(article) {
+    const psy = article.author?.psychologist;
+    return psy ? (psy.title || 'Psychologue clinicien(ne)') : 'Nafsoléa';
+  }
+
+  async function loadArticle() {
+    const params = new URLSearchParams(window.location.search);
+    const slug = params.get('slug');
+    if (!slug) { window.location.href = 'blog.html'; return; }
+
+    try {
+      const article = await API.articles.getBySlug(slug);
+      renderArticle(article);
+      loadRelated(article.category, article.slug);
+    } catch (err) {
+      renderNotFound();
+    }
+  }
+
+  function renderArticle(a) {
+    // Update page title & meta
+    document.title = `${a.title} — Nafsoléa`;
+    document.querySelector('meta[name="description"]').setAttribute('content', a.excerpt || a.title);
+
+    // ── Hero ──
+    document.getElementById('artHero').innerHTML = `
+      <div class="container">
+        <div class="art-breadcrumb">
+          <a href="index.html">Accueil</a>
+          <span>/</span>
+          <a href="blog.html">Ressources</a>
+          <span>/</span>
+          <span>${a.category || 'Article'}</span>
+        </div>
+        <span class="art-category">${a.category || 'Ressources'}</span>
+        <h1 class="art-title">${a.title}</h1>
+        ${a.excerpt ? `<p style="font-size:1.05rem;color:var(--text-light);max-width:700px;line-height:1.7;margin-bottom:var(--space-5)">${a.excerpt}</p>` : ''}
+        <div class="art-meta">
+          <div class="art-author">
+            <div class="art-author-avatar">👩‍⚕️</div>
+            ${authorName(a)}
+          </div>
+          <span class="art-meta-dot">·</span>
+          <span>${fmtDate(a.publishedAt || a.createdAt)}</span>
+          <span class="art-meta-dot">·</span>
+          <span>${a.readingTime || '?'} min de lecture</span>
+        </div>
+      </div>
+    `;
+
+    // ── Main content ──
+    const imageHtml = a.imageUrl
+      ? `<img src="${a.imageUrl}" alt="${a.title}" class="art-banner">`
+      : `<div class="art-banner-placeholder" aria-hidden="true">${catEmoji(a.category)}</div>`;
+
+    const tagsHtml = (a.tags || []).length
+      ? `<div class="art-tags">${a.tags.map(t => `<span class="art-tag">${t}</span>`).join('')}</div>`
+      : '';
+
+    document.getElementById('artMain').innerHTML = `
+      ${imageHtml}
+      <div class="art-content">${a.content || '<p>Contenu non disponible.</p>'}</div>
+      ${tagsHtml}
+      <div class="art-share">
+        <span>Partager :</span>
+        <a class="share-btn" href="https://twitter.com/intent/tweet?text=${encodeURIComponent(a.title)}&url=${encodeURIComponent(window.location.href)}" target="_blank" rel="noopener">🐦 Twitter</a>
+        <a class="share-btn" href="https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}" target="_blank" rel="noopener">💼 LinkedIn</a>
+        <button class="share-btn" onclick="navigator.clipboard?.writeText(window.location.href);this.textContent='✓ Copié!'">🔗 Copier</button>
+      </div>
+    `;
+
+    // ── Sidebar author ──
+    document.getElementById('artSidebar').innerHTML = `
+      <div class="art-widget">
+        <h4>L'auteur(e)</h4>
+        <div class="author-card">
+          <div class="author-avatar-lg">👩‍⚕️</div>
+          <div>
+            <div class="author-name">${authorName(a)}</div>
+            <div class="author-role">${authorRole(a)}</div>
+            <div class="author-bio" id="authorBio">Psychologue clinicien(ne) spécialisé(e) dans l'accompagnement de la diaspora maghrébine.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="art-widget" id="relatedWidget">
+        <h4>Articles liés</h4>
+        <div id="relatedList">
+          <div class="skeleton" style="height:52px;border-radius:8px;margin-bottom:8px"></div>
+          <div class="skeleton" style="height:52px;border-radius:8px"></div>
+        </div>
+      </div>
+
+      <div class="art-widget cta-widget">
+        <div style="font-size:1.8rem;margin-bottom:var(--space-3)">💬</div>
+        <h4>Besoin d'en parler ?</h4>
+        <p style="font-size:0.84rem;color:rgba(255,255,255,0.6);margin-bottom:var(--space-4);max-width:none">
+          Les articles aident à comprendre — une séance avec un psychologue va plus loin. Première séance offerte.
+        </p>
+        <a href="rendez-vous.html" class="btn btn--terracotta" style="width:100%;text-align:center">Prendre rendez-vous</a>
+      </div>
+    `;
+  }
+
+  async function loadRelated(category, currentSlug) {
+    try {
+      const res = await API.articles.list({ category, limit: 3 });
+      const articles = (res.data || []).filter(a => a.slug !== currentSlug).slice(0, 3);
+      const el = document.getElementById('relatedList');
+      if (!el) return;
+
+      if (!articles.length) {
+        document.getElementById('relatedWidget').style.display = 'none';
+        return;
+      }
+
+      el.innerHTML = articles.map(a => `
+        <a href="lire.html?slug=${a.slug}" class="related-item">
+          <div class="related-thumb">${catEmoji(a.category)}</div>
+          <div>
+            <div class="related-title">${a.title}</div>
+            <div class="related-meta">${a.readingTime || '?'} min · ${a.category || ''}</div>
+          </div>
+        </a>
+      `).join('');
+    } catch {
+      const el = document.getElementById('relatedWidget');
+      if (el) el.style.display = 'none';
+    }
+  }
+
+  function renderNotFound() {
+    document.title = 'Article introuvable — Nafsoléa';
+    document.getElementById('artHero').innerHTML = '';
+    document.getElementById('artMain').innerHTML = `
+      <div class="art-not-found">
+        <div class="icon">📭</div>
+        <h2>Article introuvable</h2>
+        <p>Cet article n'existe pas ou a été supprimé.</p>
+        <a href="blog.html" class="btn btn--primary">← Retour aux ressources</a>
+      </div>
+    `;
+    document.getElementById('artSidebar').innerHTML = '';
+  }
+
+  loadArticle();
+</script>
+</body>
+</html>

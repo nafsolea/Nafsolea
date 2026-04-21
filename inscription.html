@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Créer un compte — Nafsoléa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <style>
+    .auth-page {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      background: var(--beige);
+    }
+    .auth-panel {
+      background: var(--sage-dark);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: var(--space-16);
+      position: relative;
+      overflow: hidden;
+    }
+    .auth-panel::before {
+      content: '';
+      position: absolute;
+      width: 400px; height: 400px;
+      border-radius: 60% 40% 70% 30% / 50% 60% 40% 50%;
+      background: rgba(85,133,181,.18);
+      top: -80px; right: -80px;
+      animation: blobDrift 8s ease-in-out infinite;
+    }
+    .auth-panel::after {
+      content: '';
+      position: absolute;
+      width: 300px; height: 300px;
+      border-radius: 40% 60% 30% 70% / 60% 40% 60% 40%;
+      background: rgba(175,59,110,.13);
+      bottom: -60px; left: -60px;
+      animation: blobDrift 10s ease-in-out infinite reverse;
+    }
+    .auth-panel__logo {
+      font-size: 2rem;
+      font-weight: 800;
+      color: white;
+      letter-spacing: -0.03em;
+      margin-bottom: var(--space-8);
+      position: relative; z-index: 1;
+      text-decoration: none;
+    }
+    .auth-panel__tagline {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: rgba(255,255,255,.9);
+      text-align: center;
+      line-height: 1.5;
+      max-width: 320px;
+      position: relative; z-index: 1;
+    }
+    .auth-panel__tagline span { color: #C884A6; }
+    .auth-panel__steps {
+      margin-top: var(--space-10);
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-5);
+      position: relative; z-index: 1;
+    }
+    .auth-panel__steps li {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-4);
+      color: rgba(255,255,255,.85);
+    }
+    .step-num {
+      width: 28px; height: 28px;
+      background: var(--sage);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .8rem; font-weight: 700;
+      color: white;
+      flex-shrink: 0;
+    }
+    .step-text strong { display: block; color: white; font-size: .95rem; }
+    .step-text span { font-size: .85rem; }
+
+    .auth-form-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-8) var(--space-10);
+      overflow-y: auto;
+    }
+    .auth-form-box {
+      width: 100%;
+      max-width: 460px;
+      padding: var(--space-4) 0;
+    }
+    .auth-form-box__title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--sage-dark);
+      margin-bottom: var(--space-2);
+    }
+    .auth-form-box__subtitle {
+      color: var(--text-muted);
+      font-size: .95rem;
+      margin-bottom: var(--space-8);
+    }
+    .auth-form-box__subtitle a {
+      color: var(--sage);
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    /* Role selector */
+    .role-selector {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-3);
+      margin-bottom: var(--space-6);
+    }
+    .role-card {
+      border: 2px solid #E2EAF3;
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+      cursor: pointer;
+      transition: border-color .2s, background .2s;
+      text-align: center;
+      position: relative;
+    }
+    .role-card input[type="radio"] {
+      position: absolute; opacity: 0; width: 0; height: 0;
+    }
+    .role-card:has(input:checked) {
+      border-color: var(--sage);
+      background: var(--beige);
+    }
+    .role-card__icon { font-size: 1.75rem; margin-bottom: var(--space-2); display: block; }
+    .role-card__label { font-weight: 600; font-size: .9rem; color: var(--sage-dark); display: block; }
+    .role-card__desc { font-size: .78rem; color: var(--text-muted); margin-top: 2px; }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      margin-bottom: var(--space-5);
+    }
+    .form-group label {
+      font-weight: 600;
+      font-size: .9rem;
+      color: var(--sage-dark);
+    }
+    .form-group input, .form-group select {
+      padding: 13px 16px;
+      border: 2px solid #E2EAF3;
+      border-radius: var(--radius-md);
+      font-family: var(--font-body);
+      font-size: .95rem;
+      color: var(--text-dark);
+      background: white;
+      transition: border-color .2s, box-shadow .2s;
+      outline: none;
+    }
+    .form-group input:focus, .form-group select:focus {
+      border-color: var(--sage);
+      box-shadow: 0 0 0 4px rgba(85,133,181,.12);
+    }
+    .form-group input.error { border-color: var(--terracotta); }
+    .field-error { font-size: .82rem; color: var(--terracotta); font-weight: 500; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
+
+    .password-wrap { position: relative; }
+    .password-wrap input { padding-right: 48px; width: 100%; box-sizing: border-box; }
+    .password-toggle {
+      position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer; color: var(--text-muted);
+      font-size: 1rem;
+    }
+
+    /* Password strength */
+    .password-strength { display: flex; gap: 4px; margin-top: var(--space-2); }
+    .strength-bar {
+      height: 4px; flex: 1; border-radius: 2px;
+      background: #E2EAF3;
+      transition: background .3s;
+    }
+    .strength-bar.weak { background: #EF4444; }
+    .strength-bar.fair { background: #F59E0B; }
+    .strength-bar.strong { background: #10B981; }
+    .strength-label { font-size: .78rem; color: var(--text-muted); margin-top: 4px; }
+
+    /* RGPD checkbox */
+    .checkbox-group {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-3);
+      margin-bottom: var(--space-5);
+    }
+    .checkbox-group input[type="checkbox"] {
+      width: 18px; height: 18px;
+      border: 2px solid #E2EAF3;
+      border-radius: 4px;
+      cursor: pointer;
+      flex-shrink: 0;
+      margin-top: 2px;
+      accent-color: var(--sage);
+    }
+    .checkbox-group label {
+      font-size: .87rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+    .checkbox-group a { color: var(--sage); text-decoration: none; }
+
+    .auth-submit {
+      width: 100%;
+      padding: 15px;
+      background: var(--terracotta);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      font-family: var(--font-body);
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s, transform .1s;
+    }
+    .auth-submit:hover { background: #9a2f5e; transform: translateY(-1px); }
+    .auth-submit:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+    .auth-submit.loading { position: relative; color: transparent; }
+    .auth-submit.loading::after {
+      content: '';
+      position: absolute; top: 50%; left: 50%;
+      width: 20px; height: 20px;
+      border: 2px solid white; border-top-color: transparent;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      animation: spin .7s linear infinite;
+    }
+
+    .alert {
+      padding: 14px 16px;
+      border-radius: var(--radius-md);
+      font-size: .9rem;
+      font-weight: 500;
+      margin-bottom: var(--space-5);
+      display: none;
+    }
+    .alert.error { background: #FEE2E2; color: #B91C1C; border: 1px solid #FECACA; }
+    .alert.success { background: #D1FAE5; color: #065F46; border: 1px solid #A7F3D0; }
+    .alert.show { display: block; }
+
+    /* Psy note */
+    .psy-note {
+      background: var(--beige);
+      border: 1px solid #CFE2F3;
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+      font-size: .87rem;
+      color: var(--text-muted);
+      margin-bottom: var(--space-5);
+      display: none;
+    }
+    .psy-note.show { display: block; }
+
+    @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+
+    @media (max-width: 768px) {
+      .auth-page { grid-template-columns: 1fr; }
+      .auth-panel { display: none; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="auth-page">
+
+  <!-- ── Left panel ── -->
+  <div class="auth-panel">
+    <a href="index.html" class="auth-panel__logo">Nafsoléa</a>
+    <p class="auth-panel__tagline">
+      Commencez votre parcours vers<br>
+      <span>le mieux-être.</span>
+    </p>
+    <ol class="auth-panel__steps">
+      <li>
+        <span class="step-num">1</span>
+        <div class="step-text">
+          <strong>Créez votre compte</strong>
+          <span>Rapide, sécurisé, confidentiel</span>
+        </div>
+      </li>
+      <li>
+        <span class="step-num">2</span>
+        <div class="step-text">
+          <strong>Choisissez un psychologue</strong>
+          <span>Filtrez par langue et spécialité</span>
+        </div>
+      </li>
+      <li>
+        <span class="step-num">3</span>
+        <div class="step-text">
+          <strong>Réservez votre séance</strong>
+          <span>Paiement sécurisé, consultation en ligne</span>
+        </div>
+      </li>
+    </ol>
+  </div>
+
+  <!-- ── Form ── -->
+  <div class="auth-form-wrap">
+    <div class="auth-form-box">
+      <h1 class="auth-form-box__title">Créer un compte</h1>
+      <p class="auth-form-box__subtitle">
+        Déjà inscrit ? <a href="login.html">Se connecter</a>
+      </p>
+
+      <div class="alert" id="alert" role="alert"></div>
+
+      <form id="signupForm" novalidate>
+
+        <!-- Role selection -->
+        <div class="form-group">
+          <label>Je suis…</label>
+          <div class="role-selector">
+            <label class="role-card">
+              <input type="radio" name="role" value="PATIENT" checked>
+              <span class="role-card__icon">🧘</span>
+              <span class="role-card__label">Patient</span>
+              <span class="role-card__desc">Je cherche un suivi psychologique</span>
+            </label>
+            <label class="role-card">
+              <input type="radio" name="role" value="PSYCHOLOGIST">
+              <span class="role-card__icon">🧠</span>
+              <span class="role-card__label">Psychologue</span>
+              <span class="role-card__desc">Je souhaite rejoindre l'équipe</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="psy-note" id="psyNote">
+          ℹ️ Les profils psychologues sont <strong>validés manuellement</strong> par notre équipe sous 48h.
+          Vous recevrez un email de confirmation une fois votre profil examiné.
+        </div>
+
+        <!-- Name -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="firstName">Prénom</label>
+            <input type="text" id="firstName" name="firstName" placeholder="Karim" autocomplete="given-name" required>
+            <span class="field-error" id="firstNameError"></span>
+          </div>
+          <div class="form-group">
+            <label for="lastName">Nom</label>
+            <input type="text" id="lastName" name="lastName" placeholder="Hadj" autocomplete="family-name" required>
+            <span class="field-error" id="lastNameError"></span>
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div class="form-group">
+          <label for="email">Adresse email</label>
+          <input type="email" id="email" name="email" placeholder="vous@example.com" autocomplete="email" required>
+          <span class="field-error" id="emailError"></span>
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+          <label for="password">Mot de passe</label>
+          <div class="password-wrap">
+            <input type="password" id="password" name="password" placeholder="Au moins 8 caractères" autocomplete="new-password" required>
+            <button type="button" class="password-toggle" id="togglePassword">👁</button>
+          </div>
+          <div class="password-strength" id="strengthBars">
+            <div class="strength-bar" id="bar1"></div>
+            <div class="strength-bar" id="bar2"></div>
+            <div class="strength-bar" id="bar3"></div>
+            <div class="strength-bar" id="bar4"></div>
+          </div>
+          <span class="strength-label" id="strengthLabel"></span>
+          <span class="field-error" id="passwordError"></span>
+        </div>
+
+        <!-- RGPD consent -->
+        <div class="checkbox-group">
+          <input type="checkbox" id="gdprConsent" name="gdprConsent" required>
+          <label for="gdprConsent">
+            J'accepte la <a href="#">politique de confidentialité</a> et le traitement de mes données
+            conformément au RGPD. Mes données de santé ne seront jamais vendues à des tiers.
+          </label>
+        </div>
+
+        <button type="submit" class="auth-submit" id="submitBtn">
+          Créer mon compte
+        </button>
+
+      </form>
+    </div>
+  </div>
+
+</div>
+
+<script src="assets/js/api.js"></script>
+<script src="assets/js/auth.js"></script>
+<script>
+  if (Auth.isLoggedIn()) {
+    const r = new URLSearchParams(window.location.search).get('redirect');
+    window.location.href = r || 'rendez-vous.html';
+  }
+
+  // Pre-select role from query param
+  const urlRole = new URLSearchParams(window.location.search).get('role');
+  if (urlRole === 'PSYCHOLOGIST') {
+    document.querySelector('input[value="PSYCHOLOGIST"]').checked = true;
+    document.getElementById('psyNote').classList.add('show');
+  }
+
+  // Show psy note on role change
+  document.querySelectorAll('input[name="role"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+      document.getElementById('psyNote').classList.toggle('show', radio.value === 'PSYCHOLOGIST' && radio.checked);
+    });
+  });
+
+  // Password toggle
+  const pwInput = document.getElementById('password');
+  document.getElementById('togglePassword').addEventListener('click', () => {
+    const isText = pwInput.type === 'text';
+    pwInput.type = isText ? 'password' : 'text';
+    document.getElementById('togglePassword').textContent = isText ? '👁' : '🙈';
+  });
+
+  // Password strength
+  pwInput.addEventListener('input', () => {
+    const val = pwInput.value;
+    let score = 0;
+    if (val.length >= 8) score++;
+    if (/[A-Z]/.test(val)) score++;
+    if (/[0-9]/.test(val)) score++;
+    if (/[^A-Za-z0-9]/.test(val)) score++;
+
+    const bars = ['bar1','bar2','bar3','bar4'];
+    const labels = ['','Faible','Moyen','Fort','Très fort'];
+    const classes = ['','weak','fair','strong','strong'];
+
+    bars.forEach((id, i) => {
+      const el = document.getElementById(id);
+      el.className = 'strength-bar';
+      if (i < score) el.classList.add(classes[score]);
+    });
+    document.getElementById('strengthLabel').textContent = val ? labels[score] : '';
+  });
+
+  const alertBox = document.getElementById('alert');
+  const submitBtn = document.getElementById('submitBtn');
+
+  function showAlert(msg, type = 'error') {
+    alertBox.textContent = msg;
+    alertBox.className = `alert ${type} show`;
+    alertBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function setLoading(on) {
+    submitBtn.disabled = on;
+    submitBtn.classList.toggle('loading', on);
+    if (!on) submitBtn.textContent = 'Créer mon compte';
+  }
+
+  document.getElementById('signupForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const role     = document.querySelector('input[name="role"]:checked').value;
+    const firstName = document.getElementById('firstName').value.trim();
+    const lastName  = document.getElementById('lastName').value.trim();
+    const email    = document.getElementById('email').value.trim();
+    const password = pwInput.value;
+    const consent  = document.getElementById('gdprConsent').checked;
+
+    // Validation
+    let valid = true;
+    const errors = { firstName:'', lastName:'', email:'', password:'' };
+    if (!firstName) { errors.firstName = 'Prénom requis'; valid = false; }
+    if (!lastName)  { errors.lastName  = 'Nom requis'; valid = false; }
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { errors.email = 'Email invalide'; valid = false; }
+    if (password.length < 8) { errors.password = 'Au moins 8 caractères'; valid = false; }
+    if (!/(?=.*[A-Z])(?=.*\d)/.test(password)) { errors.password = 'Incluez une majuscule et un chiffre'; valid = false; }
+    if (!consent) { showAlert('Vous devez accepter la politique de confidentialité'); return; }
+
+    Object.entries(errors).forEach(([field, msg]) => {
+      const el = document.getElementById(field + 'Error');
+      const input = document.getElementById(field);
+      if (el) el.textContent = msg;
+      if (input && msg) input.classList.add('error');
+    });
+    if (!valid) return;
+
+    setLoading(true);
+    alertBox.className = 'alert';
+
+    try {
+      await API.post('/auth/register', { email, password, firstName, lastName, role, gdprConsent: true });
+      showAlert(
+        '✅ Compte créé ! Vérifiez votre email pour activer votre compte.',
+        'success'
+      );
+      submitBtn.textContent = 'Compte créé ✓';
+      const redirect = new URLSearchParams(window.location.search).get('redirect');
+      const loginHref = redirect ? `login.html?redirect=${encodeURIComponent(redirect)}` : 'login.html';
+      setTimeout(() => window.location.href = loginHref, 3000);
+    } catch (err) {
+      showAlert(err.message || 'Une erreur est survenue, réessayez.');
+      setLoading(false);
+    }
+  });
+
+  // Clear errors on input
+  ['firstName','lastName','email','password'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', function() {
+      this.classList.remove('error');
+      const errEl = document.getElementById(id + 'Error');
+      if (errEl) errEl.textContent = '';
+    });
+  });
+</script>
+</body>
+</html>

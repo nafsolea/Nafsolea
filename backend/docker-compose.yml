@@ -1,0 +1,65 @@
+version: '3.9'
+
+services:
+  # ── PostgreSQL ──────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: nafsolea_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: nafsolea_user
+      POSTGRES_PASSWORD: nafsolea_dev_password
+      POSTGRES_DB: nafsolea_db
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U nafsolea_user -d nafsolea_db']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Redis ───────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: nafsolea_redis
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+    command: redis-server --requirepass ""
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── API (NestJS) ────────────────────────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nafsolea_api
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://nafsolea_user:nafsolea_dev_password@postgres:5432/nafsolea_db
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./src:/app/src   # hot-reload in dev
+
+volumes:
+  postgres_data:
+  redis_data:

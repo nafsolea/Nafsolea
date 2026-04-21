@@ -1,0 +1,31 @@
+# ─── Nafsoléa — Netlify config (frontend statique) ───────────────
+# Déploie automatiquement les fichiers HTML/CSS/JS à la racine du repo.
+
+[build]
+  # Pas de build step — tout est déjà statique
+  publish = "."
+
+# Ignore le dossier backend lors du déploiement frontend
+[build.processing]
+  skip_processing = false
+
+# Redirection : quand quelqu'un tape /admin, on sert /admin/index.html
+[[redirects]]
+  from = "/admin"
+  to = "/admin/index.html"
+  status = 200
+
+# Fallback 404 vers la page d'accueil (les pages existent en HTML statique)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 404
+
+# Sécurité : entêtes HTTP recommandés
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "geolocation=(), microphone=(self), camera=(self)"

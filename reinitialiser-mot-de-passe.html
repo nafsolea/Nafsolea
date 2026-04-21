@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nouveau mot de passe — Nafsoléa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <style>
+    .auth-page {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      background: var(--beige);
+    }
+    .auth-panel {
+      background: var(--sage-dark);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: var(--space-16);
+      position: relative;
+      overflow: hidden;
+    }
+    .auth-panel::before {
+      content: '';
+      position: absolute;
+      width: 400px; height: 400px;
+      border-radius: 60% 40% 70% 30% / 50% 60% 40% 50%;
+      background: rgba(85,133,181,.18);
+      top: -80px; right: -80px;
+      animation: blobDrift 8s ease-in-out infinite;
+    }
+    .auth-panel::after {
+      content: '';
+      position: absolute;
+      width: 300px; height: 300px;
+      border-radius: 40% 60% 30% 70% / 60% 40% 60% 40%;
+      background: rgba(175,59,110,.13);
+      bottom: -60px; left: -60px;
+      animation: blobDrift 10s ease-in-out infinite reverse;
+    }
+    .auth-panel__logo {
+      font-size: 2rem;
+      font-weight: 800;
+      color: white;
+      letter-spacing: -0.03em;
+      margin-bottom: var(--space-6);
+      position: relative; z-index: 1;
+      text-decoration: none;
+    }
+    .auth-panel__icon { font-size: 4rem; margin-bottom: var(--space-5); position: relative; z-index: 1; }
+    .auth-panel__tagline {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: rgba(255,255,255,.9);
+      text-align: center;
+      line-height: 1.6;
+      max-width: 300px;
+      position: relative; z-index: 1;
+    }
+    .auth-panel__tagline span { color: var(--rose-light, #C884A6); }
+
+    /* Right */
+    .auth-form-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-10);
+    }
+    .auth-form-box { width: 100%; max-width: 420px; }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: .87rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-weight: 500;
+      margin-bottom: var(--space-6);
+      transition: color .2s;
+    }
+    .back-link:hover { color: var(--sage-dark); }
+    .auth-form-box__title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--sage-dark);
+      margin-bottom: var(--space-2);
+    }
+    .auth-form-box__subtitle {
+      color: var(--text-muted);
+      font-size: .93rem;
+      margin-bottom: var(--space-8);
+      line-height: 1.6;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      margin-bottom: var(--space-5);
+    }
+    .form-group label { font-weight: 600; font-size: .9rem; color: var(--sage-dark); }
+    .form-group input {
+      padding: 14px 16px;
+      border: 2px solid #E2EAF3;
+      border-radius: var(--radius-md);
+      font-family: var(--font-body);
+      font-size: .95rem;
+      color: var(--text-dark);
+      background: white;
+      transition: border-color .2s, box-shadow .2s;
+      outline: none;
+    }
+    .form-group input:focus { border-color: var(--sage); box-shadow: 0 0 0 4px rgba(85,133,181,.12); }
+    .field-error { font-size: .82rem; color: var(--terracotta); font-weight: 500; }
+
+    /* Password wrap */
+    .password-wrap { position: relative; }
+    .password-wrap input { padding-right: 48px; width: 100%; box-sizing: border-box; }
+    .password-toggle {
+      position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 1rem;
+    }
+
+    /* Strength meter */
+    .strength-meter { display: flex; gap: 4px; margin-top: 8px; }
+    .strength-bar { flex: 1; height: 4px; border-radius: 2px; background: var(--border); transition: background .3s; }
+    .strength-bar.weak   { background: #EF4444; }
+    .strength-bar.fair   { background: #F59E0B; }
+    .strength-bar.strong { background: #22C55E; }
+    .strength-label { font-size: .75rem; color: var(--text-muted); margin-top: 4px; height: 16px; }
+
+    .auth-submit {
+      width: 100%; padding: 15px;
+      background: var(--terracotta); color: white;
+      border: none; border-radius: var(--radius-md);
+      font-family: var(--font-body); font-size: 1rem; font-weight: 600;
+      cursor: pointer; transition: background .2s, transform .1s;
+    }
+    .auth-submit:hover { background: #9a2f5e; transform: translateY(-1px); }
+    .auth-submit:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+    .auth-submit.loading { position: relative; color: transparent; }
+    .auth-submit.loading::after {
+      content: '';
+      position: absolute; top: 50%; left: 50%;
+      width: 20px; height: 20px;
+      border: 2px solid white; border-top-color: transparent;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      animation: spin .7s linear infinite;
+    }
+
+    .alert {
+      padding: 14px 16px; border-radius: var(--radius-md);
+      font-size: .9rem; font-weight: 500;
+      margin-bottom: var(--space-5); display: none; line-height: 1.5;
+    }
+    .alert.error   { background: #FEE2E2; color: #B91C1C; border: 1px solid #FECACA; }
+    .alert.success { background: #D1FAE5; color: #065F46; border: 1px solid #A7F3D0; }
+    .alert.show { display: block; }
+
+    /* Invalid token state */
+    .token-error {
+      text-align: center;
+      padding: var(--space-8) 0;
+      display: none;
+    }
+    .token-error.show { display: block; }
+    .token-error__icon { font-size: 3rem; margin-bottom: var(--space-4); display: block; }
+    .token-error__title { font-size: 1.2rem; font-weight: 700; color: var(--sage-dark); margin-bottom: var(--space-3); }
+    .token-error__desc { color: var(--text-muted); font-size: .9rem; line-height: 1.6; margin-bottom: var(--space-5); }
+
+    @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+    @media (max-width: 768px) {
+      .auth-page { grid-template-columns: 1fr; }
+      .auth-panel { display: none; }
+    }
+  </style>
+</head>
+<body>
+<div class="auth-page">
+
+  <!-- Left panel -->
+  <div class="auth-panel">
+    <a href="index.html" class="auth-panel__logo">Nafsoléa</a>
+    <div class="auth-panel__icon">🔐</div>
+    <p class="auth-panel__tagline">
+      Choisissez un mot de passe<br>
+      <span>solide et mémorable.</span>
+    </p>
+  </div>
+
+  <!-- Right panel -->
+  <div class="auth-form-wrap">
+    <div class="auth-form-box">
+
+      <a href="login.html" class="back-link">← Retour à la connexion</a>
+
+      <!-- Invalid / missing token -->
+      <div class="token-error" id="tokenError">
+        <span class="token-error__icon">⚠️</span>
+        <div class="token-error__title">Lien invalide ou expiré</div>
+        <p class="token-error__desc">
+          Ce lien de réinitialisation n'est plus valide. Les liens expirent après 1 heure pour des raisons de sécurité.
+        </p>
+        <a href="mot-de-passe-oublie.html" class="btn btn--primary btn--sm">Demander un nouveau lien</a>
+      </div>
+
+      <!-- Form -->
+      <div id="formState">
+        <h1 class="auth-form-box__title">Nouveau mot de passe</h1>
+        <p class="auth-form-box__subtitle">
+          Choisissez un mot de passe fort d'au moins 8 caractères, avec une majuscule et un chiffre.
+        </p>
+
+        <div class="alert" id="alert" role="alert"></div>
+
+        <form id="newPasswordForm" novalidate>
+          <div class="form-group">
+            <label for="password">Nouveau mot de passe</label>
+            <div class="password-wrap">
+              <input
+                type="password"
+                id="password"
+                placeholder="••••••••"
+                autocomplete="new-password"
+                required
+              >
+              <button type="button" class="password-toggle" id="toggle1">👁</button>
+            </div>
+            <div class="strength-meter">
+              <div class="strength-bar" id="sb1"></div>
+              <div class="strength-bar" id="sb2"></div>
+              <div class="strength-bar" id="sb3"></div>
+              <div class="strength-bar" id="sb4"></div>
+            </div>
+            <div class="strength-label" id="strengthLabel"></div>
+            <span class="field-error" id="passwordError"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="confirmPassword">Confirmer le mot de passe</label>
+            <div class="password-wrap">
+              <input
+                type="password"
+                id="confirmPassword"
+                placeholder="••••••••"
+                autocomplete="new-password"
+                required
+              >
+              <button type="button" class="password-toggle" id="toggle2">👁</button>
+            </div>
+            <span class="field-error" id="confirmError"></span>
+          </div>
+
+          <button type="submit" class="auth-submit" id="submitBtn">
+            Réinitialiser le mot de passe
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script src="assets/js/api.js"></script>
+<script src="assets/js/auth.js"></script>
+<script>
+  if (Auth.isLoggedIn()) window.location.href = 'rendez-vous.html';
+
+  const token = new URLSearchParams(window.location.search).get('token');
+
+  // No token — show error immediately
+  if (!token) {
+    document.getElementById('formState').style.display = 'none';
+    document.getElementById('tokenError').classList.add('show');
+  }
+
+  const form          = document.getElementById('newPasswordForm');
+  const submitBtn     = document.getElementById('submitBtn');
+  const alertBox      = document.getElementById('alert');
+  const pwInput       = document.getElementById('password');
+  const confirmInput  = document.getElementById('confirmPassword');
+
+  // ── Password visibility toggles ──
+  document.getElementById('toggle1').addEventListener('click', () => {
+    const isText = pwInput.type === 'text';
+    pwInput.type = isText ? 'password' : 'text';
+    document.getElementById('toggle1').textContent = isText ? '👁' : '🙈';
+  });
+  document.getElementById('toggle2').addEventListener('click', () => {
+    const isText = confirmInput.type === 'text';
+    confirmInput.type = isText ? 'password' : 'text';
+    document.getElementById('toggle2').textContent = isText ? '👁' : '🙈';
+  });
+
+  // ── Strength meter ──
+  pwInput.addEventListener('input', () => {
+    const val = pwInput.value;
+    let score = 0;
+    if (val.length >= 8)          score++;
+    if (/[A-Z]/.test(val))        score++;
+    if (/[0-9]/.test(val))        score++;
+    if (/[^A-Za-z0-9]/.test(val)) score++;
+
+    const bars   = ['sb1','sb2','sb3','sb4'];
+    const labels = ['', 'Faible', 'Moyen', 'Fort', 'Très fort'];
+    const cls    = ['', 'weak',   'fair',  'strong', 'strong'];
+
+    bars.forEach((id, i) => {
+      const el = document.getElementById(id);
+      el.className = 'strength-bar';
+      if (i < score) el.classList.add(cls[score]);
+    });
+    document.getElementById('strengthLabel').textContent = val ? labels[score] : '';
+  });
+
+  function showAlert(msg, type = 'error') {
+    alertBox.textContent = msg;
+    alertBox.className = `alert ${type} show`;
+  }
+
+  function setLoading(on) {
+    submitBtn.disabled = on;
+    submitBtn.classList.toggle('loading', on);
+    if (!on) submitBtn.textContent = 'Réinitialiser le mot de passe';
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const password = pwInput.value;
+    const confirm  = confirmInput.value;
+
+    // Validation
+    let valid = true;
+    document.getElementById('passwordError').textContent = '';
+    document.getElementById('confirmError').textContent  = '';
+
+    if (password.length < 8) {
+      document.getElementById('passwordError').textContent = 'Au moins 8 caractères requis';
+      valid = false;
+    } else if (!/(?=.*[A-Z])(?=.*\d)/.test(password)) {
+      document.getElementById('passwordError').textContent = 'Incluez une majuscule et un chiffre';
+      valid = false;
+    }
+    if (password !== confirm) {
+      document.getElementById('confirmError').textContent = 'Les mots de passe ne correspondent pas';
+      valid = false;
+    }
+    if (!valid) return;
+
+    setLoading(true);
+    alertBox.className = 'alert';
+
+    try {
+      await API.auth.resetPassword(token, password);
+      showAlert('✅ Mot de passe réinitialisé avec succès ! Redirection…', 'success');
+      submitBtn.textContent = 'Réinitialisé ✓';
+      setTimeout(() => window.location.href = 'login.html', 2500);
+    } catch (err) {
+      if (err.message?.toLowerCase().includes('token') || err.message?.toLowerCase().includes('invalid') || err.message?.toLowerCase().includes('expired')) {
+        // Token expired during form use
+        document.getElementById('formState').style.display = 'none';
+        document.getElementById('tokenError').classList.add('show');
+      } else {
+        showAlert(err.message || 'Une erreur est survenue. Réessayez.');
+        setLoading(false);
+      }
+    }
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Réservez votre consultation psychologique en ligne sur Nafsoléa. Choisissez votre psychologue, votre créneau, et consultez depuis chez vous en toute confidentialité.">
+  <title>Prendre rendez-vous — Nafsoléa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <style>
+    .booking-page {
+      padding-top: calc(72px + var(--space-8));
+      padding-bottom: var(--space-20);
+      background: var(--off-white);
+      min-height: 100vh;
+    }
+
+    .booking-header {
+      margin-bottom: var(--space-8);
+    }
+
+    .booking-header h1 {
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+      margin-bottom: var(--space-2);
+    }
+
+    .booking-layout {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: var(--space-6);
+      align-items: start;
+    }
+
+    /* Step panels */
+    .booking-step { display: none; }
+    .booking-step.active { display: block; }
+
+    .step-section-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: var(--space-5);
+      padding-bottom: var(--space-3);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .step-section-title span {
+      width: 28px;
+      height: 28px;
+      background: var(--sage-pale);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--sage-dark);
+      flex-shrink: 0;
+    }
+
+    /* Psy selector */
+    .psy-selector {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+
+    .psy-select-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+      padding: var(--space-4) var(--space-5);
+      border: 2px solid var(--border);
+      border-radius: var(--radius-lg);
+      cursor: pointer;
+      transition: all var(--tr);
+      background: white;
+    }
+
+    .psy-select-row:hover {
+      border-color: var(--sage-light);
+      background: var(--sage-pale);
+    }
+
+    .psy-select-row.selected {
+      border-color: var(--sage);
+      background: var(--sage-pale);
+    }
+
+    .psy-select-row input[type="radio"] {
+      accent-color: var(--sage);
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .psy-select-avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--sage-light), var(--sage));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+
+    .psy-select-info { flex: 1; }
+    .psy-select-info h4 { font-size: 0.95rem; margin-bottom: 2px; }
+    .psy-select-info p { font-size: 0.8rem; color: var(--text-muted); max-width: none; }
+
+    .psy-select-price {
+      font-family: var(--font-heading);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--sage-dark);
+      flex-shrink: 0;
+    }
+
+    /* Calendar */
+    .calendar-grid {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+    }
+
+    .calendar-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-4) var(--space-5);
+      background: var(--sage);
+      color: white;
+    }
+
+    .calendar-nav button {
+      background: rgba(255,255,255,0.15);
+      border: none;
+      color: white;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background var(--tr);
+    }
+
+    .calendar-nav button:hover { background: rgba(255,255,255,0.25); }
+    .calendar-nav strong { font-size: 1rem; }
+
+    .calendar-days-header {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      background: var(--sage-pale);
+    }
+
+    .calendar-days-header div {
+      text-align: center;
+      padding: var(--space-2);
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--sage-dark);
+      text-transform: uppercase;
+    }
+
+    .calendar-days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 2px;
+      padding: var(--space-3);
+      background: var(--border-light);
+    }
+
+    .cal-btn {
+      background: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: var(--space-3);
+      text-align: center;
+      font-size: 0.88rem;
+      cursor: pointer;
+      transition: all var(--tr);
+      color: var(--text-mid);
+      font-weight: 500;
+    }
+
+    .cal-btn:hover:not(:disabled) { background: var(--sage-pale); color: var(--sage-dark); }
+    .cal-btn.selected { background: var(--sage) !important; color: white; }
+    .cal-btn.today { font-weight: 700; color: var(--sage-dark); }
+    .cal-btn:disabled { color: var(--border); cursor: not-allowed; background: var(--off-white); }
+    .cal-btn.has-slot::after { content: '·'; display: block; color: var(--sage); font-size: 1.2rem; line-height: 0; margin-top: 2px; }
+
+    /* Time slots grid */
+    .slots-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-2);
+      margin-top: var(--space-4);
+    }
+
+    .slot-btn {
+      border: 1.5px solid var(--border);
+      background: white;
+      border-radius: var(--radius-md);
+      padding: var(--space-3);
+      text-align: center;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-mid);
+      cursor: pointer;
+      transition: all var(--tr);
+    }
+
+    .slot-btn:hover { border-color: var(--sage); background: var(--sage-pale); color: var(--sage-dark); }
+    .slot-btn.selected { background: var(--sage); border-color: var(--sage); color: white; }
+    .slot-btn.taken { opacity: 0.35; cursor: not-allowed; text-decoration: line-through; }
+
+    /* Contact form */
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-4);
+    }
+
+    .form-section { display: flex; flex-direction: column; gap: var(--space-4); }
+
+    /* Summary panel */
+    .summary-panel {
+      background: white;
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+      position: sticky;
+      top: 88px;
+    }
+
+    .summary-header {
+      background: linear-gradient(135deg, var(--sage) 0%, var(--sage-dark) 100%);
+      padding: var(--space-5) var(--space-6);
+    }
+
+    .summary-header h3 {
+      color: white;
+      font-size: 1rem;
+      margin-bottom: 0;
+    }
+
+    .summary-body { padding: var(--space-5) var(--space-6); }
+
+    .summary-item {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-3);
+      padding: var(--space-3) 0;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .summary-item:last-child { border-bottom: none; }
+
+    .summary-item__icon {
+      font-size: 1.1rem;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .summary-item__label {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+
+    .summary-item__value {
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .summary-footer {
+      padding: var(--space-5) var(--space-6);
+      background: var(--off-white);
+      border-top: 1px solid var(--border);
+    }
+
+    .summary-total-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-4);
+    }
+
+    .summary-total-row span { font-size: 0.9rem; font-weight: 600; color: var(--text); }
+    .summary-total-price {
+      font-family: var(--font-heading);
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--sage-dark);
+    }
+
+    .summary-free-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(90,185,100,0.12);
+      color: #3A8A48;
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      margin-bottom: var(--space-4);
+    }
+
+    .trust-items {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      margin-top: var(--space-4);
+    }
+
+    .trust-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* Confirmation screen */
+    .confirmation-screen {
+      text-align: center;
+      padding: var(--space-12) var(--space-6);
+    }
+
+    .confirmation-icon {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, var(--sage-pale), var(--sage-light));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      margin: 0 auto var(--space-6);
+    }
+
+    @media (max-width: 1024px) {
+      .booking-layout { grid-template-columns: 1fr; }
+      .summary-panel { position: static; }
+    }
+
+    @media (max-width: 640px) {
+      .form-row { grid-template-columns: 1fr; }
+      .slots-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVIGATION -->
+<nav class="nav">
+  <div class="nav__inner">
+    <a href="index.html" class="nav__logo">
+      <div class="nav__logo-mark" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 36 36" fill="none">
+          <circle cx="18" cy="18" r="5" fill="white"/>
+          <line x1="18" y1="2" x2="18" y2="10" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="18" y1="26" x2="18" y2="34" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="2" y1="18" x2="10" y2="18" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="26" y1="18" x2="34" y2="18" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="6.7" y1="6.7" x2="11.7" y2="11.7" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+          <line x1="24.3" y1="24.3" x2="29.3" y2="29.3" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+          <line x1="29.3" y1="6.7" x2="24.3" y2="11.7" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+          <line x1="11.7" y1="24.3" x2="6.7" y2="29.3" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+        </svg>
+      </div>
+      Nafsoléa
+    </a>
+    <ul class="nav__links">
+      <li><a href="comment-ca-marche.html" class="nav__link">Comment ça marche</a></li>
+      <li><a href="psychologues.html" class="nav__link">Nos psychologues</a></li>
+      <li><a href="blog.html" class="nav__link">Ressources</a></li>
+      <li><a href="a-propos.html" class="nav__link">À propos</a></li>
+      <li><a href="faq.html" class="nav__link">FAQ</a></li>
+    </ul>
+    <div class="nav__actions">
+      <button class="nav__lang">FR | عربي</button>
+      <a href="rendez-vous.html" class="btn btn--primary btn--sm">Prendre RDV</a>
+    </div>
+    <button class="nav__hamburger" aria-label="Menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <div class="nav__mobile">
+    <a href="comment-ca-marche.html" class="nav__mobile-link">Comment ça marche</a>
+    <a href="psychologues.html" class="nav__mobile-link">Nos psychologues</a>
+    <a href="blog.html" class="nav__mobile-link">Ressources</a>
+    <a href="a-propos.html" class="nav__mobile-link">À propos</a>
+    <a href="faq.html" class="nav__mobile-link">FAQ</a>
+    <a href="rendez-vous.html" class="btn btn--primary" style="margin-top:0.5rem">Prendre rendez-vous</a>
+  </div>
+</nav>
+
+<div class="booking-page">
+  <div class="container">
+
+    <!-- Header -->
+    <div class="booking-header">
+      <span class="label">Première séance offerte</span>
+      <h1>Réservez votre consultation</h1>
+      <p style="color:var(--text-light); max-width:none">Aucun engagement. Annulation gratuite jusqu'à 24h avant.</p>
+    </div>
+
+    <!-- Step indicator -->
+    <div class="booking__steps-indicator" style="max-width:400px; margin-bottom:var(--space-8)" role="progressbar" aria-label="Étapes de réservation">
+      <div class="booking__step-dot active" id="dot-1">1</div>
+      <div class="booking__step-line" id="line-1"></div>
+      <div class="booking__step-dot" id="dot-2">2</div>
+      <div class="booking__step-line" id="line-2"></div>
+      <div class="booking__step-dot" id="dot-3">3</div>
+    </div>
+
+    <div class="booking-layout">
+
+      <!-- LEFT: Steps -->
+      <div>
+
+        <!-- STEP 1 : Choisir son psy -->
+        <div class="booking-step active" id="step-1">
+          <div class="booking__panel">
+            <div class="step-section-title">
+              <span>1</span> Choisissez votre psychologue
+            </div>
+
+            <div class="psy-selector" role="radiogroup" aria-label="Choisir un psychologue" id="psySelectorGrid">
+              <label class="psy-select-row selected" for="psy-1">
+                <input type="radio" id="psy-1" name="psy" value="amira" checked>
+                <div class="psy-select-avatar">👩‍⚕️</div>
+                <div class="psy-select-info">
+                  <h4>Dr. Amira Mansouri</h4>
+                  <p>Anxiété · Expatriation · FR / عربي · Disponible aujourd'hui</p>
+                </div>
+                <div class="psy-select-price">60€</div>
+              </label>
+
+              <label class="psy-select-row" for="psy-2">
+                <input type="radio" id="psy-2" name="psy" value="karim">
+                <div class="psy-select-avatar">👨‍⚕️</div>
+                <div class="psy-select-info">
+                  <h4>Dr. Karim Belhadj</h4>
+                  <p>Dépression · Trauma · FR / عربي · Disponible aujourd'hui</p>
+                </div>
+                <div class="psy-select-price">55€</div>
+              </label>
+
+              <label class="psy-select-row" for="psy-3">
+                <input type="radio" id="psy-3" name="psy" value="nadia">
+                <div class="psy-select-avatar">👩‍⚕️</div>
+                <div class="psy-select-info">
+                  <h4>Mme. Nadia Cherif</h4>
+                  <p>Couple · Identité · FR / دارجة · Prochain créneau : demain</p>
+                </div>
+                <div class="psy-select-price">65€</div>
+              </label>
+
+              <label class="psy-select-row" for="psy-4">
+                <input type="radio" id="psy-4" name="psy" value="youcef">
+                <div class="psy-select-avatar">👨‍⚕️</div>
+                <div class="psy-select-info">
+                  <h4>Dr. Youcef Aït-Ahmed</h4>
+                  <p>Identité · Pression familiale · FR / عربي · Disponible aujourd'hui</p>
+                </div>
+                <div class="psy-select-price">50€</div>
+              </label>
+            </div>
+
+            <div style="display:flex; align-items:center; gap:var(--space-3); margin-top:var(--space-4); padding:var(--space-4); background:var(--sage-pale); border-radius:var(--radius-md)">
+              <span style="font-size:1.2rem">💡</span>
+              <p style="font-size:0.84rem; color:var(--sage-dark); max-width:none; margin:0">
+                Pas sûr(e) de votre choix ? <a href="index.html" style="font-weight:700; color:var(--sage-dark); text-decoration:underline">Faites notre quiz d'orientation</a> — 2 minutes pour trouver le bon profil.
+              </p>
+            </div>
+
+            <div style="display:flex; justify-content:flex-end; margin-top:var(--space-6)">
+              <button class="btn btn--primary btn--lg" data-next-step>
+                Choisir un créneau →
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 2 : Choisir date & heure -->
+        <div class="booking-step" id="step-2">
+          <div class="booking__panel">
+            <div class="step-section-title">
+              <span>2</span> Choisissez votre date et heure
+            </div>
+
+            <!-- Calendar -->
+            <div class="calendar-grid" style="margin-bottom:var(--space-6)">
+              <div class="calendar-nav">
+                <button aria-label="Mois précédent">‹</button>
+                <strong>Juillet 2025</strong>
+                <button aria-label="Mois suivant">›</button>
+              </div>
+              <div class="calendar-days-header">
+                <div>Lu</div><div>Ma</div><div>Me</div>
+                <div>Je</div><div>Ve</div><div>Sa</div><div>Di</div>
+              </div>
+              <div class="calendar-days" id="calendarDays">
+                <button class="cal-btn" disabled>30</button>
+                <button class="cal-btn has-slot">1</button>
+                <button class="cal-btn has-slot">2</button>
+                <button class="cal-btn today has-slot">3</button>
+                <button class="cal-btn has-slot">4</button>
+                <button class="cal-btn has-slot">5</button>
+                <button class="cal-btn has-slot">6</button>
+                <button class="cal-btn has-slot">7</button>
+                <button class="cal-btn has-slot">8</button>
+                <button class="cal-btn has-slot">9</button>
+                <button class="cal-btn selected">10</button>
+                <button class="cal-btn has-slot">11</button>
+                <button class="cal-btn has-slot">12</button>
+                <button class="cal-btn has-slot">13</button>
+                <button class="cal-btn has-slot">14</button>
+                <button class="cal-btn has-slot">15</button>
+                <button class="cal-btn has-slot">16</button>
+                <button class="cal-btn has-slot">17</button>
+                <button class="cal-btn has-slot">18</button>
+                <button class="cal-btn has-slot">19</button>
+                <button class="cal-btn has-slot">20</button>
+                <button class="cal-btn has-slot">21</button>
+                <button class="cal-btn has-slot">22</button>
+                <button class="cal-btn has-slot">23</button>
+                <button class="cal-btn has-slot">24</button>
+                <button class="cal-btn has-slot">25</button>
+                <button class="cal-btn has-slot">26</button>
+                <button class="cal-btn has-slot">27</button>
+              </div>
+            </div>
+
+            <!-- Time slots -->
+            <div>
+              <div class="step-section-title" style="border:none; padding-bottom:0; margin-bottom:var(--space-3)">
+                <span aria-hidden="true">🕐</span> Créneaux disponibles — <span id="slotsDateLabel">Sélectionnez un jour</span>
+              </div>
+
+              <div style="display:flex; gap:var(--space-3); flex-wrap:wrap; margin-bottom:var(--space-4)">
+                <button class="filter-tab active" style="font-size:0.8rem; padding:0.4rem 1rem">Matin</button>
+                <button class="filter-tab" style="font-size:0.8rem; padding:0.4rem 1rem">Après-midi</button>
+                <button class="filter-tab" style="font-size:0.8rem; padding:0.4rem 1rem">Soir</button>
+              </div>
+
+              <div class="slots-grid" role="group" aria-label="Créneaux horaires" id="slotsGrid">
+                <button class="slot-btn taken" disabled aria-label="08h00 - indisponible">08h00</button>
+                <button class="slot-btn" aria-label="09h00">09h00</button>
+                <button class="slot-btn" aria-label="10h00">10h00</button>
+                <button class="slot-btn selected" aria-label="11h00 - sélectionné">11h00</button>
+                <button class="slot-btn taken" disabled aria-label="12h00 - indisponible">12h00</button>
+                <button class="slot-btn" aria-label="14h00">14h00</button>
+                <button class="slot-btn" aria-label="15h00">15h00</button>
+                <button class="slot-btn" aria-label="16h00">16h00</button>
+                <button class="slot-btn" aria-label="18h00">18h00</button>
+                <button class="slot-btn" aria-label="19h00">19h00</button>
+                <button class="slot-btn" aria-label="20h00">20h00</button>
+                <button class="slot-btn" aria-label="21h00">21h00</button>
+              </div>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:var(--space-8)">
+              <button class="btn btn--ghost" data-prev-step>← Retour</button>
+              <button class="btn btn--primary btn--lg" data-next-step>Mes coordonnées →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 3 : Coordonnées -->
+        <div class="booking-step" id="step-3">
+          <div class="booking__panel">
+            <div class="step-section-title">
+              <span>3</span> Vos coordonnées
+            </div>
+
+            <form class="form-section" novalidate aria-label="Formulaire de réservation" id="booking-form">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="prenom">Prénom *</label>
+                  <input type="text" id="prenom" class="form-input" placeholder="Votre prénom" required autocomplete="given-name">
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="nom">Nom *</label>
+                  <input type="text" id="nom" class="form-input" placeholder="Votre nom" required autocomplete="family-name">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="email">Email *</label>
+                <input type="email" id="email" class="form-input" placeholder="votre@email.com" required autocomplete="email">
+                <p class="form-hint">📧 La confirmation de RDV sera envoyée à cette adresse</p>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="tel">Téléphone</label>
+                <input type="tel" id="tel" class="form-input" placeholder="+33 6 00 00 00 00" autocomplete="tel">
+                <p class="form-hint">Pour le rappel SMS (optionnel)</p>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="pays">Pays de résidence</label>
+                <select id="pays" class="form-select" autocomplete="country">
+                  <option value="">Sélectionnez votre pays</option>
+                  <option value="fr">🇫🇷 France</option>
+                  <option value="dz">🇩🇿 Algérie</option>
+                  <option value="ma">🇲🇦 Maroc</option>
+                  <option value="tn">🇹🇳 Tunisie</option>
+                  <option value="be">🇧🇪 Belgique</option>
+                  <option value="ca">🇨🇦 Canada</option>
+                  <option value="other">Autre</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="motif">Ce qui vous amène (optionnel)</label>
+                <textarea id="motif" class="form-textarea" rows="3" placeholder="En quelques mots, ce que vous souhaitez aborder... Cela aide votre thérapeute à mieux préparer la séance."></textarea>
+                <p class="form-hint">🔒 Cette information reste strictement confidentielle</p>
+              </div>
+
+              <div class="form-group">
+                <label style="display:flex; align-items:flex-start; gap:var(--space-3); cursor:pointer">
+                  <input type="checkbox" required style="margin-top:3px; accent-color:var(--sage); width:16px; height:16px; flex-shrink:0">
+                  <span style="font-size:0.85rem; color:var(--text-light)">
+                    J'accepte les <a href="#" style="color:var(--sage-dark); font-weight:600">conditions d'utilisation</a> et la <a href="#" style="color:var(--sage-dark); font-weight:600">politique de confidentialité</a> de Nafsoléa. *
+                  </span>
+                </label>
+              </div>
+            </form>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:var(--space-8); flex-wrap:wrap; gap:var(--space-4)">
+              <button class="btn btn--ghost" data-prev-step>← Retour</button>
+              <button class="btn btn--primary btn--lg" id="confirm-btn">
+                🔒 Confirmer ma réservation
+              </button>
+            </div>
+
+            <p style="font-size:0.78rem; color:var(--text-muted); margin-top:var(--space-4); text-align:center; max-width:none">
+              💳 Paiement sécurisé · La première séance est entièrement gratuite · Annulation possible jusqu'à 24h avant
+            </p>
+          </div>
+        </div>
+
+        <!-- CONFIRMATION -->
+        <div class="booking-step" id="step-confirm">
+          <div class="booking__panel">
+            <div class="confirmation-screen">
+              <div class="confirmation-icon" aria-hidden="true">✓</div>
+              <h2 style="margin-bottom:var(--space-3)">Votre séance est confirmée !</h2>
+              <p style="font-size:1rem; color:var(--text-light); margin-bottom:var(--space-6); margin-inline:auto">
+                Un email de confirmation vous a été envoyé avec le lien de connexion à votre séance.
+              </p>
+
+              <div style="background:var(--sage-pale); border:1px solid var(--sage-light); border-radius:var(--radius-lg); padding:var(--space-6); text-align:left; margin-bottom:var(--space-8); max-width:400px; margin-inline:auto">
+                <div style="display:flex; flex-direction:column; gap:var(--space-3)">
+                  <div style="display:flex; gap:var(--space-3); align-items:center">
+                    <span style="font-size:1.2rem">👩‍⚕️</span>
+                    <div>
+                      <div style="font-size:0.75rem; color:var(--text-muted)">Votre thérapeute</div>
+                      <div style="font-weight:600" id="confirm-psy-name">—</div>
+                    </div>
+                  </div>
+                  <div style="display:flex; gap:var(--space-3); align-items:center">
+                    <span style="font-size:1.2rem">📅</span>
+                    <div>
+                      <div style="font-size:0.75rem; color:var(--text-muted)">Date &amp; heure</div>
+                      <div style="font-weight:600"><span id="confirm-date">—</span> — <span id="confirm-time">—</span></div>
+                    </div>
+                  </div>
+                  <div style="display:flex; gap:var(--space-3); align-items:center">
+                    <span style="font-size:1.2rem">💚</span>
+                    <div>
+                      <div style="font-size:0.75rem; color:var(--text-muted)">Tarif</div>
+                      <div style="font-weight:600; color:var(--sage-dark)">Gratuit (première séance)</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div style="display:flex; gap:var(--space-4); justify-content:center; flex-wrap:wrap">
+                <a href="index.html" class="btn btn--secondary">Retour à l'accueil</a>
+                <a href="blog.html" class="btn btn--ghost">Lire nos ressources</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT: Summary panel -->
+      <aside class="summary-panel" aria-label="Récapitulatif de votre réservation">
+        <div class="summary-header">
+          <h3>Récapitulatif</h3>
+        </div>
+
+        <div class="summary-body">
+          <div class="summary-item">
+            <span class="summary-item__icon">👩‍⚕️</span>
+            <div>
+              <div class="summary-item__label">Psychologue</div>
+              <div class="summary-item__value" id="summary-psy-name">Dr. Amira Mansouri</div>
+            </div>
+          </div>
+
+          <div class="summary-item">
+            <span class="summary-item__icon">🎯</span>
+            <div>
+              <div class="summary-item__label">Spécialité</div>
+              <div class="summary-item__value">Anxiété · Expatriation</div>
+            </div>
+          </div>
+
+          <div class="summary-item">
+            <span class="summary-item__icon">🌍</span>
+            <div>
+              <div class="summary-item__label">Langues</div>
+              <div class="summary-item__value">Français · عربي</div>
+            </div>
+          </div>
+
+          <div class="summary-item">
+            <span class="summary-item__icon">📅</span>
+            <div>
+              <div class="summary-item__label">Date</div>
+              <div class="summary-item__value" id="summary-date">Jeudi 10 juillet 2025</div>
+            </div>
+          </div>
+
+          <div class="summary-item">
+            <span class="summary-item__icon">🕐</span>
+            <div>
+              <div class="summary-item__label">Heure</div>
+              <div class="summary-item__value" id="summary-time">11h00</div>
+            </div>
+          </div>
+
+          <div class="summary-item">
+            <span class="summary-item__icon">⏱️</span>
+            <div>
+              <div class="summary-item__label">Durée</div>
+              <div class="summary-item__value">50 minutes</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="summary-footer">
+          <div class="summary-free-badge">✓ Première séance offerte</div>
+          <div class="summary-total-row">
+            <span>Total à payer</span>
+            <div class="summary-total-price">0€</div>
+          </div>
+          <div class="trust-items">
+            <div class="trust-item">🔒 Paiement sécurisé SSL</div>
+            <div class="trust-item">🔐 Séance chiffrée bout à bout</div>
+            <div class="trust-item">🗓️ Annulation gratuite 24h avant</div>
+            <div class="trust-item">🏥 Remboursable mutuelle</div>
+          </div>
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER (compact) -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer__bottom" style="padding-top:var(--space-6); border-top:1px solid rgba(255,255,255,0.08)">
+      <p class="footer__copyright">© 2025 Nafsoléa — <a href="index.html" style="color:var(--sage-light)">Accueil</a></p>
+      <nav class="footer__legal">
+        <a href="#">Confidentialité</a>
+        <a href="#">CGU</a>
+        <a href="#">Mentions légales</a>
+      </nav>
+    </div>
+  </div>
+</footer>
+
+<button class="scroll-top" aria-label="Haut de page">↑</button>
+
+<script src="assets/js/api.js"></script>
+<script src="assets/js/auth.js"></script>
+<script src="assets/js/main.js" defer></script>
+<script>
+  // ── State ────────────────────────────────────────────────────────
+  let step           = 1;
+  let psys           = [];
+  let selectedPsy    = null;
+  let availableSlots = [];
+  let selectedDate   = null;
+  let selectedTime   = null;
+
+  // ── Toast helper ─────────────────────────────────────────────────
+  function showToast(msg, type = 'info') {
+    const old = document.getElementById('bkToast');
+    if (old) old.remove();
+    const bg = { error: '#C62828', warning: '#E65100', success: '#2E7D32', info: '#1565C0' }[type] || '#1565C0';
+    const t = document.createElement('div');
+    t.id = 'bkToast';
+    t.style.cssText = `position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:${bg};color:#fff;
+      padding:12px 24px;border-radius:8px;font-size:.88rem;font-weight:600;z-index:9999;
+      box-shadow:0 4px 16px rgba(0,0,0,.25);white-space:nowrap`;
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 4500);
+  }
+
+  // ── Step navigation ───────────────────────────────────────────────
+  function goToStep(n) {
+    // Validate before advancing
+    if (n > step) {
+      if (step === 1 && !selectedPsy) {
+        showToast('Veuillez sélectionner un psychologue.', 'warning'); return;
+      }
+      if (step === 2 && (!selectedDate || !selectedTime)) {
+        showToast('Veuillez sélectionner une date et un créneau.', 'warning'); return;
+      }
+    }
+
+    document.querySelectorAll('.booking-step').forEach(s => s.classList.remove('active'));
+    const el = document.getElementById(`step-${n}`);
+    if (el) { el.classList.add('active'); step = n; }
+
+    for (let i = 1; i <= 3; i++) {
+      const dot  = document.getElementById(`dot-${i}`);
+      const line = document.getElementById(`line-${i}`);
+      if (dot)  { dot.classList.toggle('active', i === n); dot.classList.toggle('done', i < n); }
+      if (line) { line.classList.toggle('done', i < n); }
+    }
+
+    if (n === 2) loadSlots();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  document.querySelectorAll('[data-next-step]').forEach(b => b.addEventListener('click', () => goToStep(step + 1)));
+  document.querySelectorAll('[data-prev-step]').forEach(b => b.addEventListener('click', () => goToStep(step - 1)));
+
+  // ── STEP 1 — Psychologist list ───────────────────────────────────
+  async function init() {
+    const urlPsyId = new URLSearchParams(window.location.search).get('psy');
+
+    // Restore booking intent saved before auth redirect
+    let intent = null;
+    try {
+      const raw = sessionStorage.getItem('bookingIntent');
+      if (raw) { intent = JSON.parse(raw); sessionStorage.removeItem('bookingIntent'); }
+    } catch { /* ignore */ }
+
+    // Pre-fill form if logged in
+    if (Auth.isLoggedIn()) {
+      try {
+        const me = await API.users.me();
+        const p  = me.patient || me.psychologist;
+        if (p) {
+          document.getElementById('prenom').value = p.firstName || '';
+          document.getElementById('nom').value    = p.lastName  || '';
+        }
+        document.getElementById('email').value = me.email || '';
+      } catch { /* non-blocking */ }
+    }
+
+    // Load approved psychologists
+    try {
+      const res = await API.psychologists.list({ limit: 8 });
+      psys = res.data || (Array.isArray(res) ? res : []);
+      const preSelectId = urlPsyId || intent?.psyId || null;
+      renderPsySelector(psys, preSelectId);
+
+      // If intent had date+time, load slots and restore after render
+      if (intent?.psyId) {
+        const psyFromIntent = psys.find(p => p.id === intent.psyId);
+        if (psyFromIntent) {
+          selectPsy(psyFromIntent);
+          if (intent.date) {
+            await loadSlots();
+            selectDate(intent.date);
+            if (intent.time) {
+              selectSlot(intent.time);
+              goToStep(2);
+            }
+          }
+        }
+      }
+    } catch {
+      document.getElementById('psySelectorGrid').innerHTML = `
+        <div style="text-align:center;padding:40px;color:var(--text-muted)">
+          <div style="font-size:2rem;margin-bottom:12px">⚠️</div>
+          <p>Impossible de charger les psychologues.</p>
+          <button onclick="init()" class="btn btn--ghost btn--sm" style="margin-top:12px">Réessayer</button>
+        </div>`;
+    }
+  }
+
+  function renderPsySelector(list, preSelectId) {
+    const grid = document.getElementById('psySelectorGrid');
+    if (!list.length) {
+      grid.innerHTML = `<p style="text-align:center;padding:30px;color:var(--text-muted)">Aucun psychologue disponible.</p>`;
+      return;
+    }
+
+    grid.innerHTML = list.map((p, i) => {
+      const name = `${p.firstName || ''} ${p.lastName || ''}`.trim() || 'Psychologue';
+      const specs = (p.specialties || []).slice(0, 2).join(' · ');
+      const langs = (p.languages  || []).map(l =>
+        l === 'ar' ? 'عربي' : l === 'darija' ? 'دارجة' : l.toUpperCase()
+      ).join(' / ');
+      const info  = [specs, langs].filter(Boolean).join(' · ');
+      const sel   = preSelectId ? p.id === preSelectId : i === 0;
+
+      return `
+        <label class="psy-select-row ${sel ? 'selected' : ''}" for="psy-${p.id}">
+          <input type="radio" id="psy-${p.id}" name="psy" value="${p.id}" ${sel ? 'checked' : ''}>
+          <div class="psy-select-avatar">${p.gender === 'M' ? '👨‍⚕️' : '👩‍⚕️'}</div>
+          <div class="psy-select-info">
+            <h4>${name}</h4>
+            <p>${info || 'Psychologue clinicien(ne)'}</p>
+          </div>
+          <div class="psy-select-price">${p.sessionPrice != null ? p.sessionPrice + '€' : '—'}</div>
+        </label>`;
+    }).join('');
+
+    // Wire radio changes
+    grid.querySelectorAll('input[name="psy"]').forEach(radio => {
+      radio.addEventListener('change', () => {
+        grid.querySelectorAll('.psy-select-row').forEach(r => r.classList.remove('selected'));
+        radio.closest('.psy-select-row').classList.add('selected');
+        const p = psys.find(x => x.id === radio.value);
+        if (p) selectPsy(p);
+      });
+    });
+
+    // Auto-select
+    const checked = grid.querySelector('input:checked');
+    if (checked) {
+      const p = psys.find(x => x.id === checked.value);
+      if (p) selectPsy(p);
+    }
+  }
+
+  function selectPsy(psy) {
+    selectedPsy  = psy;
+    selectedDate = null;
+    selectedTime = null;
+    const name = `${psy.firstName || ''} ${psy.lastName || ''}`.trim();
+    document.getElementById('summary-psy-name').textContent = name;
+    document.getElementById('summary-date').textContent = '—';
+    document.getElementById('summary-time').textContent = '—';
+  }
+
+  // ── STEP 2 — Slots calendar ───────────────────────────────────────
+  async function loadSlots() {
+    if (!selectedPsy) return;
+    const calEl  = document.getElementById('calendarDays');
+    const slotEl = document.getElementById('slotsGrid');
+    calEl.innerHTML  = `<div class="skeleton" style="height:200px;grid-column:1/-1;border-radius:4px"></div>`;
+    slotEl.innerHTML = `<p style="grid-column:1/-1;text-align:center;padding:20px;color:var(--text-muted)">Sélectionnez un jour ci-dessus.</p>`;
+    document.getElementById('slotsDateLabel').textContent = 'Sélectionnez un jour';
+
+    const today = new Date();
+    const from  = today.toISOString().split('T')[0];
+
+    try {
+      availableSlots = await API.psychologists.getSlots(selectedPsy.id, from, 21);
+      renderCalendar();
+    } catch {
+      calEl.innerHTML = `<p style="grid-column:1/-1;text-align:center;padding:30px;color:var(--text-muted)">
+        Impossible de charger les créneaux.
+        <button onclick="loadSlots()" style="color:var(--sage-dark);border:none;background:none;cursor:pointer;text-decoration:underline;margin-left:4px">Réessayer</button>
+      </p>`;
+    }
+  }
+
+  function renderCalendar() {
+    const today = new Date();
+    const year  = today.getFullYear();
+    const month = today.getMonth();
+
+    const MONTHS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+    document.querySelector('.calendar-nav strong').textContent = `${MONTHS[month]} ${year}`;
+
+    // Group slots by date
+    const byDate = {};
+    availableSlots.forEach(s => {
+      if (!byDate[s.date]) byDate[s.date] = [];
+      byDate[s.date].push(s);
+    });
+
+    // Day-of-week offset (Mon = 0)
+    const firstDow   = new Date(year, month, 1).getDay();
+    const offset     = firstDow === 0 ? 6 : firstDow - 1;
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    let html = '';
+    for (let i = 0; i < offset; i++) html += `<button class="cal-btn" disabled></button>`;
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = `${year}-${String(month + 1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const isPast  = new Date(year, month, d) < new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      const isToday = d === today.getDate();
+      const hasSlot = !isPast && byDate[dateStr]?.length > 0;
+
+      if (hasSlot) {
+        html += `<button class="cal-btn${isToday ? ' today' : ''} has-slot" data-date="${dateStr}" onclick="selectDate('${dateStr}')">${d}</button>`;
+      } else {
+        html += `<button class="cal-btn${isToday ? ' today' : ''}" disabled>${d}</button>`;
+      }
+    }
+
+    document.getElementById('calendarDays').innerHTML = html;
+
+    // If previously selected date still has slots, restore it
+    if (selectedDate && byDate[selectedDate]) selectDate(selectedDate);
+  }
+
+  function selectDate(dateStr) {
+    selectedDate = dateStr;
+    selectedTime = null;
+
+    document.querySelectorAll('.cal-btn').forEach(b => b.classList.remove('selected'));
+    document.querySelector(`.cal-btn[data-date="${dateStr}"]`)?.classList.add('selected');
+
+    const d = new Date(dateStr + 'T12:00:00');
+    document.getElementById('slotsDateLabel').textContent =
+      d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+
+    const slots = availableSlots.filter(s => s.date === dateStr);
+    const grid  = document.getElementById('slotsGrid');
+
+    if (!slots.length) {
+      grid.innerHTML = `<p style="grid-column:1/-1;text-align:center;padding:20px;color:var(--text-muted)">Aucun créneau ce jour.</p>`;
+      return;
+    }
+
+    grid.innerHTML = slots.map(s =>
+      `<button class="slot-btn" data-time="${s.time}" onclick="selectSlot('${s.time}')">${s.time.slice(0,5)}</button>`
+    ).join('');
+
+    document.getElementById('summary-date').textContent =
+      d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    document.getElementById('summary-time').textContent = '—';
+  }
+
+  function selectSlot(time) {
+    selectedTime = time;
+    document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('selected'));
+    document.querySelector(`.slot-btn[data-time="${time}"]`)?.classList.add('selected');
+    document.getElementById('summary-time').textContent = time.slice(0, 5);
+  }
+
+  // ── STEP 3 — Confirm + book ───────────────────────────────────────
+  document.getElementById('confirm-btn').addEventListener('click', async () => {
+    const form = document.getElementById('booking-form');
+    if (!form.checkValidity()) { form.reportValidity(); return; }
+
+    // Auth gate
+    if (!Auth.isLoggedIn()) {
+      sessionStorage.setItem('bookingIntent', JSON.stringify({
+        psyId: selectedPsy?.id, date: selectedDate, time: selectedTime,
+      }));
+      window.location.href = `login.html?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`;
+      return;
+    }
+
+    const btn = document.getElementById('confirm-btn');
+    btn.disabled    = true;
+    btn.textContent = '⏳ Réservation en cours…';
+
+    try {
+      const scheduledAt = new Date(`${selectedDate}T${selectedTime}`).toISOString();
+      await API.appointments.book({ psychologistId: selectedPsy.id, scheduledAt });
+
+      // Fill confirmation screen
+      const name = `${selectedPsy.firstName || ''} ${selectedPsy.lastName || ''}`.trim();
+      const d    = new Date(scheduledAt);
+      document.getElementById('confirm-psy-name').textContent = name;
+      document.getElementById('confirm-date').textContent =
+        d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+      document.getElementById('confirm-time').textContent = selectedTime.slice(0, 5);
+
+      // Show confirmation
+      document.querySelectorAll('.booking-step').forEach(s => s.classList.remove('active'));
+      document.getElementById('step-confirm').classList.add('active');
+      document.querySelector('.booking__steps-indicator').style.display = 'none';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    } catch (err) {
+      showToast('Erreur : ' + (err.message || 'Réservation impossible.'), 'error');
+      btn.disabled    = false;
+      btn.textContent = '🔒 Confirmer ma réservation';
+    }
+  });
+
+  // ── Launch ────────────────────────────────────────────────────────
+  init();
+</script>
+</body>
+</html>

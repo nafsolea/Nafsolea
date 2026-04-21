@@ -1,0 +1,38 @@
+# ─── Dépendances Node ────────────────────────────────────────────
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ─── Variables d'environnement (JAMAIS committer les secrets) ────
+.env
+.env.local
+.env.*.local
+backend/.env
+
+# ─── Build outputs ───────────────────────────────────────────────
+dist/
+build/
+*.tsbuildinfo
+
+# ─── Prisma ──────────────────────────────────────────────────────
+backend/prisma/*.db
+backend/prisma/*.db-journal
+
+# ─── IDE / OS ────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# ─── Logs ────────────────────────────────────────────────────────
+logs/
+*.log
+
+# ─── Cowork / Claude ─────────────────────────────────────────────
+.claude/
+
+# ─── Tests ───────────────────────────────────────────────────────
+coverage/
+.nyc_output/

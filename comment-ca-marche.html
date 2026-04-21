@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Comment fonctionne Nafsoléa ? Réservez votre consultation psychologique en ligne en 3 étapes simples. Choisissez votre psy, réservez, consultez depuis chez vous.">
+  <title>Comment ça marche — Nafsoléa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <style>
+    .process-step {
+      display: grid;
+      grid-template-columns: 80px 1fr;
+      gap: var(--space-8);
+      align-items: flex-start;
+      padding: var(--space-10) 0;
+      border-bottom: 1px solid var(--border-light);
+      position: relative;
+    }
+    .process-step:last-child { border-bottom: none; }
+
+    .process-step__num {
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, var(--sage) 0%, var(--sage-dark) 100%);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-heading);
+      font-size: 1.6rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      box-shadow: var(--shadow-sage);
+      margin-top: 6px;
+    }
+
+    .process-step__body h3 { margin-bottom: var(--space-3); }
+    .process-step__body p { color: var(--text-light); max-width: 60ch; }
+    .process-step__body .tag { margin-top: var(--space-4); }
+
+    .process-visual {
+      background: var(--beige);
+      border-radius: var(--radius-xl);
+      padding: var(--space-6);
+      margin-top: var(--space-5);
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-3);
+    }
+
+    .psy-mini-card {
+      background: white;
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      border: 1.5px solid var(--border);
+      display: flex;
+      gap: var(--space-3);
+      align-items: center;
+      flex: 1;
+      min-width: 200px;
+      cursor: pointer;
+      transition: border-color var(--tr), box-shadow var(--tr);
+    }
+    .psy-mini-card:hover { border-color: var(--sage); box-shadow: var(--shadow-md); }
+    .psy-mini-card.selected { border-color: var(--sage); background: var(--sage-pale); }
+
+    .psy-mini-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--sage-light), var(--sage));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      flex-shrink: 0;
+    }
+
+    .psy-mini-info h5 { font-size: 0.88rem; margin-bottom: 2px; }
+    .psy-mini-info span { font-size: 0.76rem; color: var(--sage-dark); font-weight: 500; }
+
+    .calendar-mock {
+      background: white;
+      border-radius: var(--radius-lg);
+      padding: var(--space-5);
+      border: 1px solid var(--border);
+    }
+    .calendar-mock__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-4);
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    .calendar-mock__days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: var(--space-1);
+      text-align: center;
+    }
+    .cal-day {
+      font-size: 0.78rem;
+      padding: var(--space-2);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+    }
+    .cal-day.header { font-weight: 700; color: var(--text-muted); cursor: default; }
+    .cal-day.available { color: var(--text-mid); }
+    .cal-day.available:hover { background: var(--sage-pale); color: var(--sage-dark); }
+    .cal-day.selected { background: var(--sage); color: white; }
+    .cal-day.today { font-weight: 700; color: var(--sage-dark); }
+    .cal-day.past { color: var(--border); cursor: default; }
+
+    .video-mock {
+      background: var(--text);
+      border-radius: var(--radius-xl);
+      aspect-ratio: 16/9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .video-mock__center { text-align: center; color: white; }
+    .video-mock__center div { font-size: 3rem; margin-bottom: var(--space-3); }
+    .video-mock__center p { color: rgba(255,255,255,0.7); font-size: 0.88rem; max-width: none; }
+    .video-mock__controls {
+      position: absolute;
+      bottom: var(--space-4);
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: var(--space-3);
+    }
+    .video-ctrl {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      backdrop-filter: blur(8px);
+    }
+
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+    }
+    .comparison-table thead { background: var(--sage); color: white; }
+    .comparison-table th, .comparison-table td {
+      padding: var(--space-4) var(--space-5);
+      text-align: left;
+      font-size: 0.9rem;
+    }
+    .comparison-table th { font-weight: 600; }
+    .comparison-table tbody tr { border-bottom: 1px solid var(--border-light); }
+    .comparison-table tbody tr:last-child { border-bottom: none; }
+    .comparison-table tbody tr:nth-child(even) { background: var(--off-white); }
+    .comparison-table .check { color: var(--sage-dark); font-weight: 700; }
+    .comparison-table .cross { color: var(--terracotta); }
+
+    @media (max-width: 640px) {
+      .process-step { grid-template-columns: 1fr; }
+      .process-step__num { width: 48px; height: 48px; font-size: 1.2rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVIGATION -->
+<nav class="nav" role="navigation">
+  <div class="nav__inner">
+    <a href="index.html" class="nav__logo">
+      <div class="nav__logo-mark" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 36 36" fill="none">
+          <circle cx="18" cy="18" r="5" fill="white"/>
+          <line x1="18" y1="2" x2="18" y2="10" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="18" y1="26" x2="18" y2="34" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="2" y1="18" x2="10" y2="18" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="26" y1="18" x2="34" y2="18" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="6.7" y1="6.7" x2="11.7" y2="11.7" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+          <line x1="24.3" y1="24.3" x2="29.3" y2="29.3" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+          <line x1="29.3" y1="6.7" x2="24.3" y2="11.7" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+          <line x1="11.7" y1="24.3" x2="6.7" y2="29.3" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+        </svg>
+      </div>
+      Nafsoléa
+    </a>
+    <ul class="nav__links">
+      <li><a href="comment-ca-marche.html" class="nav__link active">Comment ça marche</a></li>
+      <li><a href="psychologues.html" class="nav__link">Nos psychologues</a></li>
+      <li><a href="blog.html" class="nav__link">Ressources</a></li>
+      <li><a href="a-propos.html" class="nav__link">À propos</a></li>
+      <li><a href="faq.html" class="nav__link">FAQ</a></li>
+    </ul>
+    <div class="nav__actions">
+      <button class="nav__lang">FR | عربي</button>
+      <a href="rendez-vous.html" class="btn btn--primary btn--sm">Prendre RDV</a>
+    </div>
+    <button class="nav__hamburger" aria-label="Menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <div class="nav__mobile">
+    <a href="comment-ca-marche.html" class="nav__mobile-link">Comment ça marche</a>
+    <a href="psychologues.html" class="nav__mobile-link">Nos psychologues</a>
+    <a href="blog.html" class="nav__mobile-link">Ressources</a>
+    <a href="a-propos.html" class="nav__mobile-link">À propos</a>
+    <a href="faq.html" class="nav__mobile-link">FAQ</a>
+    <a href="rendez-vous.html" class="btn btn--primary" style="margin-top:0.5rem">Prendre rendez-vous</a>
+  </div>
+</nav>
+
+<!-- PAGE HERO -->
+<section class="page-hero">
+  <div class="container container--narrow">
+    <span class="label">Simple, rapide, rassurant</span>
+    <h1>Comment ça marche ?</h1>
+    <p>Du choix de votre psychologue à votre première séance — tout est pensé pour être simple et sans stress.</p>
+  </div>
+</section>
+
+<!-- ÉTAPES DÉTAILLÉES -->
+<section class="section" style="background:white">
+  <div class="container">
+    <div style="max-width:760px; margin:0 auto">
+
+      <!-- Étape 1 -->
+      <div class="process-step reveal">
+        <div class="process-step__num">1</div>
+        <div class="process-step__body">
+          <h3>Choisissez votre psychologue</h3>
+          <p>
+            Parcourez nos profils de thérapeutes. Chacun présente sa spécialité, ses langues, son approche thérapeutique et son tarif.
+            Vous pouvez filtrer par langue (français ou arabe), par problématique (anxiété, couple, trauma...) ou par disponibilité.
+          </p>
+          <p style="margin-top:var(--space-3)">
+            Pas sûr(e) de votre choix ? Notre quiz d'orientation vous aide à trouver le profil le plus adapté à votre situation en 2 minutes.
+          </p>
+          <div style="display:flex; gap:var(--space-3); flex-wrap:wrap; margin-top:var(--space-4)">
+            <span class="tag tag--sage">Arabe · Français</span>
+            <span class="tag">Anxiété · Stress</span>
+            <span class="tag">Famille · Couple</span>
+            <span class="tag">Expatriation · Identité</span>
+            <span class="tag">Trauma · Deuil</span>
+          </div>
+
+          <div class="process-visual">
+            <div class="psy-mini-card selected">
+              <div class="psy-mini-avatar">👩‍⚕️</div>
+              <div class="psy-mini-info">
+                <h5>Dr. Amira Mansouri</h5>
+                <span>Anxiété · Expatriation · FR/AR</span>
+              </div>
+            </div>
+            <div class="psy-mini-card">
+              <div class="psy-mini-avatar">👨‍⚕️</div>
+              <div class="psy-mini-info">
+                <h5>Dr. Karim Belhadj</h5>
+                <span>Dépression · Stress · FR/AR</span>
+              </div>
+            </div>
+            <div class="psy-mini-card">
+              <div class="psy-mini-avatar">👩‍⚕️</div>
+              <div class="psy-mini-info">
+                <h5>Mme. Nadia Cherif</h5>
+                <span>Couple · Identité · FR/Darija</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top:var(--space-5)">
+            <a href="psychologues.html" class="btn btn--primary">Voir tous les psychologues</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Étape 2 -->
+      <div class="process-step reveal">
+        <div class="process-step__num">2</div>
+        <div class="process-step__body">
+          <h3>Réservez votre créneau</h3>
+          <p>
+            Une fois votre thérapeute choisi, sélectionnez le jour et l'heure qui vous conviennent — le soir, le weekend, le matin.
+            Nous nous adaptons à votre emploi du temps et à votre fuseau horaire (France, Algérie, ou ailleurs).
+          </p>
+          <p style="margin-top:var(--space-3)">
+            La confirmation arrive immédiatement par email, avec le lien de connexion à votre séance. Aucune installation requise.
+          </p>
+
+          <div class="calendar-mock" style="margin-top:var(--space-5); max-width:380px">
+            <div class="calendar-mock__header">
+              <span>← Juin 2025</span>
+              <strong style="color:var(--text)">Juillet 2025</strong>
+              <span>Août 2025 →</span>
+            </div>
+            <div class="calendar-mock__days">
+              <div class="cal-day header">Lu</div>
+              <div class="cal-day header">Ma</div>
+              <div class="cal-day header">Me</div>
+              <div class="cal-day header">Je</div>
+              <div class="cal-day header">Ve</div>
+              <div class="cal-day header">Sa</div>
+              <div class="cal-day header">Di</div>
+              <div class="cal-day past">30</div>
+              <div class="cal-day available">1</div>
+              <div class="cal-day available">2</div>
+              <div class="cal-day available today">3</div>
+              <div class="cal-day available">4</div>
+              <div class="cal-day available">5</div>
+              <div class="cal-day available">6</div>
+              <div class="cal-day available">7</div>
+              <div class="cal-day available">8</div>
+              <div class="cal-day available">9</div>
+              <div class="cal-day selected">10</div>
+              <div class="cal-day available">11</div>
+              <div class="cal-day available">12</div>
+              <div class="cal-day available">13</div>
+              <div class="cal-day available">14</div>
+              <div class="cal-day available">15</div>
+              <div class="cal-day available">16</div>
+              <div class="cal-day available">17</div>
+              <div class="cal-day available">18</div>
+            </div>
+          </div>
+
+          <div style="margin-top:var(--space-5)">
+            <a href="rendez-vous.html" class="btn btn--primary">Réserver maintenant</a>
+            <p style="font-size:0.82rem; color:var(--text-muted); margin-top:var(--space-2); max-width:none">
+              ✓ Annulation gratuite jusqu'à 24h avant · Rappel par email et SMS
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Étape 3 -->
+      <div class="process-step reveal">
+        <div class="process-step__num">3</div>
+        <div class="process-step__body">
+          <h3>Consultez depuis chez vous</h3>
+          <p>
+            Le jour J, cliquez sur le lien reçu par email. La séance se déroule en vidéo, dans un environnement sécurisé et crypté.
+            Pas besoin de créer un compte sur une plateforme externe. Tout se passe sur Nafsoléa.
+          </p>
+          <p style="margin-top:var(--space-3)">
+            La durée standard d'une séance est de 50 minutes. Après la séance, votre thérapeute peut vous envoyer des ressources complémentaires directement via la messagerie sécurisée.
+          </p>
+
+          <div class="video-mock" style="margin-top:var(--space-5)">
+            <div class="video-mock__center">
+              <div>📹</div>
+              <p>Séance en cours avec Dr. Amira Mansouri</p>
+            </div>
+            <div class="video-mock__controls">
+              <div class="video-ctrl">🎤</div>
+              <div class="video-ctrl">📷</div>
+              <div class="video-ctrl" style="background:rgba(220,80,80,0.7)">📵</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- COMPARAISON : EN LIGNE vs EN CABINET -->
+<section class="section" style="background:var(--beige)" aria-labelledby="compare-title">
+  <div class="container">
+    <div class="section-header">
+      <span class="label">Pourquoi choisir le format en ligne ?</span>
+      <h2 id="compare-title">En ligne vs en cabinet</h2>
+      <p>La thérapie en ligne est aussi efficace — avec des avantages supplémentaires.</p>
+    </div>
+
+    <div style="overflow-x:auto">
+      <table class="comparison-table reveal" aria-label="Comparaison thérapie en ligne et en cabinet">
+        <thead>
+          <tr>
+            <th>Critère</th>
+            <th>Nafsoléa (en ligne)</th>
+            <th>Cabinet classique</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Accessibilité géographique</strong></td>
+            <td class="check">✓ Depuis n'importe où dans le monde</td>
+            <td class="cross">✗ Limité à votre ville</td>
+          </tr>
+          <tr>
+            <td><strong>Discrétion totale</strong></td>
+            <td class="check">✓ Aucun voisin, aucun regard</td>
+            <td class="cross">✗ Salle d'attente visible</td>
+          </tr>
+          <tr>
+            <td><strong>Psychologues arabophones</strong></td>
+            <td class="check">✓ Sélection culturellement adaptée</td>
+            <td class="cross">✗ Rare en dehors des grandes villes</td>
+          </tr>
+          <tr>
+            <td><strong>Disponibilité soir &amp; weekend</strong></td>
+            <td class="check">✓ 7j/7, tous fuseaux horaires</td>
+            <td class="cross">✗ Souvent limité aux heures de bureau</td>
+          </tr>
+          <tr>
+            <td><strong>Délai pour le 1er RDV</strong></td>
+            <td class="check">✓ Souvent moins de 48h</td>
+            <td class="cross">✗ 2 à 6 semaines d'attente en moyenne</td>
+          </tr>
+          <tr>
+            <td><strong>Efficacité thérapeutique</strong></td>
+            <td class="check">✓ Validée scientifiquement (OMS)</td>
+            <td class="check">✓ Validée</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- TARIFS -->
+<section class="section" style="background:white" aria-labelledby="pricing-title">
+  <div class="container">
+    <div class="section-header">
+      <span class="label">Transparent et accessible</span>
+      <h2 id="pricing-title">Des tarifs clairs, sans surprise</h2>
+      <p>Payez uniquement ce dont vous avez besoin. Aucun abonnement caché.</p>
+    </div>
+
+    <div class="grid-3" style="max-width:900px; margin:0 auto">
+      <!-- Séance unique -->
+      <div style="background:var(--off-white); border:1.5px solid var(--border); border-radius:var(--radius-xl); padding:var(--space-8); text-align:center;" class="reveal">
+        <div style="font-size:2rem; margin-bottom:var(--space-4)">🌱</div>
+        <h4 style="margin-bottom:var(--space-2)">Séance découverte</h4>
+        <div style="font-family:var(--font-heading); font-size:2.5rem; font-weight:700; color:var(--sage-dark); margin:var(--space-3) 0">
+          Gratuite
+        </div>
+        <p style="font-size:0.88rem; color:var(--text-light); margin-bottom:var(--space-6); max-width:none">
+          50 minutes · Premier contact · Sans engagement
+        </p>
+        <a href="rendez-vous.html" class="btn btn--primary" style="width:100%">Commencer</a>
+      </div>
+
+      <!-- Pack 4 séances -->
+      <div style="background:var(--sage); border:2px solid var(--sage-dark); border-radius:var(--radius-xl); padding:var(--space-8); text-align:center; position:relative" class="reveal reveal-delay-1">
+        <div style="position:absolute; top:-14px; left:50%; transform:translateX(-50%); background:var(--terracotta); color:white; font-size:0.75rem; font-weight:700; padding:4px 16px; border-radius:var(--radius-full); white-space:nowrap">Le plus populaire</div>
+        <div style="font-size:2rem; margin-bottom:var(--space-4)">🌿</div>
+        <h4 style="color:white; margin-bottom:var(--space-2)">Pack Mensuel</h4>
+        <div style="font-family:var(--font-heading); font-size:2.5rem; font-weight:700; color:white; margin:var(--space-3) 0">
+          200€ <span style="font-size:1rem; font-weight:400; opacity:0.8">/ 4 séances</span>
+        </div>
+        <p style="font-size:0.88rem; color:rgba(255,255,255,0.75); margin-bottom:var(--space-6); max-width:none">
+          50 min chacune · Même thérapeute · Économisez 20%
+        </p>
+        <a href="rendez-vous.html" class="btn btn--terracotta" style="width:100%">Choisir ce pack</a>
+      </div>
+
+      <!-- Séance individuelle -->
+      <div style="background:var(--off-white); border:1.5px solid var(--border); border-radius:var(--radius-xl); padding:var(--space-8); text-align:center;" class="reveal reveal-delay-2">
+        <div style="font-size:2rem; margin-bottom:var(--space-4)">🌸</div>
+        <h4 style="margin-bottom:var(--space-2)">Séance individuelle</h4>
+        <div style="font-family:var(--font-heading); font-size:2.5rem; font-weight:700; color:var(--sage-dark); margin:var(--space-3) 0">
+          55–70€
+        </div>
+        <p style="font-size:0.88rem; color:var(--text-light); margin-bottom:var(--space-6); max-width:none">
+          50 minutes · Au choix du thérapeute · Sans engagement
+        </p>
+        <a href="rendez-vous.html" class="btn btn--secondary" style="width:100%">Réserver</a>
+      </div>
+    </div>
+
+    <p style="text-align:center; font-size:0.84rem; color:var(--text-muted); margin-top:var(--space-6)">
+      💳 Paiement sécurisé par carte bancaire · 🔒 Transactions cryptées · 🏥 Peut être remboursé partiellement selon votre mutuelle
+    </p>
+  </div>
+</section>
+
+<!-- QUESTIONS RAPIDES -->
+<section class="section" style="background:var(--beige)" aria-labelledby="quick-faq-title">
+  <div class="container container--narrow">
+    <div class="section-header">
+      <h2 id="quick-faq-title">Questions fréquentes</h2>
+    </div>
+
+    <div class="faq__list">
+      <div class="faq-item">
+        <div class="faq-item__question">
+          <h4>Est-ce que la thérapie en ligne est vraiment efficace ?</h4>
+          <div class="faq-item__icon" aria-hidden="true">+</div>
+        </div>
+        <div class="faq-item__answer">
+          <p>Oui. De nombreuses études cliniques, dont celles de l'OMS et de la Cochrane Library, confirment que la psychothérapie en ligne est aussi efficace que la thérapie en présentiel pour la grande majorité des problématiques (anxiété, dépression, stress, trauma). Ce qui compte, c'est la qualité de la relation thérapeutique — pas le support.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-item__question">
+          <h4>Mes séances sont-elles vraiment confidentielles ?</h4>
+          <div class="faq-item__icon" aria-hidden="true">+</div>
+        </div>
+        <div class="faq-item__answer">
+          <p>Absolument. Toutes vos séances sont protégées par un chiffrement de bout en bout. Aucune donnée n'est partagée avec des tiers. Nos thérapeutes sont soumis au secret professionnel, tout comme en cabinet. Vos informations ne seront jamais transmises à votre employeur, votre famille ou qui que ce soit d'autre.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-item__question">
+          <h4>Ai-je besoin de télécharger une application ?</h4>
+          <div class="faq-item__icon" aria-hidden="true">+</div>
+        </div>
+        <div class="faq-item__answer">
+          <p>Non. Les séances se déroulent directement depuis votre navigateur (Chrome, Firefox, Safari). Aucune installation n'est nécessaire. Il vous suffit d'un appareil avec caméra et micro — smartphone, tablette ou ordinateur.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-item__question">
+          <h4>Que se passe-t-il si je ne me sens pas à l'aise avec mon thérapeute ?</h4>
+          <div class="faq-item__icon" aria-hidden="true">+</div>
+        </div>
+        <div class="faq-item__answer">
+          <p>Vous pouvez changer de thérapeute à tout moment, sans justification. La relation thérapeutique repose sur la confiance — si le feeling n'est pas là, nous vous aidons à trouver quelqu'un qui vous convient mieux, gratuitement.</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:center; margin-top:var(--space-8)">
+      <a href="faq.html" class="btn btn--ghost">Voir toutes les questions →</a>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section section">
+  <div class="container">
+    <h2>Prêt(e) à faire le premier pas ?</h2>
+    <p>Votre première séance est offerte. Sans engagement, sans risque.</p>
+    <a href="rendez-vous.html" class="btn btn--terracotta btn--lg">Réserver ma séance gratuite</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer__grid">
+      <div class="footer__brand">
+        <h3>Nafsoléa</h3>
+        <p>Une plateforme de téléconsultation psychologique culturellement adaptée, pour la diaspora algérienne et maghrébine du monde entier.</p>
+        <div class="footer__socials">
+          <a href="#" class="footer__social">📸</a>
+          <a href="#" class="footer__social">💼</a>
+          <a href="#" class="footer__social">📘</a>
+        </div>
+      </div>
+      <div class="footer__col">
+        <h5>Plateforme</h5>
+        <ul class="footer__links">
+          <li><a href="comment-ca-marche.html" class="footer__link">Comment ça marche</a></li>
+          <li><a href="psychologues.html" class="footer__link">Nos psychologues</a></li>
+          <li><a href="rendez-vous.html" class="footer__link">Prendre rendez-vous</a></li>
+          <li><a href="faq.html" class="footer__link">FAQ</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h5>Ressources</h5>
+        <ul class="footer__links">
+          <li><a href="blog.html" class="footer__link">Blog santé mentale</a></li>
+          <li><a href="a-propos.html" class="footer__link">À propos</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h5>Urgence</h5>
+        <ul class="footer__links">
+          <li><span class="footer__link" style="cursor:default">SAMU : 15</span></li>
+          <li><span class="footer__link" style="cursor:default">Suicide : 3114</span></li>
+          <li><a href="mailto:bonjour@nafsolea.com" class="footer__link">bonjour@nafsolea.com</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <p class="footer__copyright">© 2025 Nafsoléa. Tous droits réservés.</p>
+      <nav class="footer__legal">
+        <a href="#">Confidentialité</a>
+        <a href="#">CGU</a>
+        <a href="#">Mentions légales</a>
+      </nav>
+    </div>
+  </div>
+</footer>
+
+<button class="scroll-top" aria-label="Haut de page">↑</button>
+
+<script src="assets/js/api.js"></script>
+<script src="assets/js/auth.js"></script>
+<script src="assets/js/main.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mon compte — Nafsoléa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <style>
+    .account-page {
+      padding-top: calc(72px + var(--space-8));
+      padding-bottom: var(--space-20);
+      background: var(--off-white);
+      min-height: 100vh;
+    }
+
+    .account-layout {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: var(--space-6);
+      align-items: start;
+    }
+
+    /* ── Sidebar ── */
+    .account-sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+      position: sticky;
+      top: calc(72px + var(--space-4));
+    }
+
+    .profile-card {
+      background: white;
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      border: 1px solid var(--border);
+      text-align: center;
+    }
+
+    .profile-avatar {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: var(--sage-pale);
+      border: 3px solid var(--sage-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--sage-dark);
+      margin: 0 auto var(--space-3);
+    }
+
+    .profile-name {
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: var(--navy);
+      margin-bottom: var(--space-1);
+    }
+
+    .profile-email {
+      font-size: .84rem;
+      color: var(--text-muted);
+      margin-bottom: var(--space-4);
+    }
+
+    .profile-badge {
+      display: inline-block;
+      background: var(--sage-pale);
+      color: var(--sage-dark);
+      font-size: .74rem;
+      font-weight: 700;
+      padding: 3px 12px;
+      border-radius: var(--radius-full);
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+
+    .account-nav {
+      background: white;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .account-nav-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-4) var(--space-5);
+      font-size: .9rem;
+      font-weight: 500;
+      color: var(--navy);
+      cursor: pointer;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      border-bottom: 1px solid var(--border-light);
+      transition: background .15s, color .15s;
+    }
+
+    .account-nav-item:last-child { border-bottom: none; }
+    .account-nav-item:hover { background: var(--sage-pale); color: var(--sage-dark); }
+    .account-nav-item.active { background: var(--sage-pale); color: var(--sage-dark); font-weight: 600; }
+
+    .account-nav-item .icon { font-size: 1rem; width: 20px; text-align: center; }
+
+    /* ── Main content ── */
+    .account-main {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-5);
+    }
+
+    .account-section { display: none; }
+    .account-section.active { display: flex; flex-direction: column; gap: var(--space-4); }
+
+    .section-heading {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: var(--space-1);
+    }
+
+    .section-subheading {
+      font-size: .87rem;
+      color: var(--text-muted);
+    }
+
+    /* ── Card ── */
+    .acc-card {
+      background: white;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .acc-card__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-5) var(--space-6);
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .acc-card__title {
+      font-weight: 700;
+      color: var(--navy);
+      font-size: .95rem;
+    }
+
+    .acc-card__body {
+      padding: var(--space-5) var(--space-6);
+    }
+
+    /* ── Appointment row ── */
+    .appt-list {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .appt-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto auto;
+      gap: var(--space-4);
+      align-items: center;
+      padding: var(--space-4) var(--space-6);
+      border-bottom: 1px solid var(--border-light);
+      transition: background .15s;
+    }
+
+    .appt-row:last-child { border-bottom: none; }
+    .appt-row:hover { background: var(--off-white); }
+
+    .appt-date-block {
+      min-width: 52px;
+      text-align: center;
+      background: var(--sage-pale);
+      border-radius: var(--radius-md);
+      padding: var(--space-2) var(--space-3);
+    }
+
+    .appt-date-day {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--sage-dark);
+      line-height: 1;
+    }
+
+    .appt-date-month {
+      font-size: .67rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: var(--text-muted);
+    }
+
+    .appt-info { min-width: 0; }
+
+    .appt-psy {
+      font-weight: 600;
+      font-size: .9rem;
+      color: var(--navy);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .appt-time {
+      font-size: .8rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .appt-badge {
+      font-size: .72rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      white-space: nowrap;
+    }
+
+    .appt-badge.confirmed  { background: rgba(56,189,100,.1);  color: #1A8B40; }
+    .appt-badge.completed  { background: var(--sage-pale);    color: var(--sage-dark); }
+    .appt-badge.pending    { background: #FEF3C7;              color: #92400E; }
+    .appt-badge.cancelled  { background: #FEE2E2;              color: #B91C1C; }
+
+    .appt-actions {
+      display: flex;
+      gap: var(--space-2);
+    }
+
+    .appt-actions a,
+    .appt-actions button {
+      font-size: .78rem;
+      padding: 5px 12px;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: white;
+      color: var(--navy);
+      text-decoration: none;
+      transition: all .15s;
+    }
+
+    .appt-actions button:hover,
+    .appt-actions a:hover { background: var(--sage-pale); border-color: var(--sage-light); }
+
+    .appt-actions .btn-cancel {
+      color: #B91C1C;
+      border-color: #FECACA;
+    }
+
+    .appt-actions .btn-cancel:hover { background: #FEE2E2; border-color: #FECACA; }
+
+    /* ── Tabs ── */
+    .appt-tabs {
+      display: flex;
+      gap: var(--space-2);
+      padding: var(--space-4) var(--space-6);
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .appt-tab {
+      font-size: .82rem;
+      font-weight: 600;
+      padding: 6px 16px;
+      border-radius: var(--radius-full);
+      border: none;
+      background: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all .15s;
+    }
+
+    .appt-tab.active {
+      background: var(--sage-pale);
+      color: var(--sage-dark);
+    }
+
+    /* ── Profile form ── */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-4);
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+
+    .form-group label {
+      font-size: .85rem;
+      font-weight: 600;
+      color: var(--sage-dark);
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      padding: 11px 14px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-md);
+      font-family: var(--font-body);
+      font-size: .9rem;
+      color: var(--navy);
+      outline: none;
+      background: white;
+      transition: border-color .2s, box-shadow .2s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      border-color: var(--sage);
+      box-shadow: 0 0 0 4px rgba(85,133,181,.1);
+    }
+
+    .form-group.full { grid-column: 1 / -1; }
+
+    /* ── Empty state ── */
+    .empty-appt {
+      text-align: center;
+      padding: var(--space-12) var(--space-6);
+      color: var(--text-muted);
+    }
+
+    .empty-appt__icon { font-size: 2.5rem; margin-bottom: var(--space-4); display: block; }
+    .empty-appt__title { font-size: 1rem; font-weight: 600; color: var(--navy); margin-bottom: var(--space-2); }
+    .empty-appt__desc { font-size: .87rem; margin-bottom: var(--space-5); }
+
+    /* ── Skeleton ── */
+    .skel {
+      background: linear-gradient(90deg, #f0f4f8 25%, #e4ecf4 50%, #f0f4f8 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.2s infinite;
+      border-radius: var(--radius-sm);
+    }
+
+    @keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+
+    /* ── Toast ── */
+    .toast-wrap {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 9999;
+    }
+
+    .toast {
+      padding: 12px 20px;
+      border-radius: var(--radius-md);
+      font-size: .88rem;
+      font-weight: 600;
+      background: var(--navy);
+      color: white;
+      box-shadow: 0 4px 20px rgba(0,0,0,.18);
+      transform: translateY(8px);
+      opacity: 0;
+      transition: all .3s;
+    }
+
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.success { background: #065F46; }
+    .toast.error   { background: #B91C1C; }
+    .toast.warning { background: #92400E; }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      .account-layout { grid-template-columns: 1fr; }
+      .account-sidebar { position: static; }
+      .form-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Nav (auto-populated by auth.js) ── -->
+<nav class="nav" id="navbar">
+  <div class="nav__inner container">
+    <a href="index.html" class="nav__logo">
+      <div class="nav__logo-mark">
+        <svg width="14" height="14" viewBox="0 0 36 36" fill="none">
+          <circle cx="18" cy="18" r="5" fill="white"/>
+          <line x1="18" y1="2"  x2="18" y2="10" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="18" y1="26" x2="18" y2="34" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="2"  y1="18" x2="10" y2="18" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="26" y1="18" x2="34" y2="18" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <span>Nafsoléa</span>
+    </a>
+    <div class="nav__links">
+      <a href="psychologues.html" class="nav__link">Nos psychologues</a>
+      <a href="comment-ca-marche.html" class="nav__link">Comment ça marche</a>
+      <a href="blog.html" class="nav__link">Blog</a>
+    </div>
+    <div class="nav__actions">
+      <a href="rendez-vous.html" class="btn btn--primary btn--sm">Prendre RDV</a>
+    </div>
+    <button class="nav__hamburger" id="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <div class="nav__mobile" id="navMobile">
+    <a href="psychologues.html" class="nav__mobile-link">Nos psychologues</a>
+    <a href="comment-ca-marche.html" class="nav__mobile-link">Comment ça marche</a>
+    <a href="blog.html" class="nav__mobile-link">Blog</a>
+    <a href="rendez-vous.html" class="btn btn--primary btn--sm">Prendre RDV</a>
+  </div>
+</nav>
+
+<div class="account-page">
+  <div class="container">
+
+    <div class="account-layout">
+
+      <!-- ── Sidebar ── -->
+      <aside class="account-sidebar">
+
+        <div class="profile-card">
+          <div class="profile-avatar" id="profileAvatar">?</div>
+          <div class="profile-name" id="profileName"><div class="skel" style="height:16px;width:120px;margin:0 auto 8px"></div></div>
+          <div class="profile-email" id="profileEmail"><div class="skel" style="height:12px;width:160px;margin:0 auto 12px"></div></div>
+          <span class="profile-badge" id="profileRole">Patient</span>
+        </div>
+
+        <nav class="account-nav">
+          <button class="account-nav-item active" data-section="appointments">
+            <span class="icon">📅</span> Mes rendez-vous
+          </button>
+          <button class="account-nav-item" data-section="profile">
+            <span class="icon">👤</span> Mon profil
+          </button>
+          <button class="account-nav-item" data-section="security">
+            <span class="icon">🔒</span> Sécurité
+          </button>
+          <button class="account-nav-item" onclick="Auth.logout()" style="color:#B91C1C">
+            <span class="icon">🚪</span> Se déconnecter
+          </button>
+        </nav>
+
+      </aside>
+
+      <!-- ── Main ── -->
+      <main class="account-main">
+
+        <!-- ── Appointments ── -->
+        <section class="account-section active" id="section-appointments">
+          <div>
+            <h1 class="section-heading">Mes rendez-vous</h1>
+            <p class="section-subheading">Consultez et gérez vos séances avec vos psychologues.</p>
+          </div>
+
+          <div class="acc-card">
+            <div class="appt-tabs">
+              <button class="appt-tab active" data-filter="upcoming">À venir</button>
+              <button class="appt-tab" data-filter="past">Passés</button>
+              <button class="appt-tab" data-filter="all">Tous</button>
+            </div>
+            <div class="appt-list" id="apptList">
+              <!-- Skeletons -->
+              <div class="appt-row">
+                <div class="skel" style="width:52px;height:60px;border-radius:12px"></div>
+                <div><div class="skel" style="height:14px;width:180px;margin-bottom:8px"></div><div class="skel" style="height:10px;width:100px"></div></div>
+                <div class="skel" style="height:24px;width:72px;border-radius:99px"></div>
+                <div class="skel" style="height:28px;width:80px;border-radius:6px"></div>
+              </div>
+              <div class="appt-row">
+                <div class="skel" style="width:52px;height:60px;border-radius:12px"></div>
+                <div><div class="skel" style="height:14px;width:200px;margin-bottom:8px"></div><div class="skel" style="height:10px;width:120px"></div></div>
+                <div class="skel" style="height:24px;width:72px;border-radius:99px"></div>
+                <div class="skel" style="height:28px;width:80px;border-radius:6px"></div>
+              </div>
+            </div>
+          </div>
+
+          <div style="text-align:center">
+            <a href="rendez-vous.html" class="btn btn--terracotta btn--sm">+ Nouveau rendez-vous</a>
+          </div>
+        </section>
+
+        <!-- ── Profile ── -->
+        <section class="account-section" id="section-profile">
+          <div>
+            <h1 class="section-heading">Mon profil</h1>
+            <p class="section-subheading">Vos informations personnelles affichées lors de vos réservations.</p>
+          </div>
+
+          <div class="acc-card">
+            <div class="acc-card__header">
+              <span class="acc-card__title">Informations personnelles</span>
+            </div>
+            <div class="acc-card__body">
+              <form id="profileForm">
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label for="pFirstName">Prénom</label>
+                    <input type="text" id="pFirstName" placeholder="Votre prénom">
+                  </div>
+                  <div class="form-group">
+                    <label for="pLastName">Nom</label>
+                    <input type="text" id="pLastName" placeholder="Votre nom">
+                  </div>
+                  <div class="form-group full">
+                    <label for="pEmail">Email</label>
+                    <input type="email" id="pEmail" placeholder="votre@email.com" disabled
+                      style="background:var(--off-white);cursor:not-allowed">
+                  </div>
+                  <div class="form-group">
+                    <label for="pPhone">Téléphone</label>
+                    <input type="tel" id="pPhone" placeholder="+33 6 00 00 00 00">
+                  </div>
+                  <div class="form-group">
+                    <label for="pLang">Langue préférée</label>
+                    <select id="pLang">
+                      <option value="fr">Français</option>
+                      <option value="ar">Arabe (عربي)</option>
+                      <option value="darija">Darija (دارجة)</option>
+                    </select>
+                  </div>
+                </div>
+                <div style="margin-top:var(--space-5);display:flex;justify-content:flex-end">
+                  <button type="submit" class="btn btn--primary btn--sm" id="saveProfileBtn">
+                    Enregistrer les modifications
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Security ── -->
+        <section class="account-section" id="section-security">
+          <div>
+            <h1 class="section-heading">Sécurité</h1>
+            <p class="section-subheading">Gérez votre mot de passe et la sécurité de votre compte.</p>
+          </div>
+
+          <div class="acc-card">
+            <div class="acc-card__header">
+              <span class="acc-card__title">Changer le mot de passe</span>
+            </div>
+            <div class="acc-card__body">
+              <form id="passwordForm">
+                <div class="form-grid">
+                  <div class="form-group full">
+                    <label for="currentPw">Mot de passe actuel</label>
+                    <input type="password" id="currentPw" placeholder="••••••••">
+                  </div>
+                  <div class="form-group">
+                    <label for="newPw">Nouveau mot de passe</label>
+                    <input type="password" id="newPw" placeholder="Au moins 8 caractères">
+                  </div>
+                  <div class="form-group">
+                    <label for="confirmPw">Confirmer le nouveau</label>
+                    <input type="password" id="confirmPw" placeholder="••••••••">
+                  </div>
+                </div>
+                <div style="margin-top:var(--space-5);display:flex;justify-content:flex-end">
+                  <button type="submit" class="btn btn--primary btn--sm" id="savePwBtn">
+                    Mettre à jour
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <div class="acc-card" style="border-color:#FECACA">
+            <div class="acc-card__header" style="border-color:#FECACA">
+              <span class="acc-card__title" style="color:#B91C1C">Zone de danger</span>
+            </div>
+            <div class="acc-card__body">
+              <p style="font-size:.87rem;color:var(--text-muted);margin-bottom:var(--space-4);line-height:1.6">
+                La suppression de votre compte est définitive. Toutes vos données (historique de rendez-vous, informations personnelles) seront effacées.
+              </p>
+              <button class="btn btn--ghost btn--sm" id="deleteAccountBtn"
+                style="color:#B91C1C;border-color:#FECACA">
+                Supprimer mon compte
+              </button>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script src="assets/js/api.js"></script>
+<script src="assets/js/auth.js"></script>
+<script src="assets/js/main.js" defer></script>
+<script>
+  // Auth gate — must be logged in
+  if (!Auth.isLoggedIn()) {
+    window.location.href = `login.html?redirect=${encodeURIComponent(window.location.pathname)}`;
+  }
+
+  // ── Toast ────────────────────────────────────────────────────────
+  function toast(msg, type = 'success') {
+    const t = document.createElement('div');
+    t.className = `toast ${type}`;
+    t.textContent = msg;
+    document.getElementById('toastWrap').appendChild(t);
+    requestAnimationFrame(() => t.classList.add('show'));
+    setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 400); }, 3500);
+  }
+
+  // ── Section navigation ───────────────────────────────────────────
+  document.querySelectorAll('[data-section]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.account-nav-item').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.account-section').forEach(s => s.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(`section-${btn.dataset.section}`).classList.add('active');
+    });
+  });
+
+  // ── Load user profile ─────────────────────────────────────────────
+  async function loadProfile() {
+    try {
+      const me = await API.users.me();
+      const p  = me.patient || me.psychologist || {};
+
+      const firstName = p.firstName || '';
+      const lastName  = p.lastName  || '';
+      const initials  = ((firstName[0] || '') + (lastName[0] || '')).toUpperCase() || me.email[0].toUpperCase();
+
+      document.getElementById('profileAvatar').textContent = initials;
+      document.getElementById('profileName').textContent   = [firstName, lastName].filter(Boolean).join(' ') || '—';
+      document.getElementById('profileEmail').textContent  = me.email;
+      document.getElementById('profileRole').textContent   = me.role === 'PSYCHOLOGIST' ? 'Psychologue' : 'Patient';
+
+      // Pre-fill profile form
+      document.getElementById('pFirstName').value = firstName;
+      document.getElementById('pLastName').value  = lastName;
+      document.getElementById('pEmail').value     = me.email;
+      if (p.phone) document.getElementById('pPhone').value = p.phone;
+      if (p.preferredLanguage) document.getElementById('pLang').value = p.preferredLanguage;
+    } catch { /* non-blocking */ }
+  }
+
+  // ── Appointment status helpers ────────────────────────────────────
+  const STATUS_LABELS = {
+    CONFIRMED:            ['confirmed', 'Confirmé'],
+    COMPLETED:            ['completed', 'Terminé'],
+    PENDING_PAYMENT:      ['pending',   'En attente de paiement'],
+    CANCELLED_BY_PATIENT: ['cancelled', 'Annulé par vous'],
+    CANCELLED_BY_PSY:     ['cancelled', 'Annulé par le psy'],
+  };
+
+  function apptBadge(status) {
+    const [cls, label] = STATUS_LABELS[status] || ['pending', status];
+    return `<span class="appt-badge ${cls}">${label}</span>`;
+  }
+
+  function fmtDateTime(d) {
+    const dt = new Date(d);
+    return {
+      day:   dt.toLocaleDateString('fr-FR', { day: '2-digit' }),
+      month: dt.toLocaleDateString('fr-FR', { month: 'short' }),
+      time:  dt.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+      full:  dt.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }),
+    };
+  }
+
+  let allAppointments = [];
+  let activeFilter = 'upcoming';
+
+  function renderAppointments() {
+    const now = new Date();
+    let list = [...allAppointments];
+
+    if (activeFilter === 'upcoming') {
+      list = list.filter(a => new Date(a.scheduledAt) >= now && !a.status?.startsWith('CANCELLED'));
+    } else if (activeFilter === 'past') {
+      list = list.filter(a => new Date(a.scheduledAt) < now || a.status?.startsWith('CANCELLED'));
+    }
+
+    if (!list.length) {
+      document.getElementById('apptList').innerHTML = `
+        <div class="empty-appt">
+          <span class="empty-appt__icon">📅</span>
+          <div class="empty-appt__title">${
+            activeFilter === 'upcoming'
+              ? 'Aucun rendez-vous à venir'
+              : 'Aucun rendez-vous dans cet historique'
+          }</div>
+          <p class="empty-appt__desc">Réservez une séance avec l'un de nos psychologues.</p>
+          <a href="rendez-vous.html" class="btn btn--terracotta btn--sm">Prendre un rendez-vous</a>
+        </div>`;
+      return;
+    }
+
+    document.getElementById('apptList').innerHTML = list.map(a => {
+      const dt   = fmtDateTime(a.scheduledAt);
+      const psyName = a.psychologist
+        ? `${a.psychologist.firstName || ''} ${a.psychologist.lastName || ''}`.trim()
+        : 'Psychologue';
+
+      const isFuture    = new Date(a.scheduledAt) >= now;
+      const isCancelled = a.status?.startsWith('CANCELLED');
+      const canCancel   = isFuture && !isCancelled && a.status !== 'COMPLETED';
+      const canJoin     = a.status === 'CONFIRMED' && isFuture;
+
+      return `
+        <div class="appt-row">
+          <div class="appt-date-block">
+            <div class="appt-date-day">${dt.day}</div>
+            <div class="appt-date-month">${dt.month}</div>
+          </div>
+          <div class="appt-info">
+            <div class="appt-psy">${psyName}</div>
+            <div class="appt-time">${dt.full} · ${dt.time}</div>
+          </div>
+          ${apptBadge(a.status)}
+          <div class="appt-actions">
+            ${canJoin ? `<a href="#" class="btn-join">Rejoindre</a>` : ''}
+            ${canCancel ? `<button class="btn-cancel" onclick="cancelAppt('${a.id}', this)">Annuler</button>` : ''}
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  async function loadAppointments() {
+    try {
+      const res = await API.users.myAppointments();
+      allAppointments = Array.isArray(res) ? res : (res.data || []);
+      renderAppointments();
+    } catch {
+      document.getElementById('apptList').innerHTML = `
+        <div class="empty-appt">
+          <span class="empty-appt__icon">⚠️</span>
+          <div class="empty-appt__title">Impossible de charger vos rendez-vous</div>
+          <p class="empty-appt__desc">Vérifiez votre connexion et réessayez.</p>
+          <button class="btn btn--ghost btn--sm" onclick="loadAppointments()">Réessayer</button>
+        </div>`;
+    }
+  }
+
+  // ── Filter tabs ───────────────────────────────────────────────────
+  document.querySelectorAll('.appt-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.appt-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      activeFilter = tab.dataset.filter;
+      renderAppointments();
+    });
+  });
+
+  // ── Cancel appointment ────────────────────────────────────────────
+  async function cancelAppt(id, btn) {
+    if (!confirm('Voulez-vous vraiment annuler ce rendez-vous ?')) return;
+    btn.disabled = true;
+    btn.textContent = 'Annulation…';
+    try {
+      await API.appointments.cancel(id);
+      toast('Rendez-vous annulé', 'warning');
+      await loadAppointments();
+    } catch (e) {
+      toast(e.message || 'Erreur lors de l\'annulation', 'error');
+      btn.disabled = false;
+      btn.textContent = 'Annuler';
+    }
+  }
+
+  // ── Save profile ──────────────────────────────────────────────────
+  document.getElementById('profileForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('saveProfileBtn');
+    btn.disabled = true;
+    btn.textContent = 'Enregistrement…';
+    try {
+      await API.users.updateProfile({
+        firstName: document.getElementById('pFirstName').value.trim(),
+        lastName:  document.getElementById('pLastName').value.trim(),
+        phone:     document.getElementById('pPhone').value.trim() || undefined,
+        preferredLanguage: document.getElementById('pLang').value,
+      });
+      toast('Profil mis à jour ✓', 'success');
+      loadProfile(); // refresh display name
+    } catch (e) {
+      toast(e.message || 'Erreur lors de la mise à jour', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Enregistrer les modifications';
+    }
+  });
+
+  // ── Change password ───────────────────────────────────────────────
+  document.getElementById('passwordForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const newPw     = document.getElementById('newPw').value;
+    const confirmPw = document.getElementById('confirmPw').value;
+
+    if (newPw.length < 8) { toast('Le nouveau mot de passe doit faire au moins 8 caractères', 'error'); return; }
+    if (newPw !== confirmPw) { toast('Les mots de passe ne correspondent pas', 'error'); return; }
+
+    const btn = document.getElementById('savePwBtn');
+    btn.disabled = true;
+    btn.textContent = 'Mise à jour…';
+    try {
+      await API.authPost('/users/me/password', {
+        currentPassword: document.getElementById('currentPw').value,
+        newPassword: newPw,
+      });
+      toast('Mot de passe mis à jour ✓', 'success');
+      document.getElementById('passwordForm').reset();
+    } catch (e) {
+      toast(e.message || 'Erreur lors du changement de mot de passe', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Mettre à jour';
+    }
+  });
+
+  // ── Delete account ────────────────────────────────────────────────
+  document.getElementById('deleteAccountBtn').addEventListener('click', async () => {
+    const confirmed = confirm(
+      'Êtes-vous sûr de vouloir supprimer votre compte ?\n\nCette action est irréversible. Toutes vos données seront effacées.'
+    );
+    if (!confirmed) return;
+    const doubleConfirm = confirm('Dernière confirmation : votre compte et toutes vos données seront définitivement supprimés.');
+    if (!doubleConfirm) return;
+
+    try {
+      await API.users.deleteAccount();
+      Auth.clearSession();
+      window.location.href = 'index.html';
+    } catch (e) {
+      toast(e.message || 'Erreur lors de la suppression', 'error');
+    }
+  });
+
+  // ── Init ──────────────────────────────────────────────────────────
+  loadProfile();
+  loadAppointments();
+</script>
+</body>
+</html>
