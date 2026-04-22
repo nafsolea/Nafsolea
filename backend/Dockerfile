@@ -18,9 +18,10 @@ WORKDIR /app
 ENV NODE_ENV=production
 
 COPY package*.json ./
+# `prisma` et `ts-node` sont maintenant dans `dependencies` → inclus ici.
 RUN npm install --omit=dev --legacy-peer-deps && npm cache clean --force
-# Install prisma CLI for runtime schema sync (small, one-shot at boot)
-RUN npm install --no-save prisma@5.10.0 ts-node@10.9.2 typescript@5.3.3 --legacy-peer-deps
+# TypeScript reste utile uniquement au runtime pour ts-node (exécution seed.ts).
+RUN npm install --no-save typescript@5.3.3 --legacy-peer-deps
 
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
@@ -34,5 +35,6 @@ USER nestjs
 EXPOSE 3000
 
 # Synchronise le schéma avec la base, crée les comptes de test (admin/patient/psy),
-# puis lance l'app. Le seed utilise `upsert` : safe de le lancer à chaque boot.
-CMD ["sh", "-c", "npx prisma db push --skip-generate --accept-data-loss && (npx ts-node prisma/seed.ts || echo 'seed skipped') && node dist/main"]
+# puis lance l'app. On utilise les binaires LOCAUX (pas npx) pour éviter
+# que npx aille télécharger une autre version au démarrage.
+CMD ["sh", "-c", "./node_modules/.bin/prisma db push --skip-generate --accept-data-loss && (./node_modules/.bin/ts-node prisma/seed.ts || echo 'seed skipped') && node dist/main"]
