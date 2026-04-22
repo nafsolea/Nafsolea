@@ -64,11 +64,13 @@
           <input type="text" id="searchInput" placeholder="Rechercher un utilisateur…">
         </div>
         <select class="filter-select" id="roleFilter">
+          <option value="PATIENT" selected>Patients</option>
           <option value="">Tous les rôles</option>
-          <option value="PATIENT">Patients</option>
-          <option value="PSYCHOLOGIST">Psychologues</option>
           <option value="ADMIN">Admins</option>
         </select>
+        <span style="font-size:.78rem;color:var(--text-muted);align-self:center">
+          Les psys : <a href="psychologues.html" style="color:var(--blue);font-weight:600">→ onglet dédié</a>
+        </span>
       </div>
     </div>
 
@@ -132,6 +134,7 @@
 
 <script src="../assets/js/api.js"></script>
 <script src="../assets/js/auth.js"></script>
+<script src="../assets/js/admin-ui.js"></script>
 <script>
   if (!Auth.requireRole('ADMIN')) {}
   document.getElementById('logoutBtn').addEventListener('click', () => Auth.logout());
@@ -180,15 +183,16 @@
   // ── Load users ────────────────────────────────────────────────────
   async function loadUsers(page = 1) {
     const search = document.getElementById('searchInput').value.trim();
+    const roleFilter = document.getElementById('roleFilter').value;
     const params = { page, limit: 20 };
     if (search) params.search = search;
+    if (roleFilter) params.role = roleFilter;
 
     try {
       const res = await API.admin.users(params);
       const { data, meta } = res;
 
-      // Filter by role client-side (backend doesn't have role filter yet)
-      const roleFilter = document.getElementById('roleFilter').value;
+      // Backend filtre déjà par role, mais on garde une sécurité
       const filtered = roleFilter ? data.filter(u => u.role === roleFilter) : data;
 
       currentPage = page;

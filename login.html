@@ -330,9 +330,13 @@
 <script src="assets/js/auth.js"></script>
 <script>
   // Redirect if already logged in
+  function landingFor(role) {
+    if (role === 'ADMIN') return 'admin/index.html';
+    if (role === 'PSYCHOLOGIST') return 'mon-cabinet.html';
+    return 'mon-compte.html';
+  }
   if (Auth.isLoggedIn()) {
-    const role = Auth.getRole();
-    window.location.href = role === 'ADMIN' ? 'admin/index.html' : 'rendez-vous.html';
+    window.location.href = landingFor(Auth.getRole());
   }
 
   const form = document.getElementById('loginForm');
@@ -388,13 +392,7 @@
 
       // Redirect based on role
       const redirect = new URLSearchParams(window.location.search).get('redirect');
-      if (redirect) {
-        window.location.href = redirect;
-      } else if (data.role === 'ADMIN') {
-        window.location.href = 'admin/index.html';
-      } else {
-        window.location.href = 'rendez-vous.html';
-      }
+      window.location.href = redirect || landingFor(data.role);
     } catch (err) {
       showAlert(err.message || 'Email ou mot de passe incorrect');
       setLoading(false);

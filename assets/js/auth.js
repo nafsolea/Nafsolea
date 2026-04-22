@@ -12,14 +12,30 @@ const Auth = (() => {
     REFRESH_TOKEN: 'naf_refresh',
     ROLE:          'naf_role',
     EXPIRES_AT:    'naf_expires',
+    USER_ID:       'naf_user_id',
+    EMAIL:         'naf_email',
   };
+
+  // ── API base URL (même logique que api.js) ──────────────────────
+  const PROD_BACKEND_URL = 'https://nafsolea-api.onrender.com';
+  function resolveApiBase() {
+    if (typeof window !== 'undefined' && window.NAFSOLEA_API_URL) {
+      return window.NAFSOLEA_API_URL.replace(/\/+$/, '') + '/api/v1';
+    }
+    const host = (typeof window !== 'undefined' && window.location && window.location.hostname) || '';
+    const isLocal = host === 'localhost' || host === '127.0.0.1' || host === '' || host === 'file';
+    if (isLocal) return 'http://localhost:3000/api/v1';
+    return PROD_BACKEND_URL.replace(/\/+$/, '') + '/api/v1';
+  }
+  const API_BASE = resolveApiBase();
 
   // ── Storage helpers ──────────────────────────────────────────────
 
-  function setSession({ accessToken, refreshToken, role }) {
+  function setSession({ accessToken, refreshToken, role, userId, email }) {
     // Decode JWT to get expiry (exp is in seconds)
+    let payload = null;
     try {
-      const payload = JSON.parse(atob(accessToken.split('.')[1]));
+      payload = JSON.parse(atob(accessToken.split('.')[1]));
       localStorage.setItem(KEYS.EXPIRES_AT, payload.exp * 1000);
     } catch {
       // Fallback: 15 min from now
@@ -27,7 +43,9 @@ const Auth = (() => {
     }
     localStorage.setItem(KEYS.ACCESS_TOKEN,  accessToken);
     localStorage.setItem(KEYS.REFRESH_TOKEN, refreshToken);
-    localStorage.setItem(KEYS.ROLE,          role);
+    localStorage.setItem(KEYS.ROLE,          role || payload?.role || '');
+    if (userId || payload?.sub) localStorage.setItem(KEYS.USER_ID, userId || payload.sub);
+    if (email  || payload?.email) localStorage.setItem(KEYS.EMAIL, email || payload.email);
   }
 
   function clearSession() {
@@ -37,6 +55,13 @@ const Auth = (() => {
   function getAccessToken()  { return localStorage.getItem(KEYS.ACCESS_TOKEN); }
   function getRefreshToken() { return localStorage.getItem(KEYS.REFRESH_TOKEN); }
   function getRole()         { return localStorage.getItem(KEYS.ROLE); }
+  function getUserId()       { return localStorage.getItem(KEYS.USER_ID); }
+  function getEmail()        { return localStorage.getItem(KEYS.EMAIL); }
+  // Lightweight user object for pages that call Auth.getUser()
+  function getUser() {
+    if (!getAccessToken()) return null;
+    return { id: getUserId(), email: getEmail(), role: getRole() };
+  }
 
   function isLoggedIn() {
     return !!getAccessToken();
@@ -59,7 +84,7 @@ const Auth = (() => {
 
     refreshPromise = (async () => {
       try {
-        const res = await fetch('http://localhost:3000/api/v1/auth/refresh', {
+        const res = await fetch(`${API_BASE}/auth/refresh`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ refreshToken }),
@@ -98,7 +123,7 @@ const Auth = (() => {
     const refreshToken = getRefreshToken();
     if (refreshToken) {
       try {
-        await fetch('http://localhost:3000/api/v1/auth/logout', {
+        await fetch(`${API_BASE}/auth/logout`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -221,6 +246,9 @@ const Auth = (() => {
     getAccessToken,
     getRefreshToken,
     getRole,
+    getUserId,
+    getEmail,
+    getUser,
     isLoggedIn,
     isTokenExpired,
     silentRefresh,

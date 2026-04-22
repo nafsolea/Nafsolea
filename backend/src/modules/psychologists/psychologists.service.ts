@@ -184,6 +184,176 @@ export class PsychologistsService {
     return slots;
   }
 
+  // ── Psychologist dashboard ──────────────────────────────────────
+
+  async getMyDashboard(userId: string) {
+    const psy = await this.prisma.psychologist.findUnique({
+      where: { userId },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        title: true,
+        status: true,
+        averageRating: true,
+        totalSessions: true,
+        sessionRate: true,
+        avatarUrl: true,
+        bio: true,
+        specialties: true,
+        languages: true,
+      },
+    });
+    if (!psy) throw new NotFoundException('Profil psychologue introuvable');
+
+    const now = new Date();
+    const startOfWeek = new Date(now);
+    startOfWeek.setHours(0, 0, 0, 0);
+    startOfWeek.setDate(now.getDate() - now.getDay());
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 7);
+
+    const [upcoming, weekCount, monthRevenue, patientCount, pendingReviews] =
+      await this.prisma.$transaction([
+        this.prisma.appointment.findMany({
+          where: {
+            psychologistId: psy.id,
+            scheduledAt: { gte: now },
+            status: { in: ['CONFIRMED', 'PENDING_PAYMENT', 'IN_PROGRESS'] },
+          },
+          include: {
+            patient: { select: { firstName: true, lastName: true, avatarUrl: true } },
+          },
+          orderBy: { scheduledAt: 'asc' },
+          take: 10,
+        }),
+        this.prisma.appointment.count({
+          where: {
+            psychologistId: psy.id,
+            scheduledAt: { gte: startOfWeek, lt: endOfWeek },
+            status: { in: ['CONFIRMED', 'COMPLETED', 'IN_PROGRESS'] },
+          },
+        }),
+        this.prisma.payment.aggregate({
+          where: {
+            appointment: { psychologistId: psy.id },
+            status: 'SUCCEEDED',
+            createdAt: {
+              gte: new Date(now.getFullYear(), now.getMonth(), 1),
+            },
+          },
+          _sum: { psychologistPayout: true, amount: true },
+        }),
+        this.prisma.appointment.findMany({
+          where: { psychologistId: psy.id, status: 'COMPLETED' },
+          select: { patientId: true },
+          distinct: ['patientId'],
+        }),
+        this.prisma.review.count({
+          where: { psychologistId: psy.id },
+        }),
+      ]);
+
+    return {
+      psychologist: psy,
+      stats: {
+        weekAppointments: weekCount,
+        monthRevenue: Number(monthRevenue._sum.psychologistPayout || monthRevenue._sum.amount || 0),
+        totalPatients: patientCount.length,
+        totalReviews: pendingReviews,
+      },
+      upcomingAppointments: upcoming,
+    };
+  }
+
+  async getMyAppointments(userId: string, status?: string) {
+    const psy = await this.prisma.psychologist.findUnique({
+      where: { userId },
+      select: { id: true },
+    });
+    if (!psy) throw new NotFoundException('Profil introuvable');
+
+    const now = new Date();
+    let where: any = { psychologistId: psy.id };
+    if (status === 'upcoming') {
+      where.scheduledAt = { gte: now };
+      where.status = { in: ['CONFIRMED', 'PENDING_PAYMENT', 'IN_PROGRESS'] };
+    } else if (status === 'past') {
+      where.OR = [
+        { scheduledAt: { lt: now } },
+        { status: { in: ['COMPLETED', 'CANCELLED_BY_PATIENT', 'CANCELLED_BY_PSYCHOLOGIST', 'NO_SHOW'] } },
+      ];
+    }
+
+    return this.prisma.appointment.findMany({
+      where,
+      include: {
+        patient: {
+          select: { firstName: true, lastName: true, avatarUrl: true, languages: true, issues: true },
+        },
+        payment: { select: { status: true, amount: true } },
+      },
+      orderBy: { scheduledAt: status === 'past' ? 'desc' : 'asc' },
+      take: 100,
+    });
+  }
+
+  async getMyPatients(userId: string) {
+    const psy = await this.prisma.psychologist.findUnique({
+      where: { userId },
+      select: { id: true },
+    });
+    if (!psy) throw new NotFoundException('Profil introuvable');
+
+    // Tous les RDV groupés par patient
+    const appointments = await this.prisma.appointment.findMany({
+      where: {
+        psychologistId: psy.id,
+        status: { in: ['CONFIRMED', 'COMPLETED', 'IN_PROGRESS'] },
+      },
+      include: {
+        patient: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            avatarUrl: true,
+            languages: true,
+            issues: true,
+          },
+        },
+      },
+      orderBy: { scheduledAt: 'desc' },
+    });
+
+    // Group par patientId
+    const byPatient = new Map<string, any>();
+    const now = new Date();
+    for (const apt of appointments) {
+      const key = apt.patient.id;
+      if (!byPatient.has(key)) {
+        byPatient.set(key, {
+          patient: apt.patient,
+          totalSessions: 0,
+          completedSessions: 0,
+          lastSessionAt: null as Date | null,
+          nextSessionAt: null as Date | null,
+        });
+      }
+      const entry = byPatient.get(key);
+      entry.totalSessions++;
+      if (apt.status === 'COMPLETED') entry.completedSessions++;
+      if (apt.scheduledAt < now && (!entry.lastSessionAt || apt.scheduledAt > entry.lastSessionAt)) {
+        entry.lastSessionAt = apt.scheduledAt;
+      }
+      if (apt.scheduledAt >= now && (!entry.nextSessionAt || apt.scheduledAt < entry.nextSessionAt)) {
+        entry.nextSessionAt = apt.scheduledAt;
+      }
+    }
+
+    return Array.from(byPatient.values());
+  }
+
   // ── Psychologist profile management ─────────────────────────────
 
   async updateProfile(userId: string, data: Partial<{

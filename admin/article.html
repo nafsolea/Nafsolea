@@ -423,6 +423,7 @@
 
 <script src="../assets/js/api.js"></script>
 <script src="../assets/js/auth.js"></script>
+<script src="../assets/js/admin-ui.js"></script>
 <script>
   if (!Auth.requireRole('ADMIN')) {}
   document.getElementById('logoutBtn').addEventListener('click', () => Auth.logout());
@@ -447,7 +448,7 @@
   // ── Load existing article ─────────────────────────────────────────
   async function loadArticle() {
     if (!articleId) return;
-    document.getElementById('pageTitle').textContent = 'Modifier l'article';
+    document.getElementById('pageTitle').textContent = 'Modifier l\'article';
     try {
       // Load via admin endpoint
       const res = await API.articles.adminAll({ limit: 100 });

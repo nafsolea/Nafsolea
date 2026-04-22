@@ -90,3 +90,8 @@ services:
       # À retirer en production quand SendGrid sera configuré.
       - key: BETA_AUTO_VERIFY_EMAIL
         value: "true"
+
+      # ─── Bêta : auto-approbation des psys ───────────────────────
+      # En production, mets "false" pour reactiver la validation manuelle admin.
+      - key: BETA_AUTO_APPROVE_PSY
+        value: "true"

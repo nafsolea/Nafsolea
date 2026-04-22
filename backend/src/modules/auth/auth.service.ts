@@ -65,6 +65,10 @@ export class AuthService {
           },
         });
       } else if (dto.role === UserRole.PSYCHOLOGIST) {
+        // En bêta (BETA_AUTO_APPROVE_PSY=true), on auto-approuve les psys pour
+        // qu'ils apparaissent immédiatement sur le site sans validation manuelle.
+        const autoApprove = this.config.get<string>('BETA_AUTO_APPROVE_PSY') === 'true';
+
         await tx.psychologist.create({
           data: {
             userId: newUser.id,
@@ -80,6 +84,8 @@ export class AuthService {
             yearsExperience: dto.yearsExperience ?? null,
             sessionRate: dto.sessionRate ?? 0,
             sessionDuration: dto.sessionDuration ?? 60,
+            status: autoApprove ? 'APPROVED' : 'PENDING',
+            approvedAt: autoApprove ? new Date() : null,
           },
         });
       }
@@ -265,7 +271,7 @@ export class AuthService {
       data: { userId, tokenHash, expiresAt, ipAddress: ip, userAgent },
     });
 
-    return { accessToken, refreshToken: rawRefreshToken, role };
+    return { accessToken, refreshToken: rawRefreshToken, role, userId, email };
   }
 
   private hashToken(token: string): string {

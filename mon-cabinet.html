@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mon cabinet — Nafsoléa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <style>
+    .cabinet-page {
+      padding-top: calc(72px + var(--space-8));
+      padding-bottom: var(--space-20);
+      background: var(--off-white);
+      min-height: 100vh;
+    }
+    .cabinet-hero {
+      background: linear-gradient(120deg, var(--sage-dark), var(--sage));
+      color: white;
+      border-radius: var(--radius-xl);
+      padding: var(--space-8);
+      margin-bottom: var(--space-6);
+      display: flex;
+      gap: var(--space-6);
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .cabinet-hero__avatar {
+      width: 84px; height: 84px;
+      border-radius: 50%;
+      border: 3px solid white;
+      background: rgba(255,255,255,.18);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.4rem;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .cabinet-hero__avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .cabinet-hero h1 { margin: 0 0 4px; color: white; font-size: 1.7rem; }
+    .cabinet-hero p { margin: 0; opacity: .9; font-size: .92rem; }
+    .cabinet-status {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: .78rem;
+      font-weight: 700;
+      margin-top: var(--space-2);
+    }
+    .cabinet-status--approved { background: #D1FAE5; color: #065F46; }
+    .cabinet-status--pending  { background: #FEF3C7; color: #92400E; }
+    .cabinet-status--rejected { background: #FEE2E2; color: #991B1B; }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-4);
+      margin-bottom: var(--space-8);
+    }
+    @media (max-width: 768px) { .stats-grid { grid-template-columns: 1fr 1fr; } }
+    .stat-card {
+      background: white;
+      border-radius: var(--radius-lg);
+      padding: var(--space-5);
+      border: 1px solid var(--border-light);
+      box-shadow: var(--shadow-sm);
+    }
+    .stat-card__label {
+      font-size: .76rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .stat-card__value {
+      font-size: 1.9rem;
+      font-weight: 700;
+      color: var(--navy);
+      line-height: 1.1;
+    }
+    .stat-card__suffix { font-size: .85rem; color: var(--text-mid); margin-left: 4px; }
+
+    .cabinet-section {
+      background: white;
+      border-radius: var(--radius-xl);
+      padding: var(--space-6) var(--space-8);
+      border: 1.5px solid var(--border-light);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: var(--space-6);
+    }
+    .cabinet-section h2 {
+      font-size: 1.15rem;
+      margin: 0 0 var(--space-4);
+      color: var(--navy);
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+    .cabinet-section h2 .count {
+      background: var(--sage-pale);
+      color: var(--sage-dark);
+      font-size: .75rem;
+      padding: 2px 10px;
+      border-radius: 12px;
+    }
+
+    .cabinet-tabs {
+      display: flex;
+      gap: 4px;
+      border-bottom: 1.5px solid var(--border-light);
+      margin-bottom: var(--space-6);
+      overflow-x: auto;
+    }
+    .cabinet-tab {
+      background: none;
+      border: none;
+      padding: 12px 18px;
+      font-family: inherit;
+      font-size: .92rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      white-space: nowrap;
+    }
+    .cabinet-tab.active {
+      color: var(--sage-dark);
+      border-bottom-color: var(--sage-dark);
+    }
+    .cabinet-panel { display: none; }
+    .cabinet-panel.active { display: block; }
+
+    .appointment-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto auto;
+      gap: var(--space-4);
+      padding: var(--space-4);
+      border-bottom: 1px solid var(--border-light);
+      align-items: center;
+    }
+    .appointment-row:last-child { border-bottom: none; }
+    .appointment-row__avatar {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: var(--sage-pale); color: var(--sage-dark);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: .92rem;
+      overflow: hidden;
+    }
+    .appointment-row__avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .appointment-row__name { font-weight: 600; color: var(--navy); margin-bottom: 2px; }
+    .appointment-row__meta { font-size: .82rem; color: var(--text-muted); }
+    .appointment-row__time {
+      text-align: right;
+      font-weight: 600;
+      color: var(--text-dark);
+      font-size: .9rem;
+    }
+    .appointment-row__time small { display: block; font-weight: 400; color: var(--text-muted); font-size: .75rem; }
+
+    .badge-status {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: .72rem;
+      font-weight: 700;
+    }
+    .badge-status--confirmed { background: #D1FAE5; color: #065F46; }
+    .badge-status--pending  { background: #FEF3C7; color: #92400E; }
+    .badge-status--in-progress { background: #DBEAFE; color: #1E40AF; }
+    .badge-status--cancelled { background: #FEE2E2; color: #991B1B; }
+    .badge-status--completed { background: #E5E7EB; color: #374151; }
+
+    .empty-state {
+      text-align: center;
+      padding: var(--space-10) var(--space-6);
+      color: var(--text-muted);
+    }
+    .empty-state__icon {
+      font-size: 2.4rem;
+      margin-bottom: var(--space-3);
+      opacity: .6;
+    }
+
+    .patients-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: var(--space-4);
+    }
+    .patient-card {
+      background: white;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+      transition: transform .15s, box-shadow .15s;
+    }
+    .patient-card:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+    }
+    .patient-card__head { display: flex; gap: var(--space-3); align-items: center; margin-bottom: var(--space-3); }
+    .patient-card__avatar {
+      width: 46px; height: 46px; border-radius: 50%;
+      background: var(--sage-pale); color: var(--sage-dark);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700;
+      overflow: hidden;
+    }
+    .patient-card__avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .patient-card__name { font-weight: 600; color: var(--navy); margin: 0; }
+    .patient-card__lang { font-size: .75rem; color: var(--text-muted); margin: 2px 0 0; }
+    .patient-card__stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-2);
+      margin-top: var(--space-3);
+      padding-top: var(--space-3);
+      border-top: 1px dashed var(--border-light);
+      font-size: .78rem;
+    }
+    .patient-card__stat { color: var(--text-mid); }
+    .patient-card__stat strong { display: block; color: var(--navy); font-size: .92rem; margin-bottom: 1px; }
+
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: var(--space-3);
+      margin-bottom: var(--space-6);
+    }
+    .quick-action {
+      background: white;
+      border: 1.5px solid var(--border-light);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+      text-align: center;
+      text-decoration: none;
+      color: var(--text-dark);
+      transition: all .2s;
+      display: block;
+    }
+    .quick-action:hover {
+      border-color: var(--sage);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-sm);
+    }
+    .quick-action__icon { font-size: 1.6rem; margin-bottom: 6px; }
+    .quick-action__label { font-weight: 600; font-size: .87rem; color: var(--navy); }
+
+    .skeleton {
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+      border-radius: 6px;
+      height: 16px;
+    }
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    .toast { position: fixed; top: 20px; right: 20px; padding: 12px 20px; background: var(--sage-dark); color: white; border-radius: 10px; box-shadow: var(--shadow-md); font-weight: 600; z-index: 9999; }
+    .toast.error { background: #DC2626; }
+  </style>
+</head>
+<body>
+
+<!-- NAVIGATION -->
+<nav class="nav">
+  <div class="nav__inner">
+    <a href="index.html" class="nav__logo">
+      <div class="nav__logo-mark" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 36 36" fill="none">
+          <circle cx="18" cy="18" r="5" fill="white"/>
+          <line x1="18" y1="2" x2="18" y2="10" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="18" y1="26" x2="18" y2="34" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="2" y1="18" x2="10" y2="18" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="26" y1="18" x2="34" y2="18" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      Nafsoléa
+    </a>
+    <ul class="nav__links">
+      <li><a href="mon-cabinet.html" class="nav__link active">Mon cabinet</a></li>
+      <li><a href="blog.html" class="nav__link">Ressources</a></li>
+    </ul>
+    <div class="nav__actions">
+      <a href="#" id="logoutLink" class="btn btn--ghost btn--sm">Se déconnecter</a>
+    </div>
+    <button class="nav__hamburger" aria-label="Menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<main class="cabinet-page">
+  <div class="container">
+
+    <!-- Hero -->
+    <div class="cabinet-hero" id="hero">
+      <div class="cabinet-hero__avatar">⏳</div>
+      <div>
+        <h1>Mon cabinet</h1>
+        <p>Chargement de votre espace…</p>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid" id="statsGrid">
+      <div class="stat-card"><div class="stat-card__label">Cette semaine</div><div class="stat-card__value">—</div></div>
+      <div class="stat-card"><div class="stat-card__label">Patients suivis</div><div class="stat-card__value">—</div></div>
+      <div class="stat-card"><div class="stat-card__label">Revenus du mois</div><div class="stat-card__value">—</div></div>
+      <div class="stat-card"><div class="stat-card__label">Avis reçus</div><div class="stat-card__value">—</div></div>
+    </div>
+
+    <!-- Quick actions -->
+    <div class="quick-actions">
+      <a href="psychologue-availability.html" class="quick-action">
+        <div class="quick-action__icon">📅</div>
+        <div class="quick-action__label">Mes disponibilités</div>
+      </a>
+      <a href="psychologue-profile.html" class="quick-action">
+        <div class="quick-action__icon">👤</div>
+        <div class="quick-action__label">Modifier mon profil</div>
+      </a>
+      <a href="psychologue-detail.html?id=me" id="viewPublicLink" class="quick-action">
+        <div class="quick-action__icon">🌐</div>
+        <div class="quick-action__label">Voir mon profil public</div>
+      </a>
+      <a href="mon-compte-photo.html" class="quick-action" id="photoLink">
+        <div class="quick-action__icon">🖼</div>
+        <div class="quick-action__label">Photo de profil</div>
+      </a>
+    </div>
+
+    <!-- Tabs -->
+    <div class="cabinet-tabs">
+      <button class="cabinet-tab active" data-tab="upcoming">Prochains RDV</button>
+      <button class="cabinet-tab" data-tab="patients">Mes patients</button>
+      <button class="cabinet-tab" data-tab="past">Historique</button>
+    </div>
+
+    <!-- Panel: upcoming -->
+    <div class="cabinet-panel active" id="panel-upcoming">
+      <div class="cabinet-section">
+        <h2>Vos prochains rendez-vous <span class="count" id="upcomingCount">0</span></h2>
+        <div id="upcomingList">
+          <div class="empty-state">
+            <div class="skeleton" style="width:60%;margin:8px auto"></div>
+            <div class="skeleton" style="width:40%;margin:8px auto"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel: patients -->
+    <div class="cabinet-panel" id="panel-patients">
+      <div class="cabinet-section">
+        <h2>Mes patients <span class="count" id="patientsCount">0</span></h2>
+        <div id="patientsList">
+          <div class="empty-state"><p>Chargement…</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel: past -->
+    <div class="cabinet-panel" id="panel-past">
+      <div class="cabinet-section">
+        <h2>Historique des consultations</h2>
+        <div id="pastList">
+          <div class="empty-state"><p>Chargement…</p></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer__bottom">
+      <p class="footer__copyright">© 2025 Nafsoléa. Tous droits réservés.</p>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/js/api.js"></script>
+<script src="assets/js/auth.js"></script>
+<script>
+(async function () {
+  // ── Auth gate ───────────────────────────────────────────────────
+  if (!Auth.isLoggedIn()) {
+    window.location.href = `login.html?redirect=${encodeURIComponent('/mon-cabinet.html')}`;
+    return;
+  }
+  if (Auth.getRole() !== 'PSYCHOLOGIST') {
+    // Pas un psy → on l'envoie au bon endroit
+    if (Auth.getRole() === 'ADMIN') window.location.href = 'admin/index.html';
+    else window.location.href = 'mon-compte.html';
+    return;
+  }
+
+  // ── Helpers ─────────────────────────────────────────────────────
+  function toast(msg, type = 'success') {
+    const el = document.createElement('div');
+    el.className = 'toast' + (type === 'error' ? ' error' : '');
+    el.textContent = msg;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 3500);
+  }
+  function escapeHtml(s) {
+    if (s == null) return '';
+    return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+  }
+  function initials(p) {
+    if (!p) return '?';
+    return ((p.firstName?.[0] || '') + (p.lastName?.[0] || '')).toUpperCase() || '?';
+  }
+  function fmtDateTime(d) {
+    if (!d) return '';
+    return new Date(d).toLocaleString('fr-FR', { weekday: 'short', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+  }
+  function fmtDate(d) {
+    if (!d) return '—';
+    return new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' });
+  }
+  function statusLabel(s) {
+    return ({
+      CONFIRMED: ['confirmed', 'Confirmé'],
+      PENDING_PAYMENT: ['pending', 'En attente paiement'],
+      IN_PROGRESS: ['in-progress', 'En cours'],
+      COMPLETED: ['completed', 'Terminé'],
+      CANCELLED_BY_PATIENT: ['cancelled', 'Annulé patient'],
+      CANCELLED_BY_PSYCHOLOGIST: ['cancelled', 'Annulé par vous'],
+      NO_SHOW: ['cancelled', 'Absence patient'],
+      EXPIRED: ['cancelled', 'Expiré'],
+    })[s] || ['pending', s];
+  }
+
+  // ── Logout ──────────────────────────────────────────────────────
+  document.getElementById('logoutLink').addEventListener('click', (e) => {
+    e.preventDefault();
+    Auth.logout();
+  });
+
+  // ── Tabs ────────────────────────────────────────────────────────
+  document.querySelectorAll('.cabinet-tab').forEach((tab) => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.cabinet-tab').forEach((t) => t.classList.remove('active'));
+      document.querySelectorAll('.cabinet-panel').forEach((p) => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+      if (tab.dataset.tab === 'past' && !pastLoaded) loadPast();
+    });
+  });
+
+  // ── Render hero & stats ─────────────────────────────────────────
+  function renderHero(d) {
+    const psy = d.psychologist;
+    const name = `${psy.firstName || ''} ${psy.lastName || ''}`.trim();
+    const avatarHtml = psy.avatarUrl
+      ? `<img src="${escapeHtml(psy.avatarUrl)}" alt="${escapeHtml(name)}">`
+      : initials(psy);
+    const statusMap = {
+      APPROVED: ['approved', 'Profil validé ✓'],
+      PENDING:  ['pending',  '⏳ En attente de validation par l\'admin'],
+      REJECTED: ['rejected', 'Profil refusé — contactez le support'],
+      SUSPENDED:['rejected', 'Profil suspendu'],
+    };
+    const [statusClass, statusLabelText] = statusMap[psy.status] || ['pending', psy.status];
+
+    document.getElementById('hero').innerHTML = `
+      <div class="cabinet-hero__avatar">${avatarHtml}</div>
+      <div style="flex:1;min-width:200px">
+        <h1>Bonjour ${escapeHtml(psy.firstName || '')} 👋</h1>
+        <p>${escapeHtml(psy.title || 'Psychologue')}</p>
+        <div class="cabinet-status cabinet-status--${statusClass}">${statusLabelText}</div>
+      </div>
+    `;
+  }
+
+  function renderStats(stats) {
+    document.getElementById('statsGrid').innerHTML = `
+      <div class="stat-card">
+        <div class="stat-card__label">Cette semaine</div>
+        <div class="stat-card__value">${stats.weekAppointments}<span class="stat-card__suffix">RDV</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card__label">Patients suivis</div>
+        <div class="stat-card__value">${stats.totalPatients}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card__label">Revenus du mois</div>
+        <div class="stat-card__value">${Number(stats.monthRevenue).toFixed(0)}<span class="stat-card__suffix">€</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card__label">Avis reçus</div>
+        <div class="stat-card__value">${stats.totalReviews}</div>
+      </div>
+    `;
+  }
+
+  function renderUpcoming(list) {
+    document.getElementById('upcomingCount').textContent = list.length;
+    const root = document.getElementById('upcomingList');
+    if (!list.length) {
+      root.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state__icon">📅</div>
+          <p>Aucun rendez-vous à venir pour le moment.</p>
+          <p style="font-size:.85rem">Définissez vos disponibilités pour que les patients puissent réserver.</p>
+        </div>`;
+      return;
+    }
+    root.innerHTML = list.map((apt) => {
+      const p = apt.patient || {};
+      const av = p.avatarUrl ? `<img src="${escapeHtml(p.avatarUrl)}" alt="">` : initials(p);
+      const [cls, label] = statusLabel(apt.status);
+      const when = new Date(apt.scheduledAt);
+      const time = when.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+      const date = when.toLocaleDateString('fr-FR', { weekday: 'short', day: '2-digit', month: 'short' });
+      return `
+        <div class="appointment-row">
+          <div class="appointment-row__avatar">${av}</div>
+          <div>
+            <div class="appointment-row__name">${escapeHtml((p.firstName || '') + ' ' + (p.lastName || ''))}</div>
+            <div class="appointment-row__meta">${apt.durationMinutes || 60} min · ${escapeHtml(apt.patientNotes || 'Aucune note du patient')}</div>
+          </div>
+          <span class="badge-status badge-status--${cls}">${label}</span>
+          <div class="appointment-row__time">
+            ${time}
+            <small>${date}</small>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function renderPatients(patients) {
+    document.getElementById('patientsCount').textContent = patients.length;
+    const root = document.getElementById('patientsList');
+    if (!patients.length) {
+      root.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state__icon">👥</div>
+          <p>Aucun patient pour l'instant.</p>
+          <p style="font-size:.85rem">Vos patients apparaîtront ici dès leur premier rendez-vous confirmé.</p>
+        </div>`;
+      return;
+    }
+    root.innerHTML = `<div class="patients-grid">${patients.map((entry) => {
+      const p = entry.patient;
+      const av = p.avatarUrl ? `<img src="${escapeHtml(p.avatarUrl)}" alt="">` : initials(p);
+      const langs = (p.languages || []).join(', ') || '—';
+      return `
+        <div class="patient-card">
+          <div class="patient-card__head">
+            <div class="patient-card__avatar">${av}</div>
+            <div>
+              <p class="patient-card__name">${escapeHtml((p.firstName || '') + ' ' + (p.lastName || ''))}</p>
+              <p class="patient-card__lang">${escapeHtml(langs)}</p>
+            </div>
+          </div>
+          <div class="patient-card__stats">
+            <div class="patient-card__stat">
+              <strong>${entry.completedSessions}</strong>séances
+            </div>
+            <div class="patient-card__stat">
+              <strong>${fmtDate(entry.lastSessionAt)}</strong>dernière
+            </div>
+          </div>
+          ${entry.nextSessionAt ? `
+            <div style="margin-top:10px;padding:8px 10px;background:var(--sage-pale);border-radius:8px;font-size:.78rem;color:var(--sage-dark);font-weight:600">
+              Prochain RDV : ${fmtDateTime(entry.nextSessionAt)}
+            </div>` : ''}
+        </div>
+      `;
+    }).join('')}</div>`;
+  }
+
+  function renderPast(list) {
+    const root = document.getElementById('pastList');
+    if (!list.length) {
+      root.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state__icon">📜</div>
+          <p>Aucune consultation passée pour le moment.</p>
+        </div>`;
+      return;
+    }
+    root.innerHTML = list.map((apt) => {
+      const p = apt.patient || {};
+      const av = p.avatarUrl ? `<img src="${escapeHtml(p.avatarUrl)}" alt="">` : initials(p);
+      const [cls, label] = statusLabel(apt.status);
+      const when = new Date(apt.scheduledAt);
+      return `
+        <div class="appointment-row">
+          <div class="appointment-row__avatar">${av}</div>
+          <div>
+            <div class="appointment-row__name">${escapeHtml((p.firstName || '') + ' ' + (p.lastName || ''))}</div>
+            <div class="appointment-row__meta">${apt.durationMinutes || 60} min · ${escapeHtml(apt.payment?.amount ? apt.payment.amount + ' €' : '—')}</div>
+          </div>
+          <span class="badge-status badge-status--${cls}">${label}</span>
+          <div class="appointment-row__time">
+            ${when.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+            <small>${when.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })}</small>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // ── Load ────────────────────────────────────────────────────────
+  let pastLoaded = false;
+
+  async function loadDashboard() {
+    try {
+      const d = await API.psychologists.myDashboard();
+      renderHero(d);
+      renderStats(d.stats);
+      renderUpcoming(d.upcomingAppointments || []);
+      // Lien "voir mon profil public" → vers le bon id
+      if (d.psychologist?.id) {
+        document.getElementById('viewPublicLink').href = `psychologue-detail.html?id=${d.psychologist.id}`;
+      }
+    } catch (e) {
+      toast('Erreur chargement: ' + e.message, 'error');
+      document.getElementById('hero').innerHTML = `
+        <div style="flex:1;text-align:center">
+          <h1>Erreur de chargement</h1>
+          <p>${escapeHtml(e.message)}</p>
+        </div>`;
+    }
+  }
+
+  async function loadPatients() {
+    try {
+      const data = await API.psychologists.myPatients();
+      renderPatients(data || []);
+    } catch (e) {
+      document.getElementById('patientsList').innerHTML = `
+        <div class="empty-state"><p>Erreur : ${escapeHtml(e.message)}</p></div>`;
+    }
+  }
+
+  async function loadPast() {
+    pastLoaded = true;
+    try {
+      const data = await API.psychologists.myAppointments('past');
+      renderPast(data || []);
+    } catch (e) {
+      document.getElementById('pastList').innerHTML = `
+        <div class="empty-state"><p>Erreur : ${escapeHtml(e.message)}</p></div>`;
+    }
+  }
+
+  await Promise.all([loadDashboard(), loadPatients()]);
+})();
+</script>
+</body>
+</html>

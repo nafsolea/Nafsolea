@@ -634,6 +634,10 @@
   if (!Auth.isLoggedIn()) {
     window.location.href = `login.html?redirect=${encodeURIComponent(window.location.pathname)}`;
   }
+  // Si c'est un psy, on l'envoie sur SON dashboard (mon-cabinet)
+  if (Auth.getRole() === 'PSYCHOLOGIST') {
+    window.location.href = 'mon-cabinet.html';
+  }
 
   // ── Toast ────────────────────────────────────────────────────────
   function toast(msg, type = 'success') {

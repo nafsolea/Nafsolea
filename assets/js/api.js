@@ -118,6 +118,10 @@ const API = (() => {
     list:            (params = {}) => get(`/psychologists?${new URLSearchParams(params)}`),
     getOne:          (id)          => get(`/psychologists/${id}`),
     getSlots:        (id, from, days) => get(`/psychologists/${id}/slots?from=${from}&days=${days || 14}`),
+    // Psy logged-in
+    myDashboard:     ()            => authGet('/psychologists/me/dashboard'),
+    myAppointments:  (status)      => authGet(`/psychologists/me/appointments${status ? `?status=${status}` : ''}`),
+    myPatients:      ()            => authGet('/psychologists/me/patients'),
     updateProfile:   (data)        => authPut('/psychologists/me/profile', data),
     setAvailability: (slots)       => authPost('/psychologists/me/availability', { slots }),
     addBlockedSlot:  (data)        => authPost('/psychologists/me/blocked-slots', data),

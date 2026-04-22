@@ -63,6 +63,41 @@ export class PsychologistsController {
   }
 
   /**
+   * GET /api/v1/psychologists/me/dashboard
+   * Psychologist only — kpi stats + upcoming appointments + status
+   */
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.PSYCHOLOGIST)
+  @Get('me/dashboard')
+  getDashboard(@CurrentUser() user: JwtPayload) {
+    return this.service.getMyDashboard(user.sub);
+  }
+
+  /**
+   * GET /api/v1/psychologists/me/appointments?status=upcoming|past|all
+   */
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.PSYCHOLOGIST)
+  @Get('me/appointments')
+  getMyAppointments(
+    @CurrentUser() user: JwtPayload,
+    @Query('status') status?: string,
+  ) {
+    return this.service.getMyAppointments(user.sub, status);
+  }
+
+  /**
+   * GET /api/v1/psychologists/me/patients
+   * List of patients seen by this psy with last/next session info
+   */
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.PSYCHOLOGIST)
+  @Get('me/patients')
+  getMyPatients(@CurrentUser() user: JwtPayload) {
+    return this.service.getMyPatients(user.sub);
+  }
+
+  /**
    * PUT /api/v1/psychologists/me/profile
    * Psychologist only — update own profile
    */
