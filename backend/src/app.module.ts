@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { ScheduleModule } from '@nestjs/schedule';
-import { BullModule } from '@nestjs/bull';
 import { APP_GUARD } from '@nestjs/core';
 
 import { PrismaModule } from './prisma/prisma.module';
@@ -36,19 +35,9 @@ import configuration from './config/configuration';
       }]),
     }),
 
-    // ── Job queues (email, reminders) ─────────────────────────────
-    BullModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        redis: {
-          host: config.get('REDIS_HOST', 'localhost'),
-          port: config.get<number>('REDIS_PORT', 6379),
-          password: config.get('REDIS_PASSWORD'),
-        },
-      }),
-    }),
-
     // ── Cron jobs ─────────────────────────────────────────────────
+    // Bull/Redis désactivé pour la bêta — les rappels passent par les Cron NestJS.
+    // À réactiver en prod avec Upstash + TLS pour les jobs longs.
     ScheduleModule.forRoot(),
 
     // ── App modules ───────────────────────────────────────────────

@@ -70,8 +70,13 @@ async function bootstrap() {
   // ── Stripe webhook: raw body needed for signature verification ───
   // Express raw body middleware is configured in AppModule
 
-  await app.listen(port);
-  console.log(`🚀 Nafsoléa API running on http://localhost:${port}/api/v1`);
+  // Bind explicite sur 0.0.0.0 pour les conteneurs Docker (Render, Fly, etc.)
+  await app.listen(port, '0.0.0.0');
+  console.log(`🚀 Nafsoléa API running on port ${port} (prefix /api/v1)`);
 }
 
-bootstrap();
+bootstrap().catch((err) => {
+  // Render coupe le process sans afficher l'erreur si on ne la log pas explicitement.
+  console.error('❌ Bootstrap failed:', err);
+  process.exit(1);
+});
