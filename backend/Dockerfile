@@ -11,7 +11,10 @@ COPY package*.json ./
 RUN npm install --legacy-peer-deps
 
 COPY . .
-RUN npx prisma generate
+# On utilise le binaire LOCAL (pas npx) pour éviter qu'npx aille re-télécharger
+# une autre version de prisma qui pourrait être incompatible.
+# `--schema` explicite : évite l'erreur "path undefined" sur certaines configs.
+RUN ./node_modules/.bin/prisma generate --schema=./prisma/schema.prisma
 RUN npm run build
 
 # ── Stage 2: Production image ────────────────────────────────────
