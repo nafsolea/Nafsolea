@@ -752,8 +752,8 @@ function renderCard(p, delay = '') {
       </div>
       <div class="psy-full-card__footer">
         <div class="psy-full-card__price">
-          <strong>${p.sessionPrice ? p.sessionPrice + '€' : '—'}</strong>
-          <span>par séance de 50 min</span>
+          <strong>${p.sessionRate ? Number(p.sessionRate) + '€' : '—'}</strong>
+          <span>par séance de ${p.sessionDuration || 50} min</span>
         </div>
         <div class="psy-full-card__actions">
           <a href="psychologue-detail.html?id=${p.id}" class="btn btn--secondary btn--sm">Voir le profil</a>

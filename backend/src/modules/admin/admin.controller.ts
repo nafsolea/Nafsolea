@@ -78,6 +78,15 @@ export class AdminController {
   }
 
   /**
+   * POST /api/v1/admin/users/:id/verify-email
+   * Validation manuelle de l'email — utile en bêta sans SendGrid.
+   */
+  @Post('users/:id/verify-email')
+  verifyUserEmail(@Param('id') id: string) {
+    return this.service.verifyUserEmail(id);
+  }
+
+  /**
    * GET /api/v1/admin/appointments
    */
   @Get('appointments')

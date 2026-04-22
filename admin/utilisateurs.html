@@ -222,13 +222,19 @@
               <span class="td-bold">${fullName(u)}</span>
             </div>
           </td>
-          <td class="td-muted">${u.email}</td>
+          <td class="td-muted">
+            ${u.email}
+            ${!u.emailVerifiedAt ? '<span style="display:inline-block;margin-left:6px;padding:2px 6px;border-radius:6px;font-size:.65rem;background:#fef3c7;color:#92400e;font-weight:600">⏳ Email non validé</span>' : ''}
+          </td>
           <td>${roleBadge(u.role)}</td>
           <td>${statusBadge(u.isActive)}</td>
           <td class="td-muted">${fmtDate(u.createdAt)}</td>
           <td class="td-muted">${fmtDate(u.lastLoginAt)}</td>
           <td>
             <div class="actions-cell">
+              ${!u.emailVerifiedAt ? `
+                <button class="btn-action" style="color:var(--green);border-color:var(--green)" title="Valider manuellement l'email" onclick="confirmVerifyEmail('${u.id}', '${u.email}')">✉️</button>
+              ` : ''}
               ${u.isActive && u.role !== 'ADMIN' ? `
                 <button class="btn-action danger" title="Suspendre" onclick="confirmSuspend('${u.id}', '${u.email}')">🚫</button>
               ` : ''}
@@ -266,8 +272,27 @@
     }
   }
 
+  // ── Verify email (manual, sans SendGrid) ──────────────────────────
+  function confirmVerifyEmail(id, email) {
+    document.getElementById('modalTitle').textContent = 'Valider l\'email';
+    document.getElementById('modalBody').textContent =
+      `Valider manuellement l'email "${email}" ? L'utilisateur pourra se connecter sans avoir cliqué sur un lien de confirmation.`;
+    document.getElementById('modalConfirmBtn').textContent = 'Valider';
+    document.getElementById('modalConfirmBtn').className = 'btn btn-primary';
+    pendingAction = async () => {
+      try {
+        const res = await API.admin.verifyUserEmail(id);
+        toast(res.message || 'Email validé', 'success');
+        closeModal();
+        loadUsers(currentPage);
+      } catch (e) { toast(e.message, 'error'); }
+    };
+    document.getElementById('confirmModal').classList.add('show');
+  }
+
   // ── Suspend user ──────────────────────────────────────────────────
   function confirmSuspend(id, email) {
+    document.getElementById('modalConfirmBtn').className = 'btn btn-danger';
     document.getElementById('modalTitle').textContent = 'Suspendre le compte';
     document.getElementById('modalBody').textContent =
       `Voulez-vous vraiment suspendre le compte "${email}" ? L'utilisateur ne pourra plus se connecter.`;

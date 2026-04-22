@@ -182,6 +182,7 @@ const API = (() => {
     reject:              (id, reason) => authPost(`/admin/psychologists/${id}/reject`, { reason }),
     users:               (params={})=> authGet(`/admin/users?${new URLSearchParams(params)}`),
     suspendUser:         (id)       => authPatch(`/admin/users/${id}/suspend`),
+    verifyUserEmail:     (id)       => authPost(`/admin/users/${id}/verify-email`),
     appointments:        (params={})=> authGet(`/admin/appointments?${new URLSearchParams(params)}`),
     revenue:             (from, to) => authGet(`/admin/revenue?from=${from}&to=${to}`),
     auditLogs:           (params={})=> authGet(`/admin/audit-logs?${new URLSearchParams(params)}`),

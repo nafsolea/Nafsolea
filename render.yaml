@@ -87,11 +87,15 @@ services:
         value: 100
 
       # ─── Bêta : auto-vérification des emails ────────────────────
-      # À retirer en production quand SendGrid sera configuré.
+      # MISE À FALSE : on veut le vrai flow de validation par email.
+      # ⚠️ Sans SendGrid configuré, les utilisateurs ne pourront pas
+      # valider leur email automatiquement. L'admin peut les valider
+      # manuellement via /admin/utilisateurs.html (bouton "Valider email").
       - key: BETA_AUTO_VERIFY_EMAIL
-        value: "true"
+        value: "false"
 
       # ─── Bêta : auto-approbation des psys ───────────────────────
-      # En production, mets "false" pour reactiver la validation manuelle admin.
+      # MISE À FALSE : les psys doivent attendre l'approbation de l'admin
+      # via /admin/psychologues.html avant d'apparaître sur le site public.
       - key: BETA_AUTO_APPROVE_PSY
-        value: "true"
+        value: "false"

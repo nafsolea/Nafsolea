@@ -26,9 +26,13 @@
     .nl-form textarea { min-height:280px; font-family:'Courier New', monospace; }
     .nl-actions { display:flex; gap:8px; justify-content:flex-end; }
     .nl-btn { padding:10px 18px; border-radius:8px; font-weight:600; border:none; cursor:pointer; font-size:.9rem; }
-    .nl-btn--primary { background:var(--primary); color:white; }
+    .nl-btn--primary { background:var(--navy); color:white; }
+    .nl-btn--primary:hover { background:#1e2c47; }
+    .nl-btn--success { background:var(--green, #10B981); color:white; }
+    .nl-btn--success:hover { background:#0e9a6c; }
+    .nl-btn--success:disabled { opacity:.55; cursor:not-allowed; }
     .nl-btn--danger { background:#fee2e2; color:#991b1b; }
-    .nl-btn--ghost { background:transparent; color:var(--text-muted); }
+    .nl-btn--ghost { background:transparent; color:var(--text-muted); border:1px solid var(--border); }
     .nl-empty { text-align:center; padding:60px 20px; color:var(--text-muted); }
     .nl-toast { position:fixed; top:20px; right:20px; padding:14px 20px; border-radius:10px; font-weight:600; z-index:9999; box-shadow:0 4px 12px rgba(0,0,0,.15); }
     .nl-toast--ok { background:#d1fae5; color:#065f46; }
@@ -147,14 +151,28 @@
           <label for="composeContent">Contenu (HTML accepté)</label>
           <textarea id="composeContent" placeholder="&lt;h2&gt;Titre&lt;/h2&gt;&lt;p&gt;Texte de votre newsletter…&lt;/p&gt;&lt;p&gt;&lt;a href=&quot;https://...&quot;&gt;Lire l'article&lt;/a&gt;&lt;/p&gt;" required></textarea>
 
-          <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:16px">
+          <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:8px">
             💡 Le HTML basique est accepté : <code>&lt;h2&gt;</code>, <code>&lt;p&gt;</code>, <code>&lt;a href="..."&gt;</code>, <code>&lt;strong&gt;</code>, <code>&lt;ul&gt;&lt;li&gt;</code>.
             Un en-tête Nafsoléa et un lien de désabonnement seront automatiquement ajoutés.
           </p>
 
+          <!-- Audience info -->
+          <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:12px 14px;margin-bottom:16px">
+            <div style="font-size:.78rem;text-transform:uppercase;font-weight:700;color:var(--text-muted);letter-spacing:.04em;margin-bottom:4px">
+              Destinataires
+            </div>
+            <div style="font-size:.95rem">
+              <strong id="audienceCount">—</strong> abonné(s) actif(s) recevront cet email.
+            </div>
+            <div style="font-size:.8rem;color:var(--text-muted);margin-top:4px">
+              La newsletter est envoyée à <em>tous</em> les abonnés actifs. Pour exclure quelqu'un, supprimez-le dans l'onglet "Abonnés".
+            </div>
+          </div>
+
           <div class="nl-actions">
             <button type="button" class="nl-btn nl-btn--ghost" id="cancelCompose">Annuler</button>
-            <button type="submit" class="nl-btn nl-btn--primary">Sauvegarder en brouillon</button>
+            <button type="submit" class="nl-btn nl-btn--primary" id="saveDraftBtn">📝 Sauvegarder en brouillon</button>
+            <button type="button" class="nl-btn nl-btn--success" id="sendNowBtn">🚀 Envoyer maintenant</button>
           </div>
         </form>
       </div>
@@ -312,11 +330,26 @@
   }
 
   // ── Compose ──
-  document.getElementById('composeForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
+  // Met à jour le compteur d'audience (nombre d'abonnés actifs) à l'ouverture du tab
+  function refreshAudienceCount() {
+    const active = parseInt(document.getElementById('statActive').textContent, 10);
+    document.getElementById('audienceCount').textContent = isNaN(active) ? '—' : active;
+  }
+  document.querySelector('[data-tab="compose"]').addEventListener('click', refreshAudienceCount);
+
+  function getComposeData() {
     const subject = document.getElementById('composeSubject').value.trim();
     const contentHtml = document.getElementById('composeContent').value.trim();
-    if (!subject || !contentHtml) return;
+    return { subject, contentHtml };
+  }
+
+  // Sauvegarder en brouillon
+  document.getElementById('composeForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const { subject, contentHtml } = getComposeData();
+    if (!subject || !contentHtml) { toast('Sujet et contenu requis', 'err'); return; }
+    const btn = document.getElementById('saveDraftBtn');
+    btn.disabled = true; const txt = btn.textContent; btn.textContent = 'Enregistrement…';
     try {
       await API.newsletter.createCampaign({ subject, contentHtml });
       toast('Brouillon enregistré');
@@ -324,7 +357,28 @@
       document.querySelector('[data-tab="campaigns"]').click();
       await loadCampaigns();
     } catch (e) { toast('Erreur : ' + e.message, 'err'); }
+    finally { btn.disabled = false; btn.textContent = txt; }
   });
+
+  // Envoyer maintenant : créer brouillon + envoyer dans la foulée
+  document.getElementById('sendNowBtn').addEventListener('click', async () => {
+    const { subject, contentHtml } = getComposeData();
+    if (!subject || !contentHtml) { toast('Sujet et contenu requis', 'err'); return; }
+    const audience = document.getElementById('audienceCount').textContent;
+    if (!confirm(`Envoyer cette newsletter à ${audience} abonné(s) actif(s) ? Cette action est irréversible.`)) return;
+    const btn = document.getElementById('sendNowBtn');
+    btn.disabled = true; const txt = btn.textContent; btn.textContent = 'Envoi en cours…';
+    try {
+      const draft = await API.newsletter.createCampaign({ subject, contentHtml });
+      const sent = await API.newsletter.sendCampaign(draft.id);
+      toast(`Envoyée à ${sent.sentToCount} abonné(s)${sent.failedCount ? ` (${sent.failedCount} échec(s))` : ''}`);
+      document.getElementById('composeForm').reset();
+      document.querySelector('[data-tab="campaigns"]').click();
+      await Promise.all([loadStats(), loadCampaigns()]);
+    } catch (e) { toast('Erreur : ' + e.message, 'err'); }
+    finally { btn.disabled = false; btn.textContent = txt; }
+  });
+
   document.getElementById('cancelCompose').addEventListener('click', () => {
     document.getElementById('composeForm').reset();
     document.querySelector('[data-tab="campaigns"]').click();

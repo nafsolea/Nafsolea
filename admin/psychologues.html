@@ -186,6 +186,7 @@
         email: u.email,
         createdAt: u.createdAt,
         isActive: u.isActive,
+        emailVerifiedAt: u.emailVerifiedAt,
       })).filter(p => p.id);
 
       // Count by status
@@ -262,7 +263,10 @@
             </div>
           </div>
         </td>
-        <td class="td-muted">${p.email || '—'}</td>
+        <td class="td-muted">
+          ${p.email || '—'}
+          ${!p.emailVerifiedAt ? '<span style="display:inline-block;margin-left:6px;padding:2px 6px;border-radius:6px;font-size:.65rem;background:#fef3c7;color:#92400e;font-weight:600">⏳ Email non validé</span>' : ''}
+        </td>
         <td>
           <div style="display:flex;flex-wrap:wrap;gap:4px">
             ${(p.specialties || []).slice(0, 2).map(s => `<span class="badge" style="font-size:.7rem">${s}</span>`).join('')}
@@ -273,6 +277,9 @@
         <td class="td-muted">${fmtDate(p.createdAt)}</td>
         <td>
           <div class="actions-cell">
+            ${!p.emailVerifiedAt ? `
+              <button class="btn-action" style="color:var(--green);border-color:var(--green)" title="Valider manuellement l'email" onclick="confirmVerifyEmail('${p.userId}', '${p.email}')">✉️</button>
+            ` : ''}
             ${p.status === 'PENDING' ? `
               <button class="btn btn-success btn-sm" onclick="doApprove('${p.id}', '${p.firstName} ${p.lastName}')">✓ Valider</button>
               <button class="btn btn-danger btn-sm" onclick="doReject('${p.id}', '${p.firstName} ${p.lastName}')">✗ Rejeter</button>
@@ -313,6 +320,24 @@
   }
 
   // ── Actions ───────────────────────────────────────────────────────
+  function confirmVerifyEmail(userId, email) {
+    document.getElementById('modalTitle').textContent = 'Valider l\'email';
+    document.getElementById('modalBody').textContent =
+      `Valider manuellement l'email "${email}" ? Le psychologue pourra ensuite se connecter sans avoir cliqué sur un lien de confirmation. Vous devrez ensuite approuver son profil.`;
+    document.getElementById('modalConfirmBtn').textContent = 'Valider';
+    document.getElementById('modalConfirmBtn').className = 'btn btn-success';
+    document.getElementById('rejectReasonWrap').style.display = 'none';
+    pendingAction = async () => {
+      try {
+        const res = await API.admin.verifyUserEmail(userId);
+        toast(res.message || 'Email validé');
+        closeModal();
+        loadPsychologists();
+      } catch (e) { toast(e.message, 'error'); }
+    };
+    document.getElementById('actionModal').classList.add('show');
+  }
+
   function doApprove(id, name) {
     document.getElementById('modalTitle').textContent = 'Valider le profil';
     document.getElementById('modalBody').textContent = `Voulez-vous valider le profil de "${name}" ? Il pourra accepter des patients.`;

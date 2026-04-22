@@ -139,6 +139,7 @@ export class AdminService {
           email: true,
           role: true,
           isActive: true,
+          emailVerifiedAt: true,
           createdAt: true,
           lastLoginAt: true,
           patient: { select: { firstName: true, lastName: true } },
@@ -185,6 +186,26 @@ export class AdminService {
     });
 
     return { message: 'Compte suspendu' };
+  }
+
+  /**
+   * Validation manuelle de l'email d'un utilisateur par l'admin.
+   * Utile en bêta tant que SendGrid n'est pas configuré : l'admin peut
+   * débloquer l'accès d'un utilisateur sans qu'il ait reçu d'email.
+   */
+  async verifyUserEmail(userId: string) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new NotFoundException('Utilisateur introuvable');
+    if (user.emailVerifiedAt) {
+      return { message: 'Email déjà vérifié', alreadyVerified: true };
+    }
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { emailVerifiedAt: new Date(), emailVerifyToken: null },
+    });
+
+    return { message: `Email de ${user.email} validé manuellement` };
   }
 
   // ── Appointment management ───────────────────────────────────────

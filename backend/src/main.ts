@@ -14,9 +14,12 @@ async function bootstrap() {
   });
 
   // ── Body parser: bump limit pour accepter les avatars base64 ─────
-  // Default Express = 100kb, on monte à 1mb pour les data URI compressées
-  app.use(json({ limit: '1mb' }));
-  app.use(urlencoded({ limit: '1mb', extended: true }));
+  // Default Express = 100kb, on monte à 5mb pour gérer :
+  //   - avatars base64 (jusqu'à 1mb fichier → ~1.4mb base64)
+  //   - images de couverture d'articles (jusqu'à 2mb fichier → ~2.7mb base64)
+  //   - contenu HTML d'articles + métadonnées
+  app.use(json({ limit: '5mb' }));
+  app.use(urlencoded({ limit: '5mb', extended: true }));
 
   const configService = app.get(ConfigService);
   const port = configService.get<number>('PORT', 3000);
