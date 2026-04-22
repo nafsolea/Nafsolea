@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profil psychologue — Nafsoléa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <style>
+    .psy-detail {
+      padding: var(--space-10) 0;
+    }
+    .psy-detail__back {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      color: var(--text-mid);
+      font-size: 0.9rem;
+      margin-bottom: var(--space-6);
+      text-decoration: none;
+      transition: color var(--tr);
+    }
+    .psy-detail__back:hover { color: var(--sage-dark); }
+
+    .psy-detail__layout {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: var(--space-10);
+      align-items: start;
+    }
+    @media (max-width: 960px) {
+      .psy-detail__layout { grid-template-columns: 1fr; }
+    }
+
+    .psy-detail__hero {
+      background: white;
+      border-radius: var(--radius-xl);
+      padding: var(--space-8);
+      border: 1.5px solid var(--border-light);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: var(--space-6);
+    }
+    .psy-detail__head {
+      display: flex;
+      gap: var(--space-6);
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+    .psy-detail__avatar {
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      border: 4px solid white;
+      box-shadow: var(--shadow-md);
+      background: linear-gradient(135deg, var(--sage-light), var(--sage));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3.6rem;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .psy-detail__avatar img {
+      width: 100%; height: 100%; object-fit: cover;
+    }
+    .psy-detail__main h1 {
+      margin: 0 0 var(--space-2);
+      font-size: 1.8rem;
+    }
+    .psy-detail__role {
+      color: var(--sage-dark);
+      font-weight: 600;
+      margin-bottom: var(--space-3);
+    }
+    .psy-detail__meta {
+      display: flex;
+      gap: var(--space-4);
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: var(--space-3);
+      font-size: 0.9rem;
+      color: var(--text-mid);
+    }
+    .psy-detail__meta strong { color: var(--text-dark); }
+
+    .psy-section {
+      background: white;
+      border-radius: var(--radius-xl);
+      padding: var(--space-6) var(--space-8);
+      border: 1.5px solid var(--border-light);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: var(--space-6);
+    }
+    .psy-section h2 {
+      font-size: 1.15rem;
+      margin: 0 0 var(--space-4);
+      color: var(--navy);
+    }
+    .psy-section p { line-height: 1.7; color: var(--text-mid); margin: 0; }
+
+    .specialties-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+    }
+
+    .availability-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: var(--space-2);
+    }
+    .availability-day {
+      background: var(--sage-pale);
+      border-radius: var(--radius-md);
+      padding: var(--space-3);
+      text-align: center;
+      font-size: 0.78rem;
+    }
+    .availability-day__name {
+      font-weight: 700;
+      color: var(--sage-dark);
+      margin-bottom: var(--space-1);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-size: 0.7rem;
+    }
+    .availability-day__slot {
+      color: var(--text-mid);
+      font-weight: 500;
+    }
+    .availability-day--empty {
+      background: var(--off-white);
+      color: var(--text-muted);
+      opacity: 0.6;
+    }
+
+    .reviews-list { display: flex; flex-direction: column; gap: var(--space-4); }
+    .review-card {
+      padding: var(--space-4);
+      background: var(--off-white);
+      border-radius: var(--radius-md);
+      border-left: 3px solid var(--sage-light);
+    }
+    .review-card__head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-2);
+    }
+    .review-card__name { font-weight: 600; color: var(--navy); font-size: 0.9rem; }
+    .review-card__date { color: var(--text-muted); font-size: 0.78rem; }
+    .review-card__stars { color: #f5a623; letter-spacing: 2px; font-size: 0.95rem; }
+    .review-card__text { color: var(--text-mid); line-height: 1.6; font-size: 0.92rem; margin: var(--space-2) 0 0; }
+
+    .psy-detail__sidebar {
+      position: sticky;
+      top: 100px;
+    }
+    .booking-card {
+      background: white;
+      border-radius: var(--radius-xl);
+      padding: var(--space-6);
+      border: 1.5px solid var(--sage-light);
+      box-shadow: var(--shadow-md);
+    }
+    .booking-card__price {
+      text-align: center;
+      padding-bottom: var(--space-4);
+      border-bottom: 1px solid var(--border-light);
+      margin-bottom: var(--space-4);
+    }
+    .booking-card__price strong {
+      display: block;
+      font-size: 2.2rem;
+      color: var(--navy);
+      font-weight: 700;
+    }
+    .booking-card__price span {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+    .booking-card__features {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 var(--space-5);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+    .booking-card__features li {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: 0.9rem;
+      color: var(--text-mid);
+    }
+    .booking-card__features li::before {
+      content: "✓";
+      color: var(--sage-dark);
+      font-weight: 700;
+    }
+
+    .loader-state, .error-state {
+      text-align: center;
+      padding: var(--space-10) var(--space-6);
+      color: var(--text-muted);
+    }
+    .error-state h2 { color: var(--text-dark); margin-bottom: var(--space-3); }
+  </style>
+</head>
+<body>
+
+<!-- NAVIGATION -->
+<nav class="nav">
+  <div class="nav__inner">
+    <a href="index.html" class="nav__logo">
+      <div class="nav__logo-mark" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 36 36" fill="none">
+          <circle cx="18" cy="18" r="5" fill="white"/>
+          <line x1="18" y1="2" x2="18" y2="10" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="18" y1="26" x2="18" y2="34" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="2" y1="18" x2="10" y2="18" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="26" y1="18" x2="34" y2="18" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      Nafsoléa
+    </a>
+    <ul class="nav__links">
+      <li><a href="comment-ca-marche.html" class="nav__link">Comment ça marche</a></li>
+      <li><a href="psychologues.html" class="nav__link active">Nos psychologues</a></li>
+      <li><a href="blog.html" class="nav__link">Ressources</a></li>
+      <li><a href="a-propos.html" class="nav__link">À propos</a></li>
+      <li><a href="faq.html" class="nav__link">FAQ</a></li>
+    </ul>
+    <div class="nav__actions">
+      <button class="nav__lang">FR | عربي</button>
+      <a href="rendez-vous.html" class="btn btn--primary btn--sm">Prendre RDV</a>
+    </div>
+    <button class="nav__hamburger" aria-label="Menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<main class="psy-detail">
+  <div class="container">
+    <a href="psychologues.html" class="psy-detail__back">← Retour à la liste des psychologues</a>
+
+    <div id="content">
+      <div class="loader-state">
+        <div style="font-size:2.5rem;margin-bottom:1rem">⏳</div>
+        <p>Chargement du profil…</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer__grid">
+      <div class="footer__brand">
+        <h3>Nafsoléa</h3>
+        <p>Une plateforme de téléconsultation psychologique culturellement adaptée pour la diaspora algérienne et maghrébine.</p>
+      </div>
+      <div class="footer__col">
+        <h5>Plateforme</h5>
+        <ul class="footer__links">
+          <li><a href="comment-ca-marche.html" class="footer__link">Comment ça marche</a></li>
+          <li><a href="psychologues.html" class="footer__link">Nos psychologues</a></li>
+          <li><a href="rendez-vous.html" class="footer__link">Prendre rendez-vous</a></li>
+          <li><a href="faq.html" class="footer__link">FAQ</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h5>Ressources</h5>
+        <ul class="footer__links">
+          <li><a href="blog.html" class="footer__link">Blog santé mentale</a></li>
+          <li><a href="a-propos.html" class="footer__link">À propos</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h5>Urgence</h5>
+        <ul class="footer__links">
+          <li><span class="footer__link" style="cursor:default">SAMU : 15</span></li>
+          <li><span class="footer__link" style="cursor:default">Suicide : 3114</span></li>
+          <li><a href="mailto:bonjour@nafsolea.com" class="footer__link">bonjour@nafsolea.com</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <p class="footer__copyright">© 2025 Nafsoléa. Tous droits réservés.</p>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/js/api.js"></script>
+<script>
+  const DAYS = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+  const LANG_LABELS = { fr: 'Français', ar: 'Arabe (عربي)', darija: 'Darija (دارجة)', en: 'English' };
+
+  function stars(rating) {
+    const r = Math.round(rating || 0);
+    return '★'.repeat(r) + '☆'.repeat(5 - r);
+  }
+  function fmtDate(d) {
+    if (!d) return '';
+    return new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+  }
+  function escapeHtml(s) {
+    if (!s) return '';
+    return String(s).replace(/[&<>"']/g, c => ({
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+    }[c]));
+  }
+
+  function buildAvailability(slots = []) {
+    // Group slots by dayOfWeek (0=Sun..6=Sat or backend's convention)
+    const byDay = {};
+    slots.forEach(s => {
+      const d = s.dayOfWeek;
+      if (!byDay[d]) byDay[d] = [];
+      byDay[d].push(`${s.startTime}–${s.endTime}`);
+    });
+    return DAYS.map((day, i) => {
+      const daySlots = byDay[i];
+      if (!daySlots || !daySlots.length) {
+        return `<div class="availability-day availability-day--empty">
+          <div class="availability-day__name">${day}</div>
+          <div class="availability-day__slot">—</div>
+        </div>`;
+      }
+      return `<div class="availability-day">
+        <div class="availability-day__name">${day}</div>
+        ${daySlots.map(s => `<div class="availability-day__slot">${s}</div>`).join('')}
+      </div>`;
+    }).join('');
+  }
+
+  function buildReviews(reviews = []) {
+    if (!reviews.length) {
+      return `<p style="color:var(--text-muted);text-align:center;padding:1rem">
+        Aucun avis public pour le moment.
+      </p>`;
+    }
+    return `<div class="reviews-list">${reviews.map(r => `
+      <div class="review-card">
+        <div class="review-card__head">
+          <span class="review-card__name">${escapeHtml(r.patient?.firstName || 'Anonyme')}</span>
+          <span class="review-card__date">${fmtDate(r.createdAt)}</span>
+        </div>
+        <div class="review-card__stars">${stars(r.rating)}</div>
+        ${r.comment ? `<p class="review-card__text">${escapeHtml(r.comment)}</p>` : ''}
+      </div>
+    `).join('')}</div>`;
+  }
+
+  function render(p) {
+    const name = `${p.firstName || ''} ${p.lastName || ''}`.trim() || 'Psychologue';
+    const langs = (p.languages || []).map(l => LANG_LABELS[l] || l).join(' · ');
+    const avgRating = p.averageRating ? Number(p.averageRating).toFixed(1) : null;
+    const reviewCount = (p.reviews || []).length;
+    const avatarHtml = p.avatarUrl
+      ? `<img src="${escapeHtml(p.avatarUrl)}" alt="${escapeHtml(name)}">`
+      : '👩‍⚕️';
+
+    document.title = `${name} — Nafsoléa`;
+
+    document.getElementById('content').innerHTML = `
+      <div class="psy-detail__layout">
+        <div>
+          <!-- Hero -->
+          <div class="psy-detail__hero">
+            <div class="psy-detail__head">
+              <div class="psy-detail__avatar">${avatarHtml}</div>
+              <div class="psy-detail__main" style="flex:1;min-width:240px">
+                <h1>${escapeHtml(name)}</h1>
+                <div class="psy-detail__role">${escapeHtml(p.title || 'Psychologue clinicien(ne)')}</div>
+                <div class="psy-detail__meta">
+                  ${langs ? `<span><strong>Langues :</strong> ${escapeHtml(langs)}</span>` : ''}
+                  ${p.yearsExperience ? `<span><strong>${p.yearsExperience} ans</strong> d'expérience</span>` : ''}
+                  ${p.totalSessions ? `<span><strong>${p.totalSessions}</strong> séances réalisées</span>` : ''}
+                </div>
+                ${avgRating ? `
+                  <div style="display:flex;align-items:center;gap:8px;margin-top:8px">
+                    <span style="color:#f5a623;letter-spacing:2px">${stars(avgRating)}</span>
+                    <span style="font-weight:600">${avgRating}</span>
+                    <span style="color:var(--text-muted)">(${reviewCount} avis)</span>
+                  </div>
+                ` : ''}
+              </div>
+            </div>
+          </div>
+
+          <!-- Bio -->
+          <div class="psy-section">
+            <h2>À propos</h2>
+            <p>${escapeHtml(p.bio || 'Aucune biographie renseignée pour le moment.')}</p>
+          </div>
+
+          <!-- Specialties -->
+          ${(p.specialties && p.specialties.length) ? `
+          <div class="psy-section">
+            <h2>Spécialités</h2>
+            <div class="specialties-list">
+              ${p.specialties.map(s => `<span class="tag tag--sage">${escapeHtml(s)}</span>`).join('')}
+            </div>
+          </div>` : ''}
+
+          <!-- Weekly availability -->
+          <div class="psy-section">
+            <h2>Disponibilités hebdomadaires</h2>
+            <div class="availability-grid">
+              ${buildAvailability(p.availabilitySlots || [])}
+            </div>
+            <p style="font-size:0.82rem;color:var(--text-muted);margin-top:1rem">
+              Horaires indicatifs. Consultez le calendrier de réservation pour les créneaux disponibles.
+            </p>
+          </div>
+
+          <!-- Reviews -->
+          <div class="psy-section">
+            <h2>Avis des patients ${reviewCount ? `(${reviewCount})` : ''}</h2>
+            ${buildReviews(p.reviews || [])}
+          </div>
+        </div>
+
+        <!-- Sidebar booking card -->
+        <aside class="psy-detail__sidebar">
+          <div class="booking-card">
+            <div class="booking-card__price">
+              <strong>${p.sessionRate ? p.sessionRate + ' €' : '—'}</strong>
+              <span>par séance de ${p.sessionDuration || 50} min</span>
+            </div>
+            <ul class="booking-card__features">
+              <li>Visioconférence sécurisée</li>
+              <li>Annulation gratuite jusqu'à 24h avant</li>
+              <li>Suivi confidentiel</li>
+              <li>Paiement en ligne sécurisé</li>
+            </ul>
+            <a href="rendez-vous.html?psy=${p.id}" class="btn btn--primary" style="width:100%;justify-content:center">
+              Réserver une séance
+            </a>
+            <a href="psychologues.html" class="btn btn--ghost" style="width:100%;justify-content:center;margin-top:0.5rem">
+              Voir d'autres psychologues
+            </a>
+          </div>
+        </aside>
+      </div>
+    `;
+  }
+
+  function renderError(msg) {
+    document.getElementById('content').innerHTML = `
+      <div class="error-state">
+        <div style="font-size:3rem;margin-bottom:1rem">😕</div>
+        <h2>Profil introuvable</h2>
+        <p>${escapeHtml(msg || "Ce psychologue n'existe pas ou n'est plus disponible.")}</p>
+        <a href="psychologues.html" class="btn btn--primary" style="margin-top:1rem">Voir tous les psychologues</a>
+      </div>
+    `;
+  }
+
+  (async function() {
+    const id = new URLSearchParams(location.search).get('id');
+    if (!id) {
+      renderError("Aucun identifiant de psychologue n'a été fourni.");
+      return;
+    }
+    try {
+      const psy = await API.psychologists.getOne(id);
+      render(psy);
+    } catch (e) {
+      renderError(e.message);
+    }
+  })();
+</script>
+</body>
+</html>

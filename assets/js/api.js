@@ -102,12 +102,14 @@ const API = (() => {
   // ── User endpoints ───────────────────────────────────────────────
 
   const users = {
-    me:                  ()      => authGet('/users/me'),
-    updateProfile:       (data)  => authPut('/users/me', data),
-    myAppointments:      (status)=> authGet(`/users/me/appointments${status ? `?status=${status}` : ''}`),
-    notifications:       (unread)=> authGet(`/users/me/notifications${unread ? '?unread=true' : ''}`),
-    markNotificationsRead: (ids) => authPut('/users/me/notifications/read', { ids }),
-    deleteAccount:       ()      => authDelete('/users/me'),
+    me:                  ()       => authGet('/users/me'),
+    updateProfile:       (data)   => authPut('/users/me', data),
+    updateAvatar:        (dataUrl)=> authPut('/users/me/avatar', { avatarUrl: dataUrl }),
+    deleteAvatar:        ()       => authDelete('/users/me/avatar'),
+    myAppointments:      (status) => authGet(`/users/me/appointments${status ? `?status=${status}` : ''}`),
+    notifications:       (unread) => authGet(`/users/me/notifications${unread ? '?unread=true' : ''}`),
+    markNotificationsRead: (ids)  => authPut('/users/me/notifications/read', { ids }),
+    deleteAccount:       ()       => authDelete('/users/me'),
   };
 
   // ── Psychologist endpoints ───────────────────────────────────────
@@ -151,6 +153,22 @@ const API = (() => {
     delete:        (id)          => authDelete(`/articles/${id}`),
   };
 
+  // ── Newsletter endpoints ─────────────────────────────────────────
+
+  const newsletter = {
+    // Public
+    subscribe:    (email, source = 'homepage') => post('/newsletter/subscribe', { email, source }),
+    unsubscribe:  (token)      => get(`/newsletter/unsubscribe?token=${encodeURIComponent(token)}`),
+    // Admin
+    stats:        ()           => authGet('/newsletter/admin/stats'),
+    subscribers:  (params={})  => authGet(`/newsletter/admin/subscribers?${new URLSearchParams(params)}`),
+    deleteSubscriber: (id)     => authDelete(`/newsletter/admin/subscribers/${id}`),
+    campaigns:    (params={})  => authGet(`/newsletter/admin/campaigns?${new URLSearchParams(params)}`),
+    createCampaign:(data)      => authPost('/newsletter/admin/campaigns', data),
+    sendCampaign: (id)         => authPost(`/newsletter/admin/campaigns/${id}/send`),
+    deleteCampaign:(id)        => authDelete(`/newsletter/admin/campaigns/${id}`),
+  };
+
   // ── Admin endpoints ──────────────────────────────────────────────
 
   const admin = {
@@ -165,5 +183,5 @@ const API = (() => {
     auditLogs:           (params={})=> authGet(`/admin/audit-logs?${new URLSearchParams(params)}`),
   };
 
-  return { get, post, authGet, authPost, authPut, authPatch, authDelete, auth, users, psychologists, appointments, payments, articles, admin };
+  return { get, post, authGet, authPost, authPut, authPatch, authDelete, auth, users, psychologists, appointments, payments, articles, newsletter, admin };
 })();

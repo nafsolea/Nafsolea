@@ -1,5 +1,7 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+
+const MAX_AVATAR_SIZE = 200_000; // 200KB après resize côté client
 
 @Injectable()
 export class UsersService {
@@ -61,6 +63,49 @@ export class UsersService {
     if (!patient) throw new NotFoundException('Profil patient introuvable');
 
     return this.prisma.patient.update({ where: { userId }, data });
+  }
+
+  async updateAvatar(userId: string, avatarUrl: string) {
+    if (!avatarUrl || typeof avatarUrl !== 'string') {
+      throw new BadRequestException('Image manquante');
+    }
+    if (!avatarUrl.startsWith('data:image/')) {
+      throw new BadRequestException("Format invalide (data URI image attendue)");
+    }
+    if (avatarUrl.length > MAX_AVATAR_SIZE) {
+      throw new BadRequestException('Image trop volumineuse (max 200 Ko après compression)');
+    }
+
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: { patient: { select: { id: true } }, psychologist: { select: { id: true } } },
+    });
+    if (!user) throw new NotFoundException();
+
+    if (user.patient) {
+      await this.prisma.patient.update({ where: { userId }, data: { avatarUrl } });
+    } else if (user.psychologist) {
+      await this.prisma.psychologist.update({ where: { userId }, data: { avatarUrl } });
+    } else {
+      throw new BadRequestException('Aucun profil à mettre à jour');
+    }
+
+    return { avatarUrl };
+  }
+
+  async deleteAvatar(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: { patient: { select: { id: true } }, psychologist: { select: { id: true } } },
+    });
+    if (!user) throw new NotFoundException();
+
+    if (user.patient) {
+      await this.prisma.patient.update({ where: { userId }, data: { avatarUrl: null } });
+    } else if (user.psychologist) {
+      await this.prisma.psychologist.update({ where: { userId }, data: { avatarUrl: null } });
+    }
+    return { message: 'Photo supprimée' };
   }
 
   async getPatientAppointments(userId: string, status?: string) {

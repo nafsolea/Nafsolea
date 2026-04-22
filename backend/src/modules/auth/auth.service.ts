@@ -71,7 +71,15 @@ export class AuthService {
             firstName: dto.firstName,
             lastName: dto.lastName,
             timezone: dto.timezone ?? 'Europe/Paris',
-            sessionRate: 0, // set during profile completion
+            // Pré-remplissage du profil avec les infos fournies à l'inscription
+            title: dto.title?.trim() || 'Psychologue',
+            bio: dto.bio?.trim() || null,
+            specialties: Array.isArray(dto.specialties) ? dto.specialties.filter(Boolean) : [],
+            languages: Array.isArray(dto.languages) ? dto.languages.filter(Boolean) : [],
+            rppsNumber: dto.rppsNumber?.trim() || null,
+            yearsExperience: dto.yearsExperience ?? null,
+            sessionRate: dto.sessionRate ?? 0,
+            sessionDuration: dto.sessionDuration ?? 60,
           },
         });
       }

@@ -497,6 +497,33 @@
             <p class="section-subheading">Vos informations personnelles affichées lors de vos réservations.</p>
           </div>
 
+          <!-- Photo de profil -->
+          <div class="acc-card" style="margin-bottom:1rem">
+            <div class="acc-card__header">
+              <span class="acc-card__title">Photo de profil</span>
+            </div>
+            <div class="acc-card__body">
+              <div style="display:flex;align-items:center;gap:1.25rem;flex-wrap:wrap">
+                <div id="avatarPreview" style="width:96px;height:96px;border-radius:50%;background:var(--sage-pale);border:3px solid var(--sage-light);display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:800;color:var(--sage-dark);overflow:hidden;flex-shrink:0">?</div>
+                <div style="flex:1;min-width:200px">
+                  <p style="margin:0 0 .75rem;color:var(--text-mid);font-size:.9rem">
+                    JPG, PNG ou GIF. L'image sera redimensionnée à 256×256 et compressée automatiquement.
+                  </p>
+                  <input type="file" id="avatarFile" accept="image/*" style="display:none">
+                  <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+                    <button type="button" class="btn btn--primary btn--sm" id="avatarUploadBtn">
+                      📷 Choisir une photo
+                    </button>
+                    <button type="button" class="btn btn--ghost btn--sm" id="avatarDeleteBtn" style="display:none">
+                      🗑 Supprimer
+                    </button>
+                  </div>
+                  <span id="avatarStatus" style="display:block;font-size:.82rem;color:var(--text-muted);margin-top:.5rem"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div class="acc-card">
             <div class="acc-card__header">
               <span class="acc-card__title">Informations personnelles</span>
@@ -629,6 +656,21 @@
   });
 
   // ── Load user profile ─────────────────────────────────────────────
+  function setAvatar(dataUrl, initials) {
+    const sidebarAv = document.getElementById('profileAvatar');
+    const previewAv = document.getElementById('avatarPreview');
+    const deleteBtn = document.getElementById('avatarDeleteBtn');
+    if (dataUrl) {
+      sidebarAv.innerHTML = `<img src="${dataUrl}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+      previewAv.innerHTML = `<img src="${dataUrl}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+      if (deleteBtn) deleteBtn.style.display = '';
+    } else {
+      sidebarAv.textContent = initials;
+      previewAv.textContent = initials;
+      if (deleteBtn) deleteBtn.style.display = 'none';
+    }
+  }
+
   async function loadProfile() {
     try {
       const me = await API.users.me();
@@ -638,7 +680,7 @@
       const lastName  = p.lastName  || '';
       const initials  = ((firstName[0] || '') + (lastName[0] || '')).toUpperCase() || me.email[0].toUpperCase();
 
-      document.getElementById('profileAvatar').textContent = initials;
+      setAvatar(p.avatarUrl, initials);
       document.getElementById('profileName').textContent   = [firstName, lastName].filter(Boolean).join(' ') || '—';
       document.getElementById('profileEmail').textContent  = me.email;
       document.getElementById('profileRole').textContent   = me.role === 'PSYCHOLOGIST' ? 'Psychologue' : 'Patient';
@@ -649,8 +691,88 @@
       document.getElementById('pEmail').value     = me.email;
       if (p.phone) document.getElementById('pPhone').value = p.phone;
       if (p.preferredLanguage) document.getElementById('pLang').value = p.preferredLanguage;
+
+      // Stocker initials pour réutilisation
+      window.__userInitials = initials;
     } catch { /* non-blocking */ }
   }
+
+  // ── Avatar upload (resize client-side, send base64) ───────────────
+  function resizeImage(file, maxSize = 256, quality = 0.82) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const reader = new FileReader();
+      reader.onload = e => { img.src = e.target.result; };
+      reader.onerror = reject;
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > height) {
+          if (width > maxSize) { height = Math.round(height * maxSize / width); width = maxSize; }
+        } else if (height > maxSize) {
+          width = Math.round(width * maxSize / height); height = maxSize;
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  document.getElementById('avatarUploadBtn').addEventListener('click', () => {
+    document.getElementById('avatarFile').click();
+  });
+
+  document.getElementById('avatarFile').addEventListener('change', async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const status = document.getElementById('avatarStatus');
+
+    if (!file.type.startsWith('image/')) {
+      status.textContent = '❌ Veuillez choisir un fichier image.';
+      status.style.color = '#B91C1C';
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      status.textContent = '❌ Image trop volumineuse (max 5 Mo avant compression).';
+      status.style.color = '#B91C1C';
+      return;
+    }
+
+    status.textContent = '⏳ Compression et envoi en cours…';
+    status.style.color = 'var(--text-muted)';
+
+    try {
+      const dataUrl = await resizeImage(file, 256, 0.82);
+      await API.users.updateAvatar(dataUrl);
+      setAvatar(dataUrl, window.__userInitials || '?');
+      status.textContent = '✅ Photo mise à jour !';
+      status.style.color = '#065F46';
+    } catch (err) {
+      status.textContent = '❌ ' + (err.message || 'Erreur lors de l\'upload');
+      status.style.color = '#B91C1C';
+    } finally {
+      e.target.value = ''; // reset input
+    }
+  });
+
+  document.getElementById('avatarDeleteBtn').addEventListener('click', async () => {
+    if (!confirm('Supprimer votre photo de profil ?')) return;
+    const status = document.getElementById('avatarStatus');
+    try {
+      await API.users.deleteAvatar();
+      setAvatar(null, window.__userInitials || '?');
+      status.textContent = '✅ Photo supprimée.';
+      status.style.color = '#065F46';
+    } catch (err) {
+      status.textContent = '❌ ' + (err.message || 'Erreur');
+      status.style.color = '#B91C1C';
+    }
+  });
 
   // ── Appointment status helpers ────────────────────────────────────
   const STATUS_LABELS = {

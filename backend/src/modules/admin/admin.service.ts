@@ -111,18 +111,25 @@ export class AdminService {
 
   // ── User management ──────────────────────────────────────────────
 
-  async getUsers(page = 1, limit = 20, search?: string) {
+  async getUsers(page = 1, limit = 20, search?: string, role?: string) {
     const skip = (page - 1) * limit;
 
-    const where = search
-      ? {
-          OR: [
-            { email: { contains: search, mode: 'insensitive' as const } },
-            { patient: { firstName: { contains: search, mode: 'insensitive' as const } } },
-            { patient: { lastName: { contains: search, mode: 'insensitive' as const } } },
-          ],
-        }
-      : {};
+    const conditions: any[] = [];
+    if (role && ['PATIENT', 'PSYCHOLOGIST', 'ADMIN'].includes(role)) {
+      conditions.push({ role: role as any });
+    }
+    if (search) {
+      conditions.push({
+        OR: [
+          { email: { contains: search, mode: 'insensitive' as const } },
+          { patient: { firstName: { contains: search, mode: 'insensitive' as const } } },
+          { patient: { lastName: { contains: search, mode: 'insensitive' as const } } },
+          { psychologist: { firstName: { contains: search, mode: 'insensitive' as const } } },
+          { psychologist: { lastName: { contains: search, mode: 'insensitive' as const } } },
+        ],
+      });
+    }
+    const where = conditions.length ? { AND: conditions } : {};
 
     const [users, total] = await this.prisma.$transaction([
       this.prisma.user.findMany({
@@ -135,7 +142,22 @@ export class AdminService {
           createdAt: true,
           lastLoginAt: true,
           patient: { select: { firstName: true, lastName: true } },
-          psychologist: { select: { firstName: true, lastName: true, status: true } },
+          psychologist: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              status: true,
+              title: true,
+              specialties: true,
+              languages: true,
+              sessionRate: true,
+              yearsExperience: true,
+              avatarUrl: true,
+              rppsNumber: true,
+              bio: true,
+            },
+          },
         },
         skip,
         take: limit,
@@ -144,7 +166,7 @@ export class AdminService {
       this.prisma.user.count({ where }),
     ]);
 
-    return { data: users, meta: { total, page, limit } };
+    return { data: users, meta: { total, page, limit, pages: Math.ceil(total / limit) } };
   }
 
   async suspendUser(userId: string) {

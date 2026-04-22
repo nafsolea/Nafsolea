@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vérification de l'email — Nafsoléa</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <style>
+    .verify-wrap { min-height: 80vh; display: flex; align-items: center; justify-content: center; padding: 2rem; }
+    .verify-card { max-width: 520px; background: white; border-radius: 16px; padding: 3rem 2rem; text-align: center; box-shadow: 0 6px 30px rgba(0,0,0,.06); }
+    .verify-card h1 { margin: 0 0 1rem; }
+    .verify-card p { color: var(--text-mid, #555); margin: 0 0 1.5rem; line-height: 1.6; }
+    .verify-icon { font-size: 3.5rem; margin-bottom: 1rem; }
+  </style>
+</head>
+<body>
+
+<header class="header" role="banner">
+  <div class="container header__container">
+    <a href="index.html" class="header__logo">
+      <span class="header__logo-text">Nafsoléa</span>
+    </a>
+  </div>
+</header>
+
+<main class="verify-wrap">
+  <div class="verify-card" id="card">
+    <div class="verify-icon">⏳</div>
+    <h1>Vérification en cours…</h1>
+    <p>Nous vérifions votre adresse email.</p>
+  </div>
+</main>
+
+<script src="assets/js/api.js"></script>
+<script>
+(async function() {
+  const card = document.getElementById('card');
+  const params = new URLSearchParams(location.search);
+  const token = params.get('token');
+
+  if (!token) {
+    card.innerHTML = `
+      <div class="verify-icon">⚠️</div>
+      <h1>Lien invalide</h1>
+      <p>Aucun token de vérification n'a été fourni dans le lien.</p>
+      <a href="login.html" class="btn btn--primary">Se connecter</a>
+    `;
+    return;
+  }
+
+  try {
+    await API.auth.verifyEmail(token);
+    card.innerHTML = `
+      <div class="verify-icon">✅</div>
+      <h1>Email vérifié !</h1>
+      <p>Votre adresse email a bien été confirmée. Vous pouvez maintenant vous connecter à votre compte.</p>
+      <a href="login.html" class="btn btn--primary">Se connecter</a>
+    `;
+  } catch (e) {
+    card.innerHTML = `
+      <div class="verify-icon">❌</div>
+      <h1>Erreur de vérification</h1>
+      <p>${e.message || 'Le lien est invalide ou a expiré.'} Vous pouvez réessayer ou contacter notre support.</p>
+      <a href="login.html" class="btn btn--primary">Retour à la connexion</a>
+    `;
+  }
+})();
+</script>
+</body>
+</html>

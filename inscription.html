@@ -268,6 +268,61 @@
     }
     .psy-note.show { display: block; }
 
+    /* Psy section (extended fields) */
+    .psy-section { display: none; }
+    .psy-section.show { display: block; }
+    .psy-section__title {
+      font-size: .95rem;
+      font-weight: 700;
+      color: var(--sage-dark);
+      margin: var(--space-6) 0 var(--space-3);
+      padding-top: var(--space-4);
+      border-top: 1px dashed #E2EAF3;
+    }
+    .checkbox-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-2) var(--space-3);
+    }
+    .checkbox-pill {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: 8px 12px;
+      background: white;
+      border: 1.5px solid #E2EAF3;
+      border-radius: var(--radius-md);
+      font-size: .85rem;
+      cursor: pointer;
+      transition: border-color .15s, background .15s;
+    }
+    .checkbox-pill:has(input:checked) {
+      border-color: var(--sage);
+      background: var(--beige);
+    }
+    .checkbox-pill input { width: 14px; height: 14px; accent-color: var(--sage); }
+    .form-group textarea {
+      padding: 13px 16px;
+      border: 2px solid #E2EAF3;
+      border-radius: var(--radius-md);
+      font-family: var(--font-body);
+      font-size: .95rem;
+      color: var(--text-dark);
+      background: white;
+      resize: vertical;
+      min-height: 90px;
+      outline: none;
+    }
+    .form-group textarea:focus {
+      border-color: var(--sage);
+      box-shadow: 0 0 0 4px rgba(85,133,181,.12);
+    }
+    .form-help {
+      font-size: .78rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
     @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
 
     @media (max-width: 768px) {
@@ -386,6 +441,67 @@
           <span class="field-error" id="passwordError"></span>
         </div>
 
+        <!-- ── Champs spécifiques psychologue (visibles si role=PSYCHOLOGIST) ── -->
+        <div class="psy-section" id="psyFields">
+
+          <div class="psy-section__title">Votre profil professionnel</div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="title">Titre professionnel</label>
+              <input type="text" id="title" name="title" placeholder="Psychologue clinicien(ne)" autocomplete="off">
+              <span class="form-help">Ex. : Psychologue clinicien, Psychothérapeute, Dr.</span>
+            </div>
+            <div class="form-group">
+              <label for="yearsExperience">Années d'expérience</label>
+              <input type="number" id="yearsExperience" name="yearsExperience" min="0" max="60" placeholder="5">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="rppsNumber">Numéro ADELI / RPPS</label>
+              <input type="text" id="rppsNumber" name="rppsNumber" placeholder="9123456789">
+              <span class="form-help">Numéro d'enregistrement professionnel</span>
+            </div>
+            <div class="form-group">
+              <label for="sessionRate">Tarif par séance (€)</label>
+              <input type="number" id="sessionRate" name="sessionRate" min="0" max="500" step="5" placeholder="60">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Langues parlées</label>
+            <div class="checkbox-grid">
+              <label class="checkbox-pill"><input type="checkbox" name="languages" value="fr"> Français</label>
+              <label class="checkbox-pill"><input type="checkbox" name="languages" value="ar"> Arabe (عربي)</label>
+              <label class="checkbox-pill"><input type="checkbox" name="languages" value="darija"> Darija (دارجة)</label>
+              <label class="checkbox-pill"><input type="checkbox" name="languages" value="en"> English</label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Spécialités (sélectionnez celles qui s'appliquent)</label>
+            <div class="checkbox-grid">
+              <label class="checkbox-pill"><input type="checkbox" name="specialties" value="Anxiété"> Anxiété &amp; Stress</label>
+              <label class="checkbox-pill"><input type="checkbox" name="specialties" value="Dépression"> Dépression</label>
+              <label class="checkbox-pill"><input type="checkbox" name="specialties" value="Relations familiales"> Relations familiales</label>
+              <label class="checkbox-pill"><input type="checkbox" name="specialties" value="Couple"> Couple &amp; Rupture</label>
+              <label class="checkbox-pill"><input type="checkbox" name="specialties" value="Expatriation"> Expatriation &amp; Identité</label>
+              <label class="checkbox-pill"><input type="checkbox" name="specialties" value="Trauma"> Trauma &amp; Deuil</label>
+              <label class="checkbox-pill"><input type="checkbox" name="specialties" value="Adolescents"> Adolescents</label>
+              <label class="checkbox-pill"><input type="checkbox" name="specialties" value="Burn-out"> Burn-out professionnel</label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="bio">Présentation / Approche thérapeutique</label>
+            <textarea id="bio" name="bio" maxlength="2000" placeholder="Décrivez votre parcours, vos formations, votre approche thérapeutique…"></textarea>
+            <span class="form-help">Cette présentation apparaîtra sur votre profil public. Vous pourrez la modifier plus tard.</span>
+          </div>
+
+        </div>
+
         <!-- RGPD consent -->
         <div class="checkbox-group">
           <input type="checkbox" id="gdprConsent" name="gdprConsent" required>
@@ -413,17 +529,22 @@
     window.location.href = r || 'rendez-vous.html';
   }
 
+  function togglePsyFields(isPsy) {
+    document.getElementById('psyNote').classList.toggle('show', isPsy);
+    document.getElementById('psyFields').classList.toggle('show', isPsy);
+  }
+
   // Pre-select role from query param
   const urlRole = new URLSearchParams(window.location.search).get('role');
   if (urlRole === 'PSYCHOLOGIST') {
     document.querySelector('input[value="PSYCHOLOGIST"]').checked = true;
-    document.getElementById('psyNote').classList.add('show');
+    togglePsyFields(true);
   }
 
-  // Show psy note on role change
+  // Show psy fields on role change
   document.querySelectorAll('input[name="role"]').forEach(radio => {
     radio.addEventListener('change', () => {
-      document.getElementById('psyNote').classList.toggle('show', radio.value === 'PSYCHOLOGIST' && radio.checked);
+      togglePsyFields(radio.value === 'PSYCHOLOGIST' && radio.checked);
     });
   });
 
@@ -502,8 +623,29 @@
     setLoading(true);
     alertBox.className = 'alert';
 
+    // Construire le payload, en ajoutant les champs psy si applicable
+    const payload = { email, password, firstName, lastName, role, gdprConsent: true };
+
+    if (role === 'PSYCHOLOGIST') {
+      const title           = document.getElementById('title').value.trim();
+      const yearsExperience = document.getElementById('yearsExperience').value;
+      const rppsNumber      = document.getElementById('rppsNumber').value.trim();
+      const sessionRate     = document.getElementById('sessionRate').value;
+      const bio             = document.getElementById('bio').value.trim();
+      const languages   = Array.from(document.querySelectorAll('input[name="languages"]:checked')).map(c => c.value);
+      const specialties = Array.from(document.querySelectorAll('input[name="specialties"]:checked')).map(c => c.value);
+
+      if (title)                         payload.title           = title;
+      if (yearsExperience !== '')        payload.yearsExperience = Number(yearsExperience);
+      if (rppsNumber)                    payload.rppsNumber      = rppsNumber;
+      if (sessionRate !== '')            payload.sessionRate     = Number(sessionRate);
+      if (bio)                           payload.bio             = bio;
+      if (languages.length)              payload.languages       = languages;
+      if (specialties.length)            payload.specialties     = specialties;
+    }
+
     try {
-      await API.post('/auth/register', { email, password, firstName, lastName, role, gdprConsent: true });
+      await API.post('/auth/register', payload);
       showAlert(
         '✅ Compte créé ! Vérifiez votre email pour activer votre compte.',
         'success'

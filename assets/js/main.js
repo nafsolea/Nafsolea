@@ -285,10 +285,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* ── 11. NEWSLETTER FORM ─────────────────────────────────── */
   document.querySelectorAll('.newsletter-form').forEach(form => {
-    form.addEventListener('submit', e => {
+    form.addEventListener('submit', async e => {
       e.preventDefault();
       const input = form.querySelector('input[type="email"]');
-      if (input && input.value) {
+      const button = form.querySelector('button[type="submit"]');
+      if (!input || !input.value) return;
+
+      const email = input.value.trim();
+      const source = form.dataset.source || (location.pathname.includes('blog') ? 'blog' : 'homepage');
+
+      if (button) { button.disabled = true; button.textContent = 'Envoi…'; }
+
+      try {
+        if (typeof API === 'undefined' || !API.newsletter) {
+          throw new Error('API indisponible — réessayez plus tard');
+        }
+        await API.newsletter.subscribe(email, source);
+
         form.innerHTML = `
           <div style="text-align:center; padding:1rem;">
             <div style="font-size:2rem; margin-bottom:0.5rem;">🌿</div>
@@ -296,6 +309,17 @@ document.addEventListener('DOMContentLoaded', () => {
             <p style="font-size:0.88rem; color:var(--text-light); max-width:none;">Vous recevrez prochainement nos ressources.</p>
           </div>
         `;
+      } catch (err) {
+        if (button) { button.disabled = false; button.textContent = "S'inscrire"; }
+        const msg = (err && err.message) ? err.message : 'Une erreur est survenue';
+        let errEl = form.querySelector('.newsletter-error');
+        if (!errEl) {
+          errEl = document.createElement('p');
+          errEl.className = 'newsletter-error';
+          errEl.style.cssText = 'color:#c0392b;font-size:0.85rem;margin-top:0.5rem;text-align:center;';
+          form.appendChild(errEl);
+        }
+        errEl.textContent = msg;
       }
     });
   });

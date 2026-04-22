@@ -15,6 +15,7 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
 import { AdminModule } from './modules/admin/admin.module';
 import { NotesModule } from './modules/notes/notes.module';
 import { ArticlesModule } from './modules/articles/articles.module';
+import { NewsletterModule } from './modules/newsletter/newsletter.module';
 import configuration from './config/configuration';
 
 @Module({
@@ -52,6 +53,7 @@ import configuration from './config/configuration';
     AdminModule,
     NotesModule,
     ArticlesModule,
+    NewsletterModule,
   ],
   providers: [
     // Apply rate limiting globally

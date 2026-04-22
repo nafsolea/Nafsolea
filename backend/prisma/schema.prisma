@@ -370,6 +370,36 @@ model Article {
   @@map("articles")
 }
 
+// ─── Newsletter ──────────────────────────────────────────────────
+
+model NewsletterSubscriber {
+  id                String    @id @default(cuid())
+  email             String    @unique
+  source            String?   // 'homepage', 'blog', 'admin_import'…
+  unsubscribeToken  String    @unique @map("unsubscribe_token")
+  subscribedAt      DateTime  @default(now()) @map("subscribed_at")
+  unsubscribedAt    DateTime? @map("unsubscribed_at")
+  createdAt         DateTime  @default(now()) @map("created_at")
+
+  @@index([email])
+  @@map("newsletter_subscribers")
+}
+
+model NewsletterCampaign {
+  id           String    @id @default(cuid())
+  subject      String
+  contentHtml  String    @db.Text @map("content_html")
+  sentAt       DateTime? @map("sent_at")
+  sentToCount  Int       @default(0) @map("sent_to_count")
+  failedCount  Int       @default(0) @map("failed_count")
+  createdById  String    @map("created_by_id")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  @@index([sentAt])
+  @@map("newsletter_campaigns")
+}
+
 // ─── Audit Logs (RGPD + Security) ────────────────────────────────
 
 model AuditLog {

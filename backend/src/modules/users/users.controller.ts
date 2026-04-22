@@ -45,6 +45,28 @@ export class UsersController {
   }
 
   /**
+   * PUT /api/v1/users/me/avatar
+   * Body: { avatarUrl: string } — base64 data URI déjà compressée côté client
+   */
+  @Put('me/avatar')
+  @HttpCode(HttpStatus.OK)
+  updateAvatar(
+    @CurrentUser() user: JwtPayload,
+    @Body('avatarUrl') avatarUrl: string,
+  ) {
+    return this.service.updateAvatar(user.sub, avatarUrl);
+  }
+
+  /**
+   * DELETE /api/v1/users/me/avatar
+   */
+  @Delete('me/avatar')
+  @HttpCode(HttpStatus.OK)
+  deleteAvatar(@CurrentUser() user: JwtPayload) {
+    return this.service.deleteAvatar(user.sub);
+  }
+
+  /**
    * GET /api/v1/users/me/appointments
    */
   @Get('me/appointments')

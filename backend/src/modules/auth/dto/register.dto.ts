@@ -5,8 +5,14 @@ import {
   MaxLength,
   IsEnum,
   IsOptional,
+  IsArray,
+  IsInt,
+  IsNumber,
+  Min,
+  Max,
   Matches,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 import { UserRole } from '@prisma/client';
 
 export class RegisterDto {
@@ -43,4 +49,52 @@ export class RegisterDto {
   // RGPD: must be explicitly accepted
   @IsOptional()
   gdprConsent?: boolean;
+
+  // ── Champs spécifiques aux psychologues (optionnels mais utilisés à l'inscription psy) ──
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(120)
+  title?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(2000)
+  bio?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  specialties?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  languages?: string[];
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(50)
+  rppsNumber?: string;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  @Max(80)
+  yearsExperience?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(0)
+  @Max(1000)
+  sessionRate?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(15)
+  @Max(180)
+  sessionDuration?: number;
 }

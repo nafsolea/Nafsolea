@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Newsletter — Admin Nafsoléa</title>
+  <link rel="stylesheet" href="../assets/css/admin.css">
+  <style>
+    .nl-tabs { display:flex; gap:8px; border-bottom:1px solid #e5e7eb; margin-bottom:24px; }
+    .nl-tab { background:none; border:none; padding:12px 20px; font-weight:600; color:var(--text-muted); cursor:pointer; border-bottom:3px solid transparent; }
+    .nl-tab.active { color:var(--primary); border-bottom-color:var(--primary); }
+    .nl-panel { display:none; }
+    .nl-panel.active { display:block; }
+    .nl-table { width:100%; border-collapse:collapse; background:white; border-radius:12px; overflow:hidden; }
+    .nl-table th, .nl-table td { padding:12px 16px; text-align:left; border-bottom:1px solid #f3f4f6; font-size:.9rem; }
+    .nl-table th { background:#f9fafb; font-weight:600; color:var(--text-muted); text-transform:uppercase; font-size:.75rem; letter-spacing:.05em; }
+    .nl-table tr:hover { background:#fafafa; }
+    .nl-status { display:inline-block; padding:3px 10px; border-radius:999px; font-size:.75rem; font-weight:600; }
+    .nl-status--active { background:#d1fae5; color:#065f46; }
+    .nl-status--unsub { background:#fee2e2; color:#991b1b; }
+    .nl-status--sent { background:#dbeafe; color:#1e40af; }
+    .nl-status--draft { background:#fef3c7; color:#92400e; }
+    .nl-form { background:white; padding:24px; border-radius:12px; max-width:800px; }
+    .nl-form label { display:block; font-weight:600; margin-bottom:6px; font-size:.9rem; }
+    .nl-form input, .nl-form textarea { width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:8px; font-family:inherit; font-size:.95rem; margin-bottom:16px; }
+    .nl-form textarea { min-height:280px; font-family:'Courier New', monospace; }
+    .nl-actions { display:flex; gap:8px; justify-content:flex-end; }
+    .nl-btn { padding:10px 18px; border-radius:8px; font-weight:600; border:none; cursor:pointer; font-size:.9rem; }
+    .nl-btn--primary { background:var(--primary); color:white; }
+    .nl-btn--danger { background:#fee2e2; color:#991b1b; }
+    .nl-btn--ghost { background:transparent; color:var(--text-muted); }
+    .nl-empty { text-align:center; padding:60px 20px; color:var(--text-muted); }
+    .nl-toast { position:fixed; top:20px; right:20px; padding:14px 20px; border-radius:10px; font-weight:600; z-index:9999; box-shadow:0 4px 12px rgba(0,0,0,.15); }
+    .nl-toast--ok { background:#d1fae5; color:#065f46; }
+    .nl-toast--err { background:#fee2e2; color:#991b1b; }
+  </style>
+</head>
+<body>
+<div class="admin-layout">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+    <a href="index.html" class="sidebar__logo">
+      <div class="sidebar__logo-mark">
+        <svg width="16" height="16" viewBox="0 0 36 36" fill="none">
+          <circle cx="18" cy="18" r="5" fill="white"/>
+          <line x1="18" y1="2" x2="18" y2="10" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="18" y1="26" x2="18" y2="34" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="2" y1="18" x2="10" y2="18" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="26" y1="18" x2="34" y2="18" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <span class="sidebar__logo-text">Nafsoléa</span>
+      <span class="sidebar__logo-badge">Admin</span>
+    </a>
+    <nav class="sidebar__nav">
+      <span class="sidebar__section">Principal</span>
+      <a href="index.html" class="sidebar__link"><span class="link-icon">📊</span> Dashboard</a>
+      <span class="sidebar__section">Gestion</span>
+      <a href="utilisateurs.html" class="sidebar__link"><span class="link-icon">👥</span> Utilisateurs</a>
+      <a href="psychologues.html" class="sidebar__link"><span class="link-icon">🧠</span> Psychologues</a>
+      <a href="rendez-vous.html" class="sidebar__link"><span class="link-icon">📅</span> Rendez-vous</a>
+      <a href="paiements.html" class="sidebar__link"><span class="link-icon">💳</span> Paiements</a>
+      <span class="sidebar__section">Contenu</span>
+      <a href="blog.html" class="sidebar__link"><span class="link-icon">📝</span> Blog / Articles</a>
+      <a href="newsletter.html" class="sidebar__link active"><span class="link-icon">✉️</span> Newsletter</a>
+      <span class="sidebar__section">Système</span>
+      <a href="audit.html" class="sidebar__link"><span class="link-icon">🔍</span> Audit logs</a>
+      <a href="../index.html" class="sidebar__link" target="_blank"><span class="link-icon">🌐</span> Voir le site</a>
+    </nav>
+    <div class="sidebar__footer">
+      <div class="sidebar__user">
+        <div class="sidebar__avatar">A</div>
+        <div class="sidebar__user-info">
+          <div class="sidebar__user-name">Administrateur</div>
+          <div class="sidebar__user-role">Admin</div>
+        </div>
+      </div>
+      <button class="sidebar__logout" id="logoutBtn"><span>🚪</span> Se déconnecter</button>
+    </div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <main class="admin-main">
+
+    <div class="topbar">
+      <div class="topbar__left">
+        <h1 class="topbar__title">Newsletter</h1>
+        <span class="topbar__breadcrumb" id="statsLabel">Chargement…</span>
+      </div>
+      <div class="topbar__right">
+        <button id="newCampaignBtn" class="topbar__btn">+ Nouvelle campagne</button>
+      </div>
+    </div>
+
+    <div class="page-content">
+
+      <!-- Stats -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px">
+        <div class="card" style="padding:20px">
+          <div style="font-size:.75rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;margin-bottom:6px">Abonnés total</div>
+          <div style="font-size:1.8rem;font-weight:700" id="statTotal">—</div>
+        </div>
+        <div class="card" style="padding:20px">
+          <div style="font-size:.75rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;margin-bottom:6px">Actifs</div>
+          <div style="font-size:1.8rem;font-weight:700;color:#065f46" id="statActive">—</div>
+        </div>
+        <div class="card" style="padding:20px">
+          <div style="font-size:.75rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;margin-bottom:6px">Désabonnés</div>
+          <div style="font-size:1.8rem;font-weight:700;color:#991b1b" id="statUnsub">—</div>
+        </div>
+        <div class="card" style="padding:20px">
+          <div style="font-size:.75rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;margin-bottom:6px">Campagnes envoyées</div>
+          <div style="font-size:1.8rem;font-weight:700" id="statCampaigns">—</div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="nl-tabs">
+        <button class="nl-tab active" data-tab="campaigns">Campagnes</button>
+        <button class="nl-tab" data-tab="subscribers">Abonnés</button>
+        <button class="nl-tab" data-tab="compose">Rédiger</button>
+      </div>
+
+      <!-- Tab : Campaigns -->
+      <div class="nl-panel active" id="tab-campaigns">
+        <table class="nl-table" id="campaignsTable">
+          <thead><tr><th>Sujet</th><th>Statut</th><th>Envoyés</th><th>Échecs</th><th>Date</th><th></th></tr></thead>
+          <tbody><tr><td colspan="6" class="nl-empty">Chargement…</td></tr></tbody>
+        </table>
+      </div>
+
+      <!-- Tab : Subscribers -->
+      <div class="nl-panel" id="tab-subscribers">
+        <table class="nl-table" id="subscribersTable">
+          <thead><tr><th>Email</th><th>Source</th><th>Statut</th><th>Inscrit le</th><th></th></tr></thead>
+          <tbody><tr><td colspan="5" class="nl-empty">Chargement…</td></tr></tbody>
+        </table>
+      </div>
+
+      <!-- Tab : Compose -->
+      <div class="nl-panel" id="tab-compose">
+        <form class="nl-form" id="composeForm">
+          <label for="composeSubject">Sujet de l'email</label>
+          <input type="text" id="composeSubject" placeholder="Ex : Nos meilleures lectures du mois" required>
+
+          <label for="composeContent">Contenu (HTML accepté)</label>
+          <textarea id="composeContent" placeholder="&lt;h2&gt;Titre&lt;/h2&gt;&lt;p&gt;Texte de votre newsletter…&lt;/p&gt;&lt;p&gt;&lt;a href=&quot;https://...&quot;&gt;Lire l'article&lt;/a&gt;&lt;/p&gt;" required></textarea>
+
+          <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:16px">
+            💡 Le HTML basique est accepté : <code>&lt;h2&gt;</code>, <code>&lt;p&gt;</code>, <code>&lt;a href="..."&gt;</code>, <code>&lt;strong&gt;</code>, <code>&lt;ul&gt;&lt;li&gt;</code>.
+            Un en-tête Nafsoléa et un lien de désabonnement seront automatiquement ajoutés.
+          </p>
+
+          <div class="nl-actions">
+            <button type="button" class="nl-btn nl-btn--ghost" id="cancelCompose">Annuler</button>
+            <button type="submit" class="nl-btn nl-btn--primary">Sauvegarder en brouillon</button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script src="../assets/js/auth.js"></script>
+<script src="../assets/js/api.js"></script>
+<script>
+(async function() {
+  // ── Auth check ──
+  if (!Auth.isLoggedIn() || Auth.getUser()?.role !== 'ADMIN') {
+    Auth.redirectToLogin();
+    return;
+  }
+
+  document.getElementById('logoutBtn').addEventListener('click', async () => {
+    await Auth.logout();
+    location.href = '../login.html';
+  });
+
+  // ── Toast ──
+  function toast(msg, type = 'ok') {
+    const el = document.createElement('div');
+    el.className = `nl-toast nl-toast--${type}`;
+    el.textContent = msg;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 3500);
+  }
+
+  // ── Tabs ──
+  document.querySelectorAll('.nl-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.nl-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.nl-panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+    });
+  });
+
+  // ── Bouton "Nouvelle campagne" ──
+  document.getElementById('newCampaignBtn').addEventListener('click', () => {
+    document.querySelector('[data-tab="compose"]').click();
+  });
+
+  // ── Stats ──
+  async function loadStats() {
+    try {
+      const s = await API.newsletter.stats();
+      document.getElementById('statTotal').textContent = s.total;
+      document.getElementById('statActive').textContent = s.active;
+      document.getElementById('statUnsub').textContent = s.unsubscribed;
+      document.getElementById('statCampaigns').textContent = s.campaignsSent;
+      document.getElementById('statsLabel').textContent =
+        `${s.active} abonné${s.active > 1 ? 's' : ''} actif${s.active > 1 ? 's' : ''} · ${s.campaignsSent} campagne${s.campaignsSent > 1 ? 's' : ''} envoyée${s.campaignsSent > 1 ? 's' : ''}`;
+    } catch (e) {
+      toast('Impossible de charger les stats : ' + e.message, 'err');
+    }
+  }
+
+  // ── Campagnes ──
+  async function loadCampaigns() {
+    try {
+      const { data } = await API.newsletter.campaigns();
+      const tbody = document.querySelector('#campaignsTable tbody');
+      if (!data.length) {
+        tbody.innerHTML = `<tr><td colspan="6" class="nl-empty">Aucune campagne pour l'instant. Cliquez sur "Rédiger" pour en créer une.</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = data.map(c => `
+        <tr>
+          <td><strong>${escapeHtml(c.subject)}</strong></td>
+          <td>${c.sentAt
+            ? '<span class="nl-status nl-status--sent">Envoyée</span>'
+            : '<span class="nl-status nl-status--draft">Brouillon</span>'}</td>
+          <td>${c.sentToCount || 0}</td>
+          <td>${c.failedCount || 0}</td>
+          <td>${new Date(c.sentAt || c.createdAt).toLocaleString('fr-FR', { dateStyle:'short', timeStyle:'short' })}</td>
+          <td style="text-align:right">
+            ${!c.sentAt
+              ? `<button class="nl-btn nl-btn--primary" data-send="${c.id}">Envoyer</button>
+                 <button class="nl-btn nl-btn--danger" data-del-campaign="${c.id}">Suppr.</button>`
+              : ''}
+          </td>
+        </tr>
+      `).join('');
+
+      // Bind actions
+      tbody.querySelectorAll('[data-send]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          if (!confirm('Envoyer cette newsletter à TOUS les abonnés actifs ?')) return;
+          btn.disabled = true; btn.textContent = 'Envoi…';
+          try {
+            const res = await API.newsletter.sendCampaign(btn.dataset.send);
+            toast(`Envoyée à ${res.sentToCount} abonné(s)`);
+            await Promise.all([loadStats(), loadCampaigns()]);
+          } catch (e) {
+            toast('Erreur : ' + e.message, 'err');
+            btn.disabled = false; btn.textContent = 'Envoyer';
+          }
+        });
+      });
+      tbody.querySelectorAll('[data-del-campaign]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          if (!confirm('Supprimer ce brouillon ?')) return;
+          try {
+            await API.newsletter.deleteCampaign(btn.dataset.delCampaign);
+            toast('Brouillon supprimé');
+            await loadCampaigns();
+          } catch (e) { toast('Erreur : ' + e.message, 'err'); }
+        });
+      });
+    } catch (e) {
+      toast('Impossible de charger les campagnes : ' + e.message, 'err');
+    }
+  }
+
+  // ── Abonnés ──
+  async function loadSubscribers() {
+    try {
+      const { data } = await API.newsletter.subscribers({ limit: 200 });
+      const tbody = document.querySelector('#subscribersTable tbody');
+      if (!data.length) {
+        tbody.innerHTML = `<tr><td colspan="5" class="nl-empty">Aucun abonné pour l'instant.</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = data.map(s => `
+        <tr>
+          <td>${escapeHtml(s.email)}</td>
+          <td><span style="font-size:.8rem;color:var(--text-muted)">${s.source || '—'}</span></td>
+          <td>${s.unsubscribedAt
+            ? '<span class="nl-status nl-status--unsub">Désabonné</span>'
+            : '<span class="nl-status nl-status--active">Actif</span>'}</td>
+          <td>${new Date(s.subscribedAt).toLocaleDateString('fr-FR')}</td>
+          <td style="text-align:right"><button class="nl-btn nl-btn--danger" data-del-sub="${s.id}">Supprimer</button></td>
+        </tr>
+      `).join('');
+
+      tbody.querySelectorAll('[data-del-sub]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          if (!confirm('Supprimer définitivement cet abonné ?')) return;
+          try {
+            await API.newsletter.deleteSubscriber(btn.dataset.delSub);
+            toast('Abonné supprimé');
+            await Promise.all([loadStats(), loadSubscribers()]);
+          } catch (e) { toast('Erreur : ' + e.message, 'err'); }
+        });
+      });
+    } catch (e) {
+      toast('Impossible de charger les abonnés : ' + e.message, 'err');
+    }
+  }
+
+  // ── Compose ──
+  document.getElementById('composeForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const subject = document.getElementById('composeSubject').value.trim();
+    const contentHtml = document.getElementById('composeContent').value.trim();
+    if (!subject || !contentHtml) return;
+    try {
+      await API.newsletter.createCampaign({ subject, contentHtml });
+      toast('Brouillon enregistré');
+      document.getElementById('composeForm').reset();
+      document.querySelector('[data-tab="campaigns"]').click();
+      await loadCampaigns();
+    } catch (e) { toast('Erreur : ' + e.message, 'err'); }
+  });
+  document.getElementById('cancelCompose').addEventListener('click', () => {
+    document.getElementById('composeForm').reset();
+    document.querySelector('[data-tab="campaigns"]').click();
+  });
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+  }
+
+  // Initial load
+  await Promise.all([loadStats(), loadCampaigns(), loadSubscribers()]);
+})();
+</script>
+</body>
+</html>
