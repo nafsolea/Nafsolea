@@ -3,7 +3,9 @@
 // Health data: RGPD compliant, consultation notes AES-256 encrypted at app level
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  // Cible Debian (slim image) pour éviter le souci OpenSSL d'Alpine.
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
 }
 
 datasource db {
