@@ -3,7 +3,9 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci
+# `npm install` (et non `npm ci`) car le repo n'a pas de package-lock.json.
+# npm va le générer et résoudre les versions au build.
+RUN npm install --legacy-peer-deps
 
 COPY . .
 RUN npx prisma generate
@@ -16,10 +18,9 @@ WORKDIR /app
 ENV NODE_ENV=production
 
 COPY package*.json ./
-# Need prisma CLI at runtime for `db push` + dotenv for ts-node seed
-RUN npm ci --omit=dev && npm cache clean --force
+RUN npm install --omit=dev --legacy-peer-deps && npm cache clean --force
 # Install prisma CLI for runtime schema sync (small, one-shot at boot)
-RUN npm install --no-save prisma@5.10.0 ts-node@10.9.2 typescript@5.3.3
+RUN npm install --no-save prisma@5.10.0 ts-node@10.9.2 typescript@5.3.3 --legacy-peer-deps
 
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
