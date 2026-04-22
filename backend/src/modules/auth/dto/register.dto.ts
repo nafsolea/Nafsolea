@@ -34,7 +34,7 @@ export class RegisterDto {
   @IsEnum([UserRole.PATIENT, UserRole.PSYCHOLOGIST], {
     message: 'Rôle invalide',
   })
-  role: UserRole.PATIENT | UserRole.PSYCHOLOGIST;
+  role: 'PATIENT' | 'PSYCHOLOGIST';
 
   @IsOptional()
   @IsString()

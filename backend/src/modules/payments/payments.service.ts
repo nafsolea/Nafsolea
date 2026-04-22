@@ -22,7 +22,7 @@ export class PaymentsService {
     private readonly config: ConfigService,
   ) {
     this.stripe = new Stripe(config.get<string>('stripe.secretKey')!, {
-      apiVersion: '2024-04-10',
+      apiVersion: '2023-10-16',
     });
   }
 

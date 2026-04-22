@@ -26,6 +26,13 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
 
   // Soft-delete helper: anonymize patient data for RGPD right-to-erasure
   async anonymizePatient(patientId: string): Promise<void> {
+    // Récupère l'userId du patient (Prisma update requiert un identifiant unique)
+    const patient = await this.patient.findUnique({
+      where: { id: patientId },
+      select: { userId: true },
+    });
+    if (!patient) return;
+
     await this.$transaction([
       this.patient.update({
         where: { id: patientId },
@@ -39,7 +46,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
         },
       }),
       this.user.update({
-        where: { patient: { id: patientId } },
+        where: { id: patient.userId },
         data: {
           email: `deleted_${patientId}@nafsolea.invalid`,
           isActive: false,
