@@ -44,4 +44,4 @@ EXPOSE 3000
 
 # Synchronise le schéma + seed + lance l'app. Binaires LOCAUX (pas npx)
 # pour éviter que npx aille re-télécharger une autre version de prisma.
-CMD ["sh", "-c", "./node_modules/.bin/prisma db push --skip-generate --accept-data-loss && (./node_modules/.bin/ts-node prisma/seed.ts || echo 'seed skipped') && node dist/main"]
+CMD ["sh", "-c", "./node_modules/.bin/prisma db push --skip-generate --accept-data-loss && (./node_modules/.bin/ts-node --transpile-only prisma/seed.ts || echo 'seed skipped') && node dist/main"]
