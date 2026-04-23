@@ -327,15 +327,19 @@
       <div class="blog-hero-article skeleton" style="min-height:320px;border-radius:var(--radius-xl);margin-bottom:var(--space-10)"></div>
     </div>
 
-    <!-- Catégories -->
+    <!-- Catégories — DOIVENT correspondre EXACTEMENT à admin/article.html
+         (option `value` du <select id="categorySelect">) sinon le filtre
+         ne match aucun article publié. -->
     <div class="blog-categories" role="tablist" aria-label="Catégories d'articles">
       <button class="blog-cat-tab active" role="tab" aria-selected="true" data-category="">Tous les articles</button>
-      <button class="blog-cat-tab" role="tab" aria-selected="false" data-category="Santé mentale &amp; culture">Santé mentale &amp; culture</button>
+      <button class="blog-cat-tab" role="tab" aria-selected="false" data-category="Anxiété &amp; Stress">Anxiété &amp; Stress</button>
       <button class="blog-cat-tab" role="tab" aria-selected="false" data-category="Expatriation">Expatriation</button>
-      <button class="blog-cat-tab" role="tab" aria-selected="false" data-category="Relations familiales">Relations familiales</button>
-      <button class="blog-cat-tab" role="tab" aria-selected="false" data-category="Anxiété &amp; dépression">Anxiété &amp; dépression</button>
-      <button class="blog-cat-tab" role="tab" aria-selected="false" data-category="Identité">Identité</button>
-      <button class="blog-cat-tab" role="tab" aria-selected="false" data-category="Couple &amp; relations">Couple &amp; relations</button>
+      <button class="blog-cat-tab" role="tab" aria-selected="false" data-category="Relations">Relations</button>
+      <button class="blog-cat-tab" role="tab" aria-selected="false" data-category="Dépression">Dépression</button>
+      <button class="blog-cat-tab" role="tab" aria-selected="false" data-category="Trauma">Trauma</button>
+      <button class="blog-cat-tab" role="tab" aria-selected="false" data-category="Identité culturelle">Identité culturelle</button>
+      <button class="blog-cat-tab" role="tab" aria-selected="false" data-category="Bien-être">Bien-être</button>
+      <button class="blog-cat-tab" role="tab" aria-selected="false" data-category="Conseils pratiques">Conseils pratiques</button>
     </div>
 
     <!-- Main layout -->

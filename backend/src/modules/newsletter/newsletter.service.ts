@@ -19,14 +19,23 @@ export class NewsletterService {
     this.fromName = config.get('email.fromName', 'Nafsoléa');
 
     const sendgridKey = config.get<string>('email.sendgridKey');
-    if (sendgridKey) {
+    // On accepte uniquement une vraie clé SendGrid (≥ 30 caractères, pas un placeholder).
+    // Les valeurs par défaut du render.yaml ("SG.placeholder_replace_after_signup") sont
+    // refusées explicitement pour éviter le 535 Authentication failed.
+    const isRealKey = !!sendgridKey
+      && sendgridKey.startsWith('SG.')
+      && !sendgridKey.toLowerCase().includes('placeholder')
+      && sendgridKey.length > 30;
+
+    if (isRealKey) {
       this.transporter = nodemailer.createTransport({
         host: 'smtp.sendgrid.net',
         port: 587,
         auth: { user: 'apikey', pass: sendgridKey },
       });
+      this.logger.log('SendGrid configuré — les newsletters seront vraiment envoyées.');
     } else {
-      this.logger.warn('SendGrid non configuré — les emails newsletter seront seulement loggés.');
+      this.logger.warn('SendGrid non configuré (ou clé placeholder) — mode DRY RUN : les newsletters sont enregistrées mais pas envoyées par email.');
     }
   }
 
