@@ -7,7 +7,7 @@ import { NotificationType } from '@prisma/client';
 @Injectable()
 export class NotificationsService {
   private readonly logger = new Logger(NotificationsService.name);
-  private transporter: nodemailer.Transporter;
+  private transporter: nodemailer.Transporter | null = null;
   private readonly fromEmail: string;
   private readonly fromName: string;
 
@@ -18,15 +18,27 @@ export class NotificationsService {
     this.fromEmail = config.get('email.from', 'noreply@nafsolea.com');
     this.fromName = config.get('email.fromName', 'Nafsoléa');
 
-    // Configure SendGrid SMTP transport
-    this.transporter = nodemailer.createTransport({
-      host: 'smtp.sendgrid.net',
-      port: 587,
-      auth: {
-        user: 'apikey',
-        pass: config.get('email.sendgridKey'),
-      },
-    });
+    // ⚠️ On accepte UNIQUEMENT une vraie clé SendGrid.
+    // En bêta, render.yaml met "SG.placeholder_replace_after_signup" — si on
+    // tentait quand même la connexion SMTP avec ça, on aurait 535 EAUTH et
+    // ça ferait planter les endpoints qui appellent send() (approve psy,
+    // confirm rdv, etc.). On préfère le mode DRY RUN qui log au lieu d'envoyer.
+    const sendgridKey = config.get<string>('email.sendgridKey');
+    const isRealKey = !!sendgridKey
+      && sendgridKey.startsWith('SG.')
+      && !sendgridKey.toLowerCase().includes('placeholder')
+      && sendgridKey.length > 30;
+
+    if (isRealKey) {
+      this.transporter = nodemailer.createTransport({
+        host: 'smtp.sendgrid.net',
+        port: 587,
+        auth: { user: 'apikey', pass: sendgridKey },
+      });
+      this.logger.log('SendGrid configuré — emails transactionnels actifs.');
+    } else {
+      this.logger.warn('SendGrid non configuré (clé placeholder ou absente) — mode DRY RUN : les emails sont seulement loggés, pas envoyés.');
+    }
   }
 
   // ── Email: account verification ──────────────────────────────────
@@ -145,6 +157,12 @@ export class NotificationsService {
   private async send(to: string, subject: string, htmlContent: string) {
     const html = this.wrapInTemplate(subject, htmlContent);
 
+    // Mode DRY RUN : pas de transporter configuré → on log et on sort sans erreur.
+    if (!this.transporter) {
+      this.logger.log(`[DRY RUN] Email skipped → ${to}: ${subject}`);
+      return;
+    }
+
     try {
       await this.transporter.sendMail({
         from: `"${this.fromName}" <${this.fromEmail}>`,
@@ -154,8 +172,10 @@ export class NotificationsService {
       });
       this.logger.log(`Email sent to ${to}: ${subject}`);
     } catch (err) {
+      // ⚠️ On NE rejette PAS l'erreur : un envoi d'email raté ne doit jamais
+      // faire échouer l'opération métier (approbation psy, confirmation rdv,
+      // etc.). On log seulement — les retries éventuels seront gérés ailleurs.
       this.logger.error(`Email failed to ${to}: ${(err as Error).message}`);
-      throw err;
     }
   }
 
