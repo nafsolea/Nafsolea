@@ -28,6 +28,16 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       throw new UnauthorizedException('Compte désactivé ou introuvable');
     }
 
-    return user; // Attached as req.user
+    // ⚠️ IMPORTANT : on doit retourner `sub` pour matcher l'interface JwtPayload
+    // utilisée partout via @CurrentUser(). Sans ça, `user.sub` est undefined
+    // dans les services → erreurs Prisma "Argument X is missing" sur tous
+    // les create()/findUnique() qui utilisent user.sub.
+    return {
+      sub: user.id,
+      id: user.id,           // alias pour les rares services qui utilisent user.id
+      email: user.email,
+      role: user.role,
+      isActive: user.isActive,
+    }; // Attached as req.user
   }
 }
