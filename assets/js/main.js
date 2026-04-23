@@ -33,21 +33,34 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   /* ── 4. SCROLL REVEAL ANIMATIONS ─────────────────────────── */
-  const revealEls = document.querySelectorAll('.reveal');
-  if (revealEls.length && 'IntersectionObserver' in window) {
-    const observer = new IntersectionObserver((entries) => {
+  // ⚠️ Les pages comme blog.html / psychologues.html injectent leurs cartes
+  // APRÈS le chargement (fetch backend). On expose donc `window.observeReveals`
+  // que ces pages peuvent rappeler après chaque insertion dynamique pour
+  // observer les nouveaux .reveal — sinon ils restent à opacity:0 = invisibles.
+  let revealObserver = null;
+  if ('IntersectionObserver' in window) {
+    revealObserver = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           entry.target.classList.add('visible');
-          observer.unobserve(entry.target);
+          revealObserver.unobserve(entry.target);
         }
       });
     }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
-
-    revealEls.forEach(el => observer.observe(el));
-  } else {
-    revealEls.forEach(el => el.classList.add('visible'));
   }
+
+  window.observeReveals = function (root) {
+    const scope = root || document;
+    const els = scope.querySelectorAll('.reveal:not(.visible)');
+    if (revealObserver) {
+      els.forEach(el => revealObserver.observe(el));
+    } else {
+      els.forEach(el => el.classList.add('visible'));
+    }
+  };
+
+  // 1er passage au chargement, pour les .reveal présents dans le HTML statique.
+  window.observeReveals(document);
 
   /* ── 5. SCROLL TO TOP ─────────────────────────────────────── */
   const scrollTopBtn = document.querySelector('.scroll-top');

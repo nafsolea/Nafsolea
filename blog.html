@@ -550,6 +550,7 @@
         </div>
       </article>
     `;
+    if (window.observeReveals) window.observeReveals(wrap);
   }
 
   // ── Article card ────────────────────────────────────────────────────
@@ -650,6 +651,10 @@
     const html = articles.map((a, i) => renderCard(a, i % 2 === 1 ? 'reveal-delay-1' : '')).join('');
     if (append) grid.insertAdjacentHTML('beforeend', html);
     else grid.innerHTML = html || '';
+
+    // ⚠️ Les cartes ont la classe .reveal (opacity:0 par défaut). Sans cet
+    // appel, l'IntersectionObserver de main.js ne les voit pas → invisibles.
+    if (window.observeReveals) window.observeReveals(grid);
   }
 
   // ── Fallback static content (shown when API unreachable) ────────────

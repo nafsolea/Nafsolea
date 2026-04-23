@@ -838,6 +838,10 @@ async function loadPsychologists(page = 1, append = false) {
         </div>`;
     }
 
+    // ⚠️ Les cartes ont la classe .reveal (opacity:0 par défaut). Sans cet
+    // appel, l'IntersectionObserver de main.js ne les voit pas → invisibles.
+    if (window.observeReveals) window.observeReveals(document.getElementById('psysGrid'));
+
     if (loadMoreBtn) {
       loadMoreBtn.style.display = hasMore ? '' : 'none';
       loadMoreBtn.disabled      = false;
