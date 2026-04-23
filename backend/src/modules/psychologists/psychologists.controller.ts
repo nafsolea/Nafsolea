@@ -109,8 +109,10 @@ export class PsychologistsController {
     specialties?: string[];
     languages?: string[];
     sessionRate?: number;
+    sessionDuration?: number;  // minutes — modifiable par le psy
     timezone?: string;
     yearsExperience?: number;
+    title?: string;
   }) {
     return this.service.updateProfile(user.sub, body);
   }

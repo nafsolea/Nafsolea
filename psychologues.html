@@ -301,8 +301,9 @@
         <select id="filter-lang" class="form-select" data-filter-type="lang">
           <option value="all">Toutes les langues</option>
           <option value="fr">Français</option>
-          <option value="ar">Arabe (عربي)</option>
-          <option value="darija">Darija (دارجة)</option>
+          <option value="en">Anglais</option>
+          <option value="kabyle">Kabyle</option>
+          <option value="darja">Darja (دارجة)</option>
         </select>
       </div>
       <div class="filter-group">
@@ -706,10 +707,20 @@ function fmtAvailability(psy) {
 }
 
 function langBadges(langs = []) {
-  const map = { fr: 'FR', ar: 'عربي', darija: 'دارجة', en: 'EN' };
+  // Vocabulaire courant (4 langues officielles plateforme) + alias rétro-compat
+  // pour les anciens profils qui ont encore "ar"/"darija" en base.
+  const map = {
+    fr: 'FR',
+    en: 'EN',
+    kabyle: 'ⵣ Kabyle',
+    darja: 'دارجة',
+    // legacy
+    ar: 'عربي',
+    darija: 'دارجة',
+  };
   return langs.map(l => {
-    const isAr = l === 'ar' || l === 'darija';
-    return `<span class="lang-badge${isAr ? ' lang-badge--ar' : ''}">${map[l] || l.toUpperCase()}</span>`;
+    const isRtl = l === 'ar' || l === 'darija' || l === 'darja';
+    return `<span class="lang-badge${isRtl ? ' lang-badge--ar' : ''}">${map[l] || l.toUpperCase()}</span>`;
   }).join('');
 }
 

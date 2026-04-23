@@ -109,6 +109,35 @@ export class AdminService {
     return { message: 'Profil rejeté' };
   }
 
+  /**
+   * Modifier le profil d'un psy depuis l'admin (tarif, durée, langues, bio…).
+   * Les mêmes garde-fous que pour l'auto-update côté psy s'appliquent.
+   */
+  async updatePsychologist(id: string, data: Partial<{
+    bio: string;
+    title: string;
+    specialties: string[];
+    languages: string[];
+    sessionRate: number;
+    sessionDuration: number;
+    yearsExperience: number;
+  }>) {
+    const psy = await this.prisma.psychologist.findUnique({ where: { id } });
+    if (!psy) throw new NotFoundException('Psychologue introuvable');
+
+    if (data.sessionRate !== undefined && data.sessionRate < 0) {
+      throw new BadRequestException('Le tarif ne peut pas être négatif');
+    }
+    if (data.sessionDuration !== undefined && (data.sessionDuration < 15 || data.sessionDuration > 180)) {
+      throw new BadRequestException('La durée doit être comprise entre 15 et 180 minutes');
+    }
+
+    return this.prisma.psychologist.update({
+      where: { id },
+      data,
+    });
+  }
+
   // ── User management ──────────────────────────────────────────────
 
   async getUsers(page = 1, limit = 20, search?: string, role?: string) {

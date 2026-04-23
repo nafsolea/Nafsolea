@@ -198,6 +198,8 @@ export class PsychologistsService {
         averageRating: true,
         totalSessions: true,
         sessionRate: true,
+        sessionDuration: true,    // pour l'écran "Mes paramètres"
+        yearsExperience: true,    // idem
         avatarUrl: true,
         bio: true,
         specialties: true,
@@ -361,11 +363,21 @@ export class PsychologistsService {
     specialties: string[];
     languages: string[];
     sessionRate: number;
+    sessionDuration: number;   // minutes
     timezone: string;
     yearsExperience: number;
+    title: string;
   }>) {
     const psy = await this.prisma.psychologist.findUnique({ where: { userId } });
     if (!psy) throw new NotFoundException('Profil introuvable');
+
+    // Garde-fous métier : pas de tarif négatif, durée raisonnable (15–180 min)
+    if (data.sessionRate !== undefined && data.sessionRate < 0) {
+      throw new Error('Le tarif ne peut pas être négatif');
+    }
+    if (data.sessionDuration !== undefined && (data.sessionDuration < 15 || data.sessionDuration > 180)) {
+      throw new Error('La durée doit être comprise entre 15 et 180 minutes');
+    }
 
     return this.prisma.psychologist.update({
       where: { userId },

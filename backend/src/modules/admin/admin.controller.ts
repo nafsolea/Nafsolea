@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Put,
   Delete,
   Patch,
   Body,
@@ -54,6 +55,27 @@ export class AdminController {
   @Post('psychologists/:id/reject')
   reject(@Param('id') id: string, @Body('reason') reason: string) {
     return this.service.rejectPsychologist(id, reason);
+  }
+
+  /**
+   * PUT /api/v1/admin/psychologists/:id
+   * Modifier le profil d'un psy (tarif, durée séance, langues, bio…).
+   * Utile pour corriger / harmoniser les profils en bêta.
+   */
+  @Put('psychologists/:id')
+  updatePsychologist(
+    @Param('id') id: string,
+    @Body() body: {
+      bio?: string;
+      title?: string;
+      specialties?: string[];
+      languages?: string[];
+      sessionRate?: number;
+      sessionDuration?: number;
+      yearsExperience?: number;
+    },
+  ) {
+    return this.service.updatePsychologist(id, body);
   }
 
   /**

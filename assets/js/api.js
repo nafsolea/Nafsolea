@@ -180,6 +180,7 @@ const API = (() => {
     pendingPsychologists:()         => authGet('/admin/psychologists/pending'),
     approve:             (id)       => authPost(`/admin/psychologists/${id}/approve`),
     reject:              (id, reason) => authPost(`/admin/psychologists/${id}/reject`, { reason }),
+    updatePsychologist:  (id, data)  => authPut(`/admin/psychologists/${id}`, data),
     users:               (params={})=> authGet(`/admin/users?${new URLSearchParams(params)}`),
     suspendUser:         (id)       => authPatch(`/admin/users/${id}/suspend`),
     verifyUserEmail:     (id)       => authPost(`/admin/users/${id}/verify-email`),

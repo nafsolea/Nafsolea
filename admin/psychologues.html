@@ -116,6 +116,53 @@
   </main>
 </div>
 
+<!-- Edit psy modal (tarif, durée, langues, bio…) -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal" style="max-width:560px">
+    <div class="modal__header">
+      <span class="modal__title">Modifier le profil — <span id="editModalName"></span></span>
+      <button class="modal__close" onclick="closeEditModal()">✕</button>
+    </div>
+    <div class="modal__body" style="display:grid;gap:14px">
+      <div>
+        <label style="font-size:.82rem;font-weight:600;display:block;margin-bottom:6px">Titre professionnel</label>
+        <input type="text" id="edit-title" class="form-input" placeholder="ex. Psychologue clinicienne, Dr.">
+      </div>
+      <div>
+        <label style="font-size:.82rem;font-weight:600;display:block;margin-bottom:6px">Bio</label>
+        <textarea id="edit-bio" class="form-input" rows="3" style="resize:vertical;font-family:inherit"></textarea>
+      </div>
+      <div>
+        <label style="font-size:.82rem;font-weight:600;display:block;margin-bottom:6px">Langues parlées</label>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          <label style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid var(--border);border-radius:999px;cursor:pointer;font-size:.85rem"><input type="checkbox" name="edit-lang" value="fr"> Français</label>
+          <label style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid var(--border);border-radius:999px;cursor:pointer;font-size:.85rem"><input type="checkbox" name="edit-lang" value="en"> Anglais</label>
+          <label style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid var(--border);border-radius:999px;cursor:pointer;font-size:.85rem"><input type="checkbox" name="edit-lang" value="kabyle"> Kabyle</label>
+          <label style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid var(--border);border-radius:999px;cursor:pointer;font-size:.85rem"><input type="checkbox" name="edit-lang" value="darja"> Darja</label>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div>
+          <label style="font-size:.82rem;font-weight:600;display:block;margin-bottom:6px">Tarif (€)</label>
+          <input type="number" id="edit-rate" class="form-input" min="0" step="5">
+        </div>
+        <div>
+          <label style="font-size:.82rem;font-weight:600;display:block;margin-bottom:6px">Durée séance (min)</label>
+          <input type="number" id="edit-duration" class="form-input" min="15" max="180" step="5">
+        </div>
+      </div>
+      <div>
+        <label style="font-size:.82rem;font-weight:600;display:block;margin-bottom:6px">Années d'expérience</label>
+        <input type="number" id="edit-experience" class="form-input" min="0" max="60">
+      </div>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn-outline" onclick="closeEditModal()">Annuler</button>
+      <button class="btn btn-success" id="editSaveBtn">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
 <!-- Approve/Reject modal -->
 <div class="modal-overlay" id="actionModal">
   <div class="modal">
@@ -277,6 +324,7 @@
         <td class="td-muted">${fmtDate(p.createdAt)}</td>
         <td>
           <div class="actions-cell">
+            <button class="btn-action" title="Modifier le profil (tarif, durée, langues…)" onclick="openEditModal('${p.id}')">✏️</button>
             ${!p.emailVerifiedAt ? `
               <button class="btn-action" style="color:var(--green);border-color:var(--green)" title="Valider manuellement l'email" onclick="confirmVerifyEmail('${p.userId}', '${p.email}')">✉️</button>
             ` : ''}
@@ -380,6 +428,68 @@
     document.getElementById('actionModal').classList.remove('show');
     pendingAction = null;
   }
+
+  // ── Edit profile modal (admin) ────────────────────────────────────
+  let editingPsyId = null;
+
+  function openEditModal(psyId) {
+    const p = allPsys.find(x => x.id === psyId);
+    if (!p) return toast('Psy introuvable', 'error');
+    editingPsyId = psyId;
+
+    document.getElementById('editModalName').textContent = `${p.firstName || ''} ${p.lastName || ''}`.trim();
+    document.getElementById('edit-title').value      = p.title || '';
+    document.getElementById('edit-bio').value        = p.bio || '';
+    document.getElementById('edit-rate').value       = p.sessionRate ?? '';
+    document.getElementById('edit-duration').value   = p.sessionDuration ?? 60;
+    document.getElementById('edit-experience').value = p.yearsExperience ?? '';
+
+    // Cocher les langues actuelles (avec rétro-compat darija → darja)
+    const current = (p.languages || []).map(l => l === 'darija' ? 'darja' : l);
+    document.querySelectorAll('input[name="edit-lang"]').forEach(cb => {
+      cb.checked = current.includes(cb.value);
+    });
+
+    document.getElementById('editModal').classList.add('show');
+  }
+
+  function closeEditModal() {
+    document.getElementById('editModal').classList.remove('show');
+    editingPsyId = null;
+  }
+
+  document.getElementById('editSaveBtn').addEventListener('click', async () => {
+    if (!editingPsyId) return;
+    const btn = document.getElementById('editSaveBtn');
+    btn.disabled = true; btn.textContent = 'Enregistrement…';
+
+    const langs = Array.from(document.querySelectorAll('input[name="edit-lang"]:checked')).map(c => c.value);
+    const payload = {
+      title:           document.getElementById('edit-title').value.trim() || undefined,
+      bio:             document.getElementById('edit-bio').value.trim() || undefined,
+      languages:       langs,
+      sessionRate:     parseFloat(document.getElementById('edit-rate').value),
+      sessionDuration: parseInt(document.getElementById('edit-duration').value, 10),
+      yearsExperience: parseInt(document.getElementById('edit-experience').value, 10),
+    };
+    // Nettoyer NaN / undefined
+    Object.keys(payload).forEach(k => {
+      if (payload[k] === undefined || (typeof payload[k] === 'number' && Number.isNaN(payload[k]))) {
+        delete payload[k];
+      }
+    });
+
+    try {
+      await API.admin.updatePsychologist(editingPsyId, payload);
+      toast('Profil mis à jour ✓');
+      closeEditModal();
+      loadPsychologists();
+    } catch (e) {
+      toast('Erreur : ' + e.message, 'error');
+    } finally {
+      btn.disabled = false; btn.textContent = 'Enregistrer';
+    }
+  });
 
   // ── Search & filter ───────────────────────────────────────────────
   document.getElementById('searchInput').addEventListener('input', () => {

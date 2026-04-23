@@ -299,7 +299,10 @@
 <script src="assets/js/api.js"></script>
 <script>
   const DAYS = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
-  const LANG_LABELS = { fr: 'Français', ar: 'Arabe (عربي)', darija: 'Darija (دارجة)', en: 'English' };
+  const LANG_LABELS = {
+    fr: 'Français', en: 'Anglais', kabyle: 'Kabyle', darja: 'Darja (دارجة)',
+    ar: 'Arabe (عربي)', darija: 'Darija (دارجة)', // legacy
+  };
 
   function stars(rating) {
     const r = Math.round(rating || 0);

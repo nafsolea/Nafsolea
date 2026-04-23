@@ -916,9 +916,12 @@
     grid.innerHTML = list.map((p, i) => {
       const name = `${p.firstName || ''} ${p.lastName || ''}`.trim() || 'Psychologue';
       const specs = (p.specialties || []).slice(0, 2).join(' · ');
-      const langs = (p.languages  || []).map(l =>
-        l === 'ar' ? 'عربي' : l === 'darija' ? 'دارجة' : l.toUpperCase()
-      ).join(' / ');
+      const langs = (p.languages  || []).map(l => {
+        if (l === 'ar') return 'عربي';
+        if (l === 'darija' || l === 'darja') return 'دارجة';
+        if (l === 'kabyle') return 'Kabyle';
+        return l.toUpperCase();
+      }).join(' / ');
       const info  = [specs, langs].filter(Boolean).join(' · ');
       const sel   = preSelectId ? p.id === preSelectId : i === 0;
 
