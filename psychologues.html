@@ -763,7 +763,7 @@ function renderCard(p, delay = '') {
       </div>
       <div class="psy-full-card__footer">
         <div class="psy-full-card__price">
-          <strong>${p.sessionRate ? Number(p.sessionRate) + '€' : '—'}</strong>
+          <strong>${p.sessionRate ? Number(p.sessionRate).toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' €' : '—'}</strong>
           <span>par séance de ${p.sessionDuration || 50} min</span>
         </div>
         <div class="psy-full-card__actions">

@@ -434,7 +434,7 @@
         <aside class="psy-detail__sidebar">
           <div class="booking-card">
             <div class="booking-card__price">
-              <strong>${p.sessionRate ? p.sessionRate + ' €' : '—'}</strong>
+              <strong>${p.sessionRate ? Number(p.sessionRate).toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' €' : '—'}</strong>
               <span>par séance de ${p.sessionDuration || 50} min</span>
             </div>
             <ul class="booking-card__features">
