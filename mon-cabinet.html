@@ -260,6 +260,68 @@
 
     .toast { position: fixed; top: 20px; right: 20px; padding: 12px 20px; background: var(--sage-dark); color: white; border-radius: 10px; box-shadow: var(--shadow-md); font-weight: 600; z-index: 9999; }
     .toast.error { background: #DC2626; }
+
+    /* ── Prestations ───────────────────────────────────────────── */
+    .svc-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: var(--space-4);
+    }
+    .svc-card {
+      background: white;
+      border: 1.5px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4) var(--space-5);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .svc-card:hover { border-color: var(--sage); box-shadow: var(--shadow-sm); }
+    .svc-card--inactive { opacity: .6; }
+    .svc-card__head { display:flex; justify-content:space-between; align-items:flex-start; gap:var(--space-2); }
+    .svc-card__name { font-weight: 700; color: var(--navy); margin: 0; font-size: 1.05rem; line-height: 1.2; }
+    .svc-card__inactive-tag {
+      font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+      background: #F3F4F6; color: var(--text-muted);
+      padding: 2px 8px; border-radius: 999px;
+    }
+    .svc-card__desc { color: var(--text-mid); font-size: .88rem; margin: 0; line-height: 1.45; }
+    .svc-card__meta { display:flex; gap:var(--space-3); align-items:baseline; margin-top: 4px; }
+    .svc-card__price { font-size: 1.4rem; font-weight: 700; color: var(--sage-dark); }
+    .svc-card__duration { font-size: .85rem; color: var(--text-muted); }
+    .svc-card__actions { display:flex; gap:var(--space-2); margin-top: var(--space-3); padding-top: var(--space-3); border-top: 1px dashed var(--border-light); }
+    .svc-card__actions .btn { flex: 1; }
+
+    /* ── Modale ────────────────────────────────────────────────── */
+    .svc-modal { position: fixed; inset: 0; z-index: 9000; display: none; }
+    .svc-modal.open { display: block; }
+    .svc-modal__backdrop {
+      position: absolute; inset: 0;
+      background: rgba(26, 43, 74, .55);
+      backdrop-filter: blur(2px);
+    }
+    .svc-modal__dialog {
+      position: relative;
+      max-width: 560px; width: calc(100% - 32px);
+      margin: 8vh auto 0;
+      background: white;
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-lg, 0 20px 50px rgba(0,0,0,.18));
+      overflow: hidden;
+    }
+    .svc-modal__head {
+      padding: var(--space-5) var(--space-6);
+      display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 1px solid var(--border-light);
+    }
+    .svc-modal__head h3 { margin: 0; color: var(--navy); font-size: 1.15rem; }
+    .svc-modal__close {
+      background: none; border: none; font-size: 1.6rem; line-height: 1;
+      color: var(--text-muted); cursor: pointer; padding: 4px 8px;
+    }
+    .svc-modal__close:hover { color: var(--navy); }
+    .svc-modal__body { padding: var(--space-5) var(--space-6); display: grid; gap: var(--space-4); }
   </style>
 </head>
 <body>
@@ -337,6 +399,7 @@
       <button class="cabinet-tab active" data-tab="upcoming">Prochains RDV</button>
       <button class="cabinet-tab" data-tab="patients">Mes patients</button>
       <button class="cabinet-tab" data-tab="past">Historique</button>
+      <button class="cabinet-tab" data-tab="services">Mes prestations</button>
       <button class="cabinet-tab" data-tab="settings">Mes paramètres</button>
     </div>
 
@@ -368,6 +431,25 @@
       <div class="cabinet-section">
         <h2>Historique des consultations</h2>
         <div id="pastList">
+          <div class="empty-state"><p>Chargement…</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel: services (prestations multiples) -->
+    <div class="cabinet-panel" id="panel-services">
+      <div class="cabinet-section">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:var(--space-3);margin-bottom:var(--space-4)">
+          <div>
+            <h2 style="margin-bottom:6px">Mes prestations <span class="count" id="servicesCount">0</span></h2>
+            <p style="color:var(--text-mid);margin:0;font-size:.92rem">
+              Définissez jusqu'à 4 prestations (ex. consultation individuelle, thérapie de couple, première consultation).
+              Vos patientes choisiront la prestation avant de réserver un créneau.
+            </p>
+          </div>
+          <button type="button" class="btn btn--primary btn--sm" id="addServiceBtn">+ Ajouter une prestation</button>
+        </div>
+        <div id="servicesList">
           <div class="empty-state"><p>Chargement…</p></div>
         </div>
       </div>
@@ -431,6 +513,48 @@
 
   </div>
 </main>
+
+<!-- Modale : ajouter / éditer une prestation -->
+<div class="svc-modal" id="serviceModal" aria-hidden="true">
+  <div class="svc-modal__backdrop" data-close></div>
+  <div class="svc-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="svcModalTitle">
+    <div class="svc-modal__head">
+      <h3 id="svcModalTitle">Ajouter une prestation</h3>
+      <button type="button" class="svc-modal__close" data-close aria-label="Fermer">×</button>
+    </div>
+    <form id="serviceForm" class="svc-modal__body">
+      <input type="hidden" id="svc-id">
+      <div class="form-group">
+        <label class="form-label" for="svc-name">Nom de la prestation</label>
+        <input type="text" id="svc-name" class="form-input" maxlength="80" required placeholder="ex. Consultation individuelle">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="svc-description">Description courte (optionnel)</label>
+        <textarea id="svc-description" class="form-input" rows="3" maxlength="200" placeholder="Décrivez en 1-2 phrases ce que la patiente recevra (200 caractères max)"></textarea>
+        <small style="color:var(--text-muted)"><span id="svc-desc-count">0</span> / 200 caractères</small>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4)">
+        <div class="form-group">
+          <label class="form-label" for="svc-duration">Durée (minutes)</label>
+          <input type="number" id="svc-duration" class="form-input" min="15" max="180" step="5" required placeholder="60">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="svc-price">Prix (€)</label>
+          <input type="number" id="svc-price" class="form-input" min="0" step="0.01" inputmode="decimal" required placeholder="ex. 70">
+        </div>
+      </div>
+      <div class="form-group" id="svc-active-row" style="display:none">
+        <label class="checkbox-pill" style="display:inline-flex">
+          <input type="checkbox" id="svc-active" checked> Prestation active (visible des patientes)
+        </label>
+      </div>
+      <div style="display:flex;gap:var(--space-3);justify-content:flex-end;margin-top:var(--space-4)">
+        <button type="button" class="btn btn--ghost" data-close>Annuler</button>
+        <button type="submit" class="btn btn--primary" id="svcSaveBtn">Enregistrer</button>
+      </div>
+    </form>
+  </div>
+</div>
 
 <!-- FOOTER -->
 <footer class="footer">
@@ -512,6 +636,7 @@
     });
     if (name === 'past' && !pastLoaded) loadPast();
     if (name === 'settings' && !settingsLoaded) loadSettings();
+    if (name === 'services' && !servicesLoaded) loadServices();
     // Scroll vers les onglets (utile quand on arrive depuis "quick action")
     document.querySelector('.cabinet-tabs')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
@@ -773,6 +898,174 @@
         <div class="empty-state"><p>Erreur : ${escapeHtml(e.message)}</p></div>`;
     }
   }
+
+  // ── Prestations (services) ─────────────────────────────────────
+  let servicesLoaded = false;
+  let servicesCache = [];
+  const SVC_MAX = 4;
+
+  function fmtPriceEUR(n) {
+    return Number(n).toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' €';
+  }
+
+  function renderServices(list) {
+    const container = document.getElementById('servicesList');
+    document.getElementById('servicesCount').textContent = list.length;
+
+    // Activer/désactiver le bouton "+ Ajouter" selon le plafond
+    const addBtn = document.getElementById('addServiceBtn');
+    if (list.length >= SVC_MAX) {
+      addBtn.disabled = true;
+      addBtn.title = `Maximum ${SVC_MAX} prestations`;
+      addBtn.style.opacity = '.5';
+      addBtn.style.cursor = 'not-allowed';
+    } else {
+      addBtn.disabled = false;
+      addBtn.title = '';
+      addBtn.style.opacity = '';
+      addBtn.style.cursor = '';
+    }
+
+    if (!list.length) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state__icon">📋</div>
+          <p>Vous n'avez pas encore de prestation. Cliquez sur <strong>+ Ajouter une prestation</strong> pour en créer une.</p>
+        </div>`;
+      return;
+    }
+
+    container.innerHTML = `<div class="svc-list">` + list.map(s => `
+      <div class="svc-card ${s.isActive ? '' : 'svc-card--inactive'}">
+        <div class="svc-card__head">
+          <h3 class="svc-card__name">${escapeHtml(s.name)}</h3>
+          ${s.isActive ? '' : '<span class="svc-card__inactive-tag">Désactivée</span>'}
+        </div>
+        ${s.description ? `<p class="svc-card__desc">${escapeHtml(s.description)}</p>` : ''}
+        <div class="svc-card__meta">
+          <span class="svc-card__price">${fmtPriceEUR(s.price)}</span>
+          <span class="svc-card__duration">· ${s.durationMinutes} min</span>
+        </div>
+        <div class="svc-card__actions">
+          <button type="button" class="btn btn--ghost btn--sm" data-edit="${s.id}">Modifier</button>
+          <button type="button" class="btn btn--ghost btn--sm" data-delete="${s.id}" style="color:#DC2626">Supprimer</button>
+        </div>
+      </div>
+    `).join('') + `</div>`;
+  }
+
+  async function loadServices() {
+    servicesLoaded = true;
+    try {
+      const data = await API.psychologists.myServices();
+      servicesCache = data || [];
+      renderServices(servicesCache);
+    } catch (e) {
+      document.getElementById('servicesList').innerHTML = `
+        <div class="empty-state"><p>Erreur : ${escapeHtml(e.message)}</p></div>`;
+    }
+  }
+
+  // ── Modale ──
+  const modal = document.getElementById('serviceModal');
+  function openModal(svc) {
+    document.getElementById('svcModalTitle').textContent = svc ? 'Modifier la prestation' : 'Ajouter une prestation';
+    document.getElementById('svc-id').value = svc?.id || '';
+    document.getElementById('svc-name').value = svc?.name || '';
+    document.getElementById('svc-description').value = svc?.description || '';
+    document.getElementById('svc-duration').value = svc?.durationMinutes ?? 60;
+    document.getElementById('svc-price').value = svc?.price ?? '';
+    document.getElementById('svc-active').checked = svc ? svc.isActive : true;
+    document.getElementById('svc-active-row').style.display = svc ? 'block' : 'none';
+    document.getElementById('svc-desc-count').textContent = (svc?.description || '').length;
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+    setTimeout(() => document.getElementById('svc-name').focus(), 50);
+  }
+  function closeModal() {
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+  }
+  modal.querySelectorAll('[data-close]').forEach(el => el.addEventListener('click', closeModal));
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && modal.classList.contains('open')) closeModal(); });
+
+  // Compteur de caractères pour la description
+  document.getElementById('svc-description').addEventListener('input', (e) => {
+    document.getElementById('svc-desc-count').textContent = e.target.value.length;
+  });
+
+  // Bouton "+ Ajouter"
+  document.getElementById('addServiceBtn').addEventListener('click', () => {
+    if (servicesCache.length >= SVC_MAX) {
+      toast(`Maximum ${SVC_MAX} prestations`, 'error');
+      return;
+    }
+    openModal(null);
+  });
+
+  // Délégation : Modifier / Supprimer
+  document.getElementById('servicesList').addEventListener('click', async (e) => {
+    const editBtn = e.target.closest('[data-edit]');
+    const delBtn  = e.target.closest('[data-delete]');
+    if (editBtn) {
+      const svc = servicesCache.find(s => s.id === editBtn.dataset.edit);
+      if (svc) openModal(svc);
+      return;
+    }
+    if (delBtn) {
+      const svc = servicesCache.find(s => s.id === delBtn.dataset.delete);
+      if (!svc) return;
+      if (!confirm(`Supprimer la prestation "${svc.name}" ? Les rendez-vous déjà réservés gardent leurs infos (nom, prix, durée). Cette action est définitive.`)) return;
+      try {
+        await API.psychologists.deleteService(svc.id);
+        toast('Prestation supprimée');
+        await loadServices();
+      } catch (err) {
+        toast(err.message || 'Erreur', 'error');
+      }
+    }
+  });
+
+  // Soumission du formulaire
+  document.getElementById('serviceForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('svc-id').value;
+    const name = document.getElementById('svc-name').value.trim();
+    const description = document.getElementById('svc-description').value.trim();
+    const durationMinutes = parseInt(document.getElementById('svc-duration').value, 10);
+    const priceRaw = document.getElementById('svc-price').value;
+    const price = parseFloat(String(priceRaw).replace(',', '.'));
+    const isActive = document.getElementById('svc-active').checked;
+
+    if (!name) { toast('Nom requis', 'error'); return; }
+    if (!Number.isFinite(price) || price < 0) { toast('Prix invalide', 'error'); return; }
+    if (!Number.isFinite(durationMinutes) || durationMinutes < 15 || durationMinutes > 180) {
+      toast('Durée entre 15 et 180 min', 'error'); return;
+    }
+    if (description.length > 200) { toast('Description : 200 caractères max', 'error'); return; }
+
+    const payload = { name, description: description || undefined, price, durationMinutes };
+    const btn = document.getElementById('svcSaveBtn');
+    btn.disabled = true;
+    const originalLabel = btn.textContent;
+    btn.textContent = 'Enregistrement…';
+    try {
+      if (id) {
+        await API.psychologists.updateService(id, { ...payload, isActive });
+        toast('Prestation modifiée');
+      } else {
+        await API.psychologists.createService(payload);
+        toast('Prestation créée');
+      }
+      closeModal();
+      await loadServices();
+    } catch (err) {
+      toast(err.message || 'Erreur', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = originalLabel;
+    }
+  });
 
   await Promise.all([loadDashboard(), loadPatients()]);
 })();
