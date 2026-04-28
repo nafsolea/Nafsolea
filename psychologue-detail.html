@@ -208,6 +208,73 @@
       color: var(--text-muted);
     }
     .error-state h2 { color: var(--text-dark); margin-bottom: var(--space-3); }
+
+    /* ── Bloc prestations (sidebar) ───────────────────────────── */
+    .services-block {
+      padding-bottom: var(--space-4);
+      border-bottom: 1px solid var(--border-light);
+      margin-bottom: var(--space-4);
+    }
+    .services-block__title {
+      font-size: .78rem;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--text-muted);
+      font-weight: 700;
+      margin-bottom: var(--space-3);
+      text-align: center;
+    }
+    .service-card {
+      display: block;
+      text-decoration: none;
+      color: inherit;
+      background: var(--cream, #faf6f1);
+      border: 1.5px solid var(--border-light);
+      border-radius: var(--radius-md);
+      padding: var(--space-3) var(--space-4);
+      margin-bottom: var(--space-3);
+      transition: border-color .15s, transform .15s, box-shadow .15s, background .15s;
+    }
+    .service-card:last-child { margin-bottom: 0; }
+    .service-card:hover {
+      border-color: var(--sage-dark);
+      background: white;
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-sm);
+    }
+    .service-card__head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: var(--space-2);
+      margin-bottom: 4px;
+    }
+    .service-card__name {
+      font-weight: 700;
+      color: var(--navy);
+      font-size: .98rem;
+      line-height: 1.2;
+    }
+    .service-card__price {
+      font-weight: 700;
+      color: var(--sage-dark);
+      font-size: 1.15rem;
+      white-space: nowrap;
+    }
+    .service-card__desc {
+      font-size: .82rem;
+      color: var(--text-mid);
+      line-height: 1.45;
+      margin: 4px 0 6px;
+    }
+    .service-card__meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: .8rem;
+    }
+    .service-card__duration { color: var(--text-muted); }
+    .service-card__cta { color: var(--sage-dark); font-weight: 600; }
   </style>
 </head>
 <body>
@@ -317,6 +384,43 @@
     return String(s).replace(/[&<>"']/g, c => ({
       '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
     }[c]));
+  }
+
+  function fmtPriceEUR(n) {
+    return Number(n).toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' €';
+  }
+
+  // Bloc principal du sidebar : soit la liste des prestations cliquables,
+  // soit le tarif unique legacy si le psy n'a pas (encore) configuré de prestations.
+  function buildServicesBlock(p) {
+    const services = p.services || [];
+    if (!services.length) {
+      // Fallback legacy : tarif unique
+      return `
+        <div class="booking-card__price">
+          <strong>${p.sessionRate ? fmtPriceEUR(p.sessionRate) : '—'}</strong>
+          <span>par séance de ${p.sessionDuration || 50} min</span>
+        </div>`;
+    }
+    // Cartes cliquables (option 1b) : chaque prestation est un lien vers le booking
+    // avec le serviceId pré-sélectionné.
+    return `
+      <div class="services-block">
+        <div class="services-block__title">Prestations proposées</div>
+        ${services.map(s => `
+          <a href="rendez-vous.html?psy=${p.id}&serviceId=${s.id}" class="service-card">
+            <div class="service-card__head">
+              <span class="service-card__name">${escapeHtml(s.name)}</span>
+              <span class="service-card__price">${fmtPriceEUR(s.price)}</span>
+            </div>
+            ${s.description ? `<p class="service-card__desc">${escapeHtml(s.description)}</p>` : ''}
+            <div class="service-card__meta">
+              <span class="service-card__duration">${s.durationMinutes} min</span>
+              <span class="service-card__cta">Réserver →</span>
+            </div>
+          </a>
+        `).join('')}
+      </div>`;
   }
 
   function buildAvailability(slots = []) {
@@ -433,19 +537,17 @@
         <!-- Sidebar booking card -->
         <aside class="psy-detail__sidebar">
           <div class="booking-card">
-            <div class="booking-card__price">
-              <strong>${p.sessionRate ? Number(p.sessionRate).toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' €' : '—'}</strong>
-              <span>par séance de ${p.sessionDuration || 50} min</span>
-            </div>
+            ${buildServicesBlock(p)}
             <ul class="booking-card__features">
               <li>Visioconférence sécurisée</li>
               <li>Annulation gratuite jusqu'à 24h avant</li>
               <li>Suivi confidentiel</li>
               <li>Paiement en ligne sécurisé</li>
             </ul>
-            <a href="rendez-vous.html?psy=${p.id}" class="btn btn--primary" style="width:100%;justify-content:center">
-              Réserver une séance
-            </a>
+            ${(p.services && p.services.length > 0)
+              ? `<p style="text-align:center;font-size:.85rem;color:var(--text-muted);margin:0 0 .5rem">Cliquez sur une prestation pour la réserver</p>`
+              : `<a href="rendez-vous.html?psy=${p.id}" class="btn btn--primary" style="width:100%;justify-content:center">Réserver une séance</a>`
+            }
             <a href="psychologues.html" class="btn btn--ghost" style="width:100%;justify-content:center;margin-top:0.5rem">
               Voir d'autres psychologues
             </a>
@@ -473,7 +575,15 @@
       return;
     }
     try {
-      const psy = await API.psychologists.getOne(id);
+      // On charge le profil + les prestations en parallèle.
+      // Si l'API services renvoie une erreur, on dégrade silencieusement vers
+      // l'affichage legacy (tarif unique).
+      const [psy, services] = await Promise.all([
+        API.psychologists.getOne(id),
+        API.psychologists.getServices(id).catch(() => []),
+      ]);
+      // Ne garder que les prestations actives pour l'affichage public
+      psy.services = (services || []).filter(s => s.isActive);
       render(psy);
     } catch (e) {
       renderError(e.message);
