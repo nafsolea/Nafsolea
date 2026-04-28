@@ -155,6 +155,16 @@
         <label style="font-size:.82rem;font-weight:600;display:block;margin-bottom:6px">Années d'expérience</label>
         <input type="number" id="edit-experience" class="form-input" min="0" max="60">
       </div>
+
+      <!-- Prestations (services) -->
+      <div style="margin-top:6px;padding-top:14px;border-top:1px dashed var(--border)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <label style="font-size:.82rem;font-weight:600;margin:0">Prestations <span id="adminSvcCount" style="color:var(--text-muted);font-weight:400">(0/4)</span></label>
+          <button type="button" class="btn btn-outline" id="adminAddServiceBtn" style="padding:4px 10px;font-size:.82rem">+ Ajouter</button>
+        </div>
+        <p style="font-size:.78rem;color:var(--text-muted);margin:0 0 10px">Maximum 4 prestations. Création / suppression effectives immédiatement. Les modifications sont enregistrées en cliquant sur "Enregistrer" en bas du modal.</p>
+        <div id="adminSvcList"></div>
+      </div>
     </div>
     <div class="modal__footer">
       <button class="btn btn-outline" onclick="closeEditModal()">Annuler</button>
@@ -431,6 +441,8 @@
 
   // ── Edit profile modal (admin) ────────────────────────────────────
   let editingPsyId = null;
+  let adminSvcCache = []; // prestations du psy en cours d'édition
+  const ADMIN_SVC_MAX = 4;
 
   function openEditModal(psyId) {
     const p = allPsys.find(x => x.id === psyId);
@@ -450,12 +462,141 @@
       cb.checked = current.includes(cb.value);
     });
 
+    // Charger les prestations
+    loadAdminServices(psyId);
+
     document.getElementById('editModal').classList.add('show');
   }
 
   function closeEditModal() {
     document.getElementById('editModal').classList.remove('show');
     editingPsyId = null;
+    adminSvcCache = [];
+  }
+
+  // ── Prestations (admin) ──────────────────────────────────────────
+  async function loadAdminServices(psyId) {
+    const container = document.getElementById('adminSvcList');
+    container.innerHTML = '<p style="font-size:.82rem;color:var(--text-muted);margin:0">Chargement…</p>';
+    try {
+      const list = await API.admin.listServices(psyId);
+      adminSvcCache = list || [];
+      renderAdminServices();
+    } catch (e) {
+      container.innerHTML = `<p style="font-size:.82rem;color:#DC2626;margin:0">Erreur : ${e.message}</p>`;
+    }
+  }
+
+  function renderAdminServices() {
+    const container = document.getElementById('adminSvcList');
+    document.getElementById('adminSvcCount').textContent = `(${adminSvcCache.length}/${ADMIN_SVC_MAX})`;
+    const addBtn = document.getElementById('adminAddServiceBtn');
+    addBtn.disabled = adminSvcCache.length >= ADMIN_SVC_MAX;
+    addBtn.style.opacity = addBtn.disabled ? '.4' : '';
+    addBtn.style.cursor = addBtn.disabled ? 'not-allowed' : '';
+
+    if (!adminSvcCache.length) {
+      container.innerHTML = '<p style="font-size:.82rem;color:var(--text-muted);margin:0;font-style:italic">Aucune prestation. Cliquez sur "+ Ajouter" pour en créer une.</p>';
+      return;
+    }
+
+    container.innerHTML = adminSvcCache.map((s, i) => `
+      <div data-svc-id="${s.id}" style="border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:8px;background:#fafafa">
+        <div style="display:grid;grid-template-columns:1fr auto;gap:8px;align-items:start;margin-bottom:8px">
+          <input type="text" data-field="name" value="${escapeAttr(s.name)}" maxlength="80" placeholder="Nom de la prestation" class="form-input" style="font-weight:600">
+          <button type="button" data-svc-delete="${s.id}" title="Supprimer" style="background:transparent;border:1px solid #DC2626;color:#DC2626;border-radius:6px;width:32px;height:32px;cursor:pointer;font-size:1rem">🗑</button>
+        </div>
+        <textarea data-field="description" maxlength="200" placeholder="Description courte (optionnel, 200 car. max)" class="form-input" rows="2" style="resize:vertical;font-family:inherit;font-size:.85rem;margin-bottom:8px">${escapeHtml(s.description || '')}</textarea>
+        <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:center">
+          <div>
+            <label style="font-size:.72rem;color:var(--text-muted);display:block">Durée (min)</label>
+            <input type="number" data-field="durationMinutes" value="${s.durationMinutes}" min="15" max="180" step="5" class="form-input">
+          </div>
+          <div>
+            <label style="font-size:.72rem;color:var(--text-muted);display:block">Prix (€)</label>
+            <input type="number" data-field="price" value="${s.price}" min="0" step="0.01" inputmode="decimal" class="form-input">
+          </div>
+          <label style="display:inline-flex;align-items:center;gap:6px;font-size:.82rem;margin-top:18px">
+            <input type="checkbox" data-field="isActive" ${s.isActive ? 'checked' : ''}> Active
+          </label>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Helper : escape pour attribut HTML
+  function escapeAttr(s) {
+    return String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+  }
+  function escapeHtml(s) {
+    return String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+  }
+
+  // Bouton "+ Ajouter" : crée immédiatement une prestation vide côté serveur
+  document.getElementById('adminAddServiceBtn').addEventListener('click', async () => {
+    if (!editingPsyId) return;
+    if (adminSvcCache.length >= ADMIN_SVC_MAX) return toast(`Maximum ${ADMIN_SVC_MAX} prestations`, 'error');
+    try {
+      const created = await API.admin.createService(editingPsyId, {
+        name: 'Nouvelle prestation',
+        price: 0,
+        durationMinutes: 60,
+      });
+      adminSvcCache.push(created);
+      renderAdminServices();
+      // Focus sur le nom de la nouvelle prestation pour qu'on puisse la renommer direct
+      const card = document.querySelector(`[data-svc-id="${created.id}"]`);
+      card?.querySelector('[data-field="name"]')?.focus();
+      card?.querySelector('[data-field="name"]')?.select();
+    } catch (e) {
+      toast('Erreur : ' + e.message, 'error');
+    }
+  });
+
+  // Délégation : suppression d'une prestation
+  document.getElementById('adminSvcList').addEventListener('click', async (e) => {
+    const delBtn = e.target.closest('[data-svc-delete]');
+    if (!delBtn) return;
+    const sid = delBtn.dataset.svcDelete;
+    const svc = adminSvcCache.find(s => s.id === sid);
+    if (!svc) return;
+    if (!confirm(`Supprimer la prestation "${svc.name}" ? Les RDV existants conservent leur snapshot, l'opération est définitive.`)) return;
+    try {
+      await API.admin.deleteService(editingPsyId, sid);
+      adminSvcCache = adminSvcCache.filter(s => s.id !== sid);
+      renderAdminServices();
+      toast('Prestation supprimée');
+    } catch (err) {
+      toast('Erreur : ' + err.message, 'error');
+    }
+  });
+
+  // Lit les valeurs de chaque carte de prestation et renvoie un patch (uniquement
+  // les champs modifiés). Renvoie un tableau { id, patch } pour chaque entrée modifiée.
+  function collectAdminServiceChanges() {
+    const cards = document.querySelectorAll('[data-svc-id]');
+    const changes = [];
+    cards.forEach(card => {
+      const id = card.dataset.svcId;
+      const original = adminSvcCache.find(s => s.id === id);
+      if (!original) return;
+      const name = card.querySelector('[data-field="name"]').value.trim();
+      const description = card.querySelector('[data-field="description"]').value.trim();
+      const durationMinutes = parseInt(card.querySelector('[data-field="durationMinutes"]').value, 10);
+      const priceRaw = card.querySelector('[data-field="price"]').value;
+      const price = parseFloat(String(priceRaw).replace(',', '.'));
+      const isActive = card.querySelector('[data-field="isActive"]').checked;
+
+      const patch = {};
+      if (name && name !== original.name) patch.name = name;
+      if (description !== (original.description || '')) patch.description = description;
+      if (Number.isFinite(durationMinutes) && durationMinutes !== original.durationMinutes) patch.durationMinutes = durationMinutes;
+      if (Number.isFinite(price) && price !== Number(original.price)) patch.price = price;
+      if (isActive !== original.isActive) patch.isActive = isActive;
+
+      if (Object.keys(patch).length > 0) changes.push({ id, patch });
+    });
+    return changes;
   }
 
   document.getElementById('editSaveBtn').addEventListener('click', async () => {
@@ -480,8 +621,29 @@
     });
 
     try {
+      // 1) Profil global
       await API.admin.updatePsychologist(editingPsyId, payload);
-      toast('Profil mis à jour ✓');
+
+      // 2) Modifications de prestations (uniquement celles qui ont changé)
+      const changes = collectAdminServiceChanges();
+      let svcErrors = 0;
+      for (const { id, patch } of changes) {
+        try {
+          await API.admin.updateService(editingPsyId, id, patch);
+        } catch (err) {
+          svcErrors++;
+          console.error(`Erreur prestation ${id}:`, err);
+        }
+      }
+
+      if (svcErrors > 0) {
+        toast(`Profil mis à jour, mais ${svcErrors} prestation(s) en erreur`, 'error');
+      } else if (changes.length > 0) {
+        toast(`Profil mis à jour ✓ (${changes.length} prestation(s) modifiée(s))`);
+      } else {
+        toast('Profil mis à jour ✓');
+      }
+
       closeEditModal();
       loadPsychologists();
     } catch (e) {
