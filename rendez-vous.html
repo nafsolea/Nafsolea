@@ -961,9 +961,19 @@
 
     // Load approved psychologists
     try {
-      const res = await API.psychologists.list({ limit: 8 });
+      const res = await API.psychologists.list({ limit: 50 });
       psys = res.data || (Array.isArray(res) ? res : []);
       const preSelectId = urlPsyId || intent?.psyId || null;
+
+      // Si un psy spécifique est demandé via URL/intent et qu'il n'est PAS dans
+      // la liste retournée, on le récupère individuellement et on le pousse en tête.
+      if (preSelectId && !psys.find(p => p.id === preSelectId)) {
+        try {
+          const single = await API.psychologists.getOne(preSelectId);
+          if (single?.id) psys = [single, ...psys];
+        } catch { /* ignore — on tombera sur le 1er psy de la liste */ }
+      }
+
       renderPsySelector(psys, preSelectId);
 
       // Si on arrive depuis la fiche psy avec un serviceId dans l'URL :
@@ -1067,6 +1077,15 @@
     document.getElementById('summary-date').textContent = '—';
     document.getElementById('summary-time').textContent = '—';
 
+    // Désactiver le bouton "Choisir un créneau" pendant le chargement
+    // pour éviter la race condition (utilisateur clique avant que getServices réponde).
+    const nextBtn = document.querySelector('#step-1 [data-next-step]');
+    if (nextBtn) {
+      nextBtn.disabled = true;
+      nextBtn.style.opacity = '.5';
+      nextBtn.style.cursor = 'wait';
+    }
+
     // Charge les prestations du psy. Si l'API échoue, on dégrade silencieusement
     // (psy sera traité comme legacy → pas d'étape prestation).
     let services = [];
@@ -1076,6 +1095,13 @@
     psyServices = (services || []).filter(s => s.isActive);
 
     renderServiceChoice(opts.preselectServiceId || null);
+
+    // Réactiver le bouton
+    if (nextBtn) {
+      nextBtn.disabled = false;
+      nextBtn.style.opacity = '';
+      nextBtn.style.cursor = '';
+    }
   }
 
   // Rend le bloc "Choix de prestation" en bas du step 1.
