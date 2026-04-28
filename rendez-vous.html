@@ -361,6 +361,69 @@
       .form-row { grid-template-columns: 1fr; }
       .slots-grid { grid-template-columns: repeat(3, 1fr); }
     }
+
+    /* ── Choix de prestation (step 1) ──────────────────────────── */
+    .service-choice {
+      padding-top: var(--space-4);
+      border-top: 1px dashed var(--border-light);
+    }
+    .service-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: var(--space-3);
+      align-items: center;
+      padding: var(--space-4);
+      border: 1.5px solid var(--border-light);
+      border-radius: var(--radius-md);
+      background: white;
+      cursor: pointer;
+      margin-bottom: var(--space-3);
+      transition: border-color .15s, background .15s;
+    }
+    .service-row:last-child { margin-bottom: 0; }
+    .service-row:hover { border-color: var(--sage); }
+    .service-row input[type="radio"] {
+      width: 18px; height: 18px;
+      accent-color: var(--sage-dark);
+      cursor: pointer;
+      margin: 0;
+    }
+    .service-row.selected {
+      border-color: var(--sage-dark);
+      background: var(--sage-pale);
+    }
+    .service-row__info h5 {
+      margin: 0 0 4px;
+      font-size: 1rem;
+      color: var(--navy);
+      font-weight: 700;
+    }
+    .service-row__desc {
+      margin: 0;
+      font-size: .82rem;
+      color: var(--text-mid);
+      line-height: 1.4;
+    }
+    .service-row__duration {
+      font-size: .78rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+      display: block;
+    }
+    .service-row__price {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--sage-dark);
+      white-space: nowrap;
+    }
+    /* Mode lecture quand une seule prestation est auto-sélectionnée */
+    .service-row--readonly {
+      cursor: default;
+      background: var(--sage-pale);
+      border-color: var(--sage-dark);
+      grid-template-columns: 1fr auto;
+    }
+    .service-row--readonly:hover { border-color: var(--sage-dark); }
   </style>
 </head>
 <body>
@@ -487,6 +550,14 @@
               <p style="font-size:0.84rem; color:var(--sage-dark); max-width:none; margin:0">
                 Pas sûr(e) de votre choix ? <a href="index.html" style="font-weight:700; color:var(--sage-dark); text-decoration:underline">Faites notre quiz d'orientation</a> — 2 minutes pour trouver le bon profil.
               </p>
+            </div>
+
+            <!-- Choix de la prestation (apparaît si le psy en a au moins une) -->
+            <div id="serviceChoice" class="service-choice" style="display:none;margin-top:var(--space-6)">
+              <div class="step-section-title" style="margin-top:0">
+                <span style="background:var(--sage)">✓</span> Choisissez votre prestation
+              </div>
+              <div id="serviceChoiceList" role="radiogroup" aria-label="Choisir une prestation"></div>
             </div>
 
             <div style="display:flex; justify-content:flex-end; margin-top:var(--space-6)">
@@ -798,12 +869,21 @@
 <script src="assets/js/main.js" defer></script>
 <script>
   // ── State ────────────────────────────────────────────────────────
-  let step           = 1;
-  let psys           = [];
-  let selectedPsy    = null;
-  let availableSlots = [];
-  let selectedDate   = null;
-  let selectedTime   = null;
+  let step              = 1;
+  let psys              = [];
+  let selectedPsy       = null;
+  let psyServices       = [];   // prestations actives du psy sélectionné
+  let selectedService   = null; // prestation choisie (objet, ou null si psy legacy sans prestation)
+  let availableSlots    = [];
+  let selectedDate      = null;
+  let selectedTime      = null;
+
+  function fmtPriceEUR(n) {
+    return Number(n).toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' €';
+  }
+  function escapeHtml(s) {
+    return String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+  }
 
   // ── Toast helper ─────────────────────────────────────────────────
   function showToast(msg, type = 'info') {
@@ -826,6 +906,9 @@
     if (n > step) {
       if (step === 1 && !selectedPsy) {
         showToast('Veuillez sélectionner un psychologue.', 'warning'); return;
+      }
+      if (step === 1 && psyServices.length > 0 && !selectedService) {
+        showToast('Veuillez choisir une prestation.', 'warning'); return;
       }
       if (step === 2 && (!selectedDate || !selectedTime)) {
         showToast('Veuillez sélectionner une date et un créneau.', 'warning'); return;
@@ -852,7 +935,9 @@
 
   // ── STEP 1 — Psychologist list ───────────────────────────────────
   async function init() {
-    const urlPsyId = new URLSearchParams(window.location.search).get('psy');
+    const urlParams      = new URLSearchParams(window.location.search);
+    const urlPsyId       = urlParams.get('psy');
+    const urlServiceId   = urlParams.get('serviceId');
 
     // Restore booking intent saved before auth redirect
     let intent = null;
@@ -881,11 +966,27 @@
       const preSelectId = urlPsyId || intent?.psyId || null;
       renderPsySelector(psys, preSelectId);
 
+      // Si on arrive depuis la fiche psy avec un serviceId dans l'URL :
+      // option 2a → on auto-saute à l'étape 2 (créneau).
+      const fromUrlServiceId = urlServiceId
+        || (intent?.psyId === urlPsyId ? intent?.serviceId : null);
+      if (fromUrlServiceId && urlPsyId) {
+        const psyFromUrl = psys.find(p => p.id === urlPsyId);
+        if (psyFromUrl) {
+          await selectPsy(psyFromUrl, { preselectServiceId: fromUrlServiceId });
+          // Si le serviceId est valide pour ce psy, on saute direct à l'étape 2
+          if (selectedService) {
+            goToStep(2);
+            return;
+          }
+        }
+      }
+
       // If intent had date+time, load slots and restore after render
       if (intent?.psyId) {
         const psyFromIntent = psys.find(p => p.id === intent.psyId);
         if (psyFromIntent) {
-          selectPsy(psyFromIntent);
+          await selectPsy(psyFromIntent, { preselectServiceId: intent.serviceId || null });
           if (intent.date) {
             await loadSlots();
             selectDate(intent.date);
@@ -955,14 +1056,86 @@
     }
   }
 
-  function selectPsy(psy) {
-    selectedPsy  = psy;
-    selectedDate = null;
-    selectedTime = null;
+  async function selectPsy(psy, opts = {}) {
+    selectedPsy     = psy;
+    selectedService = null;
+    psyServices     = [];
+    selectedDate    = null;
+    selectedTime    = null;
     const name = `${psy.firstName || ''} ${psy.lastName || ''}`.trim();
     document.getElementById('summary-psy-name').textContent = name;
     document.getElementById('summary-date').textContent = '—';
     document.getElementById('summary-time').textContent = '—';
+
+    // Charge les prestations du psy. Si l'API échoue, on dégrade silencieusement
+    // (psy sera traité comme legacy → pas d'étape prestation).
+    let services = [];
+    try {
+      services = await API.psychologists.getServices(psy.id);
+    } catch { services = []; }
+    psyServices = (services || []).filter(s => s.isActive);
+
+    renderServiceChoice(opts.preselectServiceId || null);
+  }
+
+  // Rend le bloc "Choix de prestation" en bas du step 1.
+  // - 0 service  → bloc caché (psy legacy, on saute l'étape implicitement)
+  // - 1 service  → auto-sélectionné en mode lecture (UX "skip auto" — option 2a
+  //                validée avec Sarah)
+  // - N services → cartes radio cliquables, sélection requise pour avancer.
+  function renderServiceChoice(preselectServiceId) {
+    const wrap = document.getElementById('serviceChoice');
+    const list = document.getElementById('serviceChoiceList');
+
+    if (!psyServices.length) {
+      wrap.style.display = 'none';
+      list.innerHTML = '';
+      return;
+    }
+
+    wrap.style.display = 'block';
+
+    if (psyServices.length === 1) {
+      // Auto-sélection + affichage en mode lecture (pas de radio)
+      selectedService = psyServices[0];
+      const s = selectedService;
+      list.innerHTML = `
+        <div class="service-row service-row--readonly" aria-readonly="true">
+          <div class="service-row__info">
+            <h5>${escapeHtml(s.name)}</h5>
+            ${s.description ? `<p class="service-row__desc">${escapeHtml(s.description)}</p>` : ''}
+            <span class="service-row__duration">${s.durationMinutes} min · sélectionnée automatiquement</span>
+          </div>
+          <div class="service-row__price">${fmtPriceEUR(s.price)}</div>
+        </div>`;
+      return;
+    }
+
+    // Plusieurs prestations : radio cards
+    let toSelect = preselectServiceId && psyServices.find(s => s.id === preselectServiceId)
+      ? preselectServiceId
+      : null;
+    selectedService = toSelect ? psyServices.find(s => s.id === toSelect) : null;
+
+    list.innerHTML = psyServices.map(s => `
+      <label class="service-row ${s.id === toSelect ? 'selected' : ''}" for="svc-${s.id}">
+        <input type="radio" id="svc-${s.id}" name="svc" value="${s.id}" ${s.id === toSelect ? 'checked' : ''}>
+        <div class="service-row__info">
+          <h5>${escapeHtml(s.name)}</h5>
+          ${s.description ? `<p class="service-row__desc">${escapeHtml(s.description)}</p>` : ''}
+          <span class="service-row__duration">${s.durationMinutes} min</span>
+        </div>
+        <div class="service-row__price">${fmtPriceEUR(s.price)}</div>
+      </label>
+    `).join('');
+
+    list.querySelectorAll('input[name="svc"]').forEach(radio => {
+      radio.addEventListener('change', () => {
+        list.querySelectorAll('.service-row').forEach(r => r.classList.remove('selected'));
+        radio.closest('.service-row').classList.add('selected');
+        selectedService = psyServices.find(s => s.id === radio.value) || null;
+      });
+    });
   }
 
   // ── STEP 2 — Slots calendar ───────────────────────────────────────
@@ -978,7 +1151,12 @@
     const from  = today.toISOString().split('T')[0];
 
     try {
-      availableSlots = await API.psychologists.getSlots(selectedPsy.id, from, 21);
+      availableSlots = await API.psychologists.getSlots(
+        selectedPsy.id,
+        from,
+        21,
+        selectedService?.id, // null si psy legacy → backend utilise sessionDuration
+      );
       renderCalendar();
     } catch {
       calEl.innerHTML = `<p style="grid-column:1/-1;text-align:center;padding:30px;color:var(--text-muted)">
@@ -1073,7 +1251,10 @@
     // Auth gate
     if (!Auth.isLoggedIn()) {
       sessionStorage.setItem('bookingIntent', JSON.stringify({
-        psyId: selectedPsy?.id, date: selectedDate, time: selectedTime,
+        psyId: selectedPsy?.id,
+        serviceId: selectedService?.id || null,
+        date: selectedDate,
+        time: selectedTime,
       }));
       window.location.href = `login.html?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`;
       return;
@@ -1085,7 +1266,9 @@
 
     try {
       const scheduledAt = new Date(`${selectedDate}T${selectedTime}`).toISOString();
-      await API.appointments.book({ psychologistId: selectedPsy.id, scheduledAt });
+      const bookPayload = { psychologistId: selectedPsy.id, scheduledAt };
+      if (selectedService?.id) bookPayload.serviceId = selectedService.id;
+      await API.appointments.book(bookPayload);
 
       // Fill confirmation screen
       const name = `${selectedPsy.firstName || ''} ${selectedPsy.lastName || ''}`.trim();
