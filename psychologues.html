@@ -177,11 +177,13 @@
       font-size: 1.2rem;
       color: var(--text);
       font-family: var(--font-heading);
+      white-space: nowrap;
     }
 
     .psy-full-card__price span {
       font-size: 0.75rem;
       color: var(--text-muted);
+      white-space: nowrap;
     }
 
     .psy-full-card__actions {
@@ -734,21 +736,23 @@ function fmtPriceEUR(n) {
 }
 
 // Construit le bloc prix d'une card de listing.
-// - Si le psy a configuré au moins une prestation active → "à partir de X €"
-//   (X = prix mini parmi les prestations actives) + libellé "plusieurs prestations"
-//   ou "X min" si une seule prestation.
-// - Sinon (psy legacy) → tarif unique sessionRate (compat).
+// - Plusieurs prestations  → "dès X €" + "N prestations" (court pour ne pas wrap)
+// - Une seule prestation   → "X €" + "séance de Y min"
+// - Aucune (psy legacy)    → tarif unique sessionRate (compat).
 function buildCardPrice(p) {
-  const services = (p.services || []).filter(s => s.isActive !== false); // backend ne renvoie déjà que les actives mais on sécurise
-  if (services.length > 0) {
+  const services = (p.services || []).filter(s => s.isActive !== false);
+  if (services.length > 1) {
     const minPrice = Math.min(...services.map(s => Number(s.price)));
-    const label = services.length === 1
-      ? `séance de ${services[0].durationMinutes} min`
-      : `${services.length} prestations disponibles`;
-    const fromPrefix = services.length === 1 ? '' : 'à partir de ';
     return `
-      <strong>${fromPrefix}${fmtPriceEUR(minPrice)}</strong>
-      <span>${label}</span>
+      <strong>dès ${fmtPriceEUR(minPrice)}</strong>
+      <span>${services.length} prestations</span>
+    `;
+  }
+  if (services.length === 1) {
+    const s = services[0];
+    return `
+      <strong>${fmtPriceEUR(s.price)}</strong>
+      <span>séance de ${s.durationMinutes} min</span>
     `;
   }
   // Fallback legacy
