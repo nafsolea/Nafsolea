@@ -30,8 +30,15 @@ export class AppointmentsService {
   // ── Book appointment ─────────────────────────────────────────────
   // Creates appointment in PENDING_PAYMENT state + Stripe PaymentIntent.
   // Slot is reserved for 15 min while patient completes payment.
+  // Args: patientUserId, psychologistId, scheduledAt, serviceId?, notes?
 
-  async book(patientUserId: string, psychologistId: string, scheduledAt: Date, notes?: string) {
+  async book(
+    patientUserId: string,
+    psychologistId: string,
+    scheduledAt: Date,
+    serviceId?: string,
+    notes?: string,
+  ) {
     const patient = await this.prisma.patient.findUnique({ where: { userId: patientUserId } });
     if (!patient) throw new NotFoundException('Profil patient introuvable');
 
@@ -40,9 +47,34 @@ export class AppointmentsService {
     });
     if (!psy) throw new NotFoundException('Psychologue introuvable');
 
+    // ── Résolution de la prestation (obligatoire si le psy en a au moins une) ──
+    let bookingPrice = Number(psy.sessionRate);
+    let bookingDuration = psy.sessionDuration;
+    let bookingServiceId: string | null = null;
+    let bookingServiceName: string | null = null;
+
+    if (serviceId) {
+      const svc = await this.prisma.service.findUnique({ where: { id: serviceId } });
+      if (!svc || svc.psychologistId !== psychologistId || !svc.isActive) {
+        throw new BadRequestException('Prestation introuvable ou inactive');
+      }
+      bookingPrice = Number(svc.price);
+      bookingDuration = svc.durationMinutes;
+      bookingServiceId = svc.id;
+      bookingServiceName = svc.name;
+    } else {
+      // Si le psy a configuré des prestations, on EXIGE une sélection.
+      const hasServices = await this.prisma.service.count({
+        where: { psychologistId, isActive: true },
+      });
+      if (hasServices > 0) {
+        throw new BadRequestException('Veuillez choisir une prestation');
+      }
+    }
+
     // ── Anti-double-booking: database-level lock ──────────────────
     const appointment = await this.prisma.$transaction(async (tx) => {
-      const slotEnd = new Date(scheduledAt.getTime() + psy.sessionDuration * 60_000);
+      const slotEnd = new Date(scheduledAt.getTime() + bookingDuration * 60_000);
 
       const conflict = await tx.appointment.findFirst({
         where: {
@@ -52,7 +84,7 @@ export class AppointmentsService {
           // Overlap: existing.start < newEnd AND existing.start + duration > newStart
           AND: [{
             scheduledAt: {
-              gte: new Date(scheduledAt.getTime() - psy.sessionDuration * 60_000),
+              gte: new Date(scheduledAt.getTime() - bookingDuration * 60_000),
             },
           }],
         },
@@ -72,7 +104,9 @@ export class AppointmentsService {
           patientId: patient.id,
           psychologistId,
           scheduledAt,
-          durationMinutes: psy.sessionDuration,
+          durationMinutes: bookingDuration,
+          serviceId: bookingServiceId,
+          serviceName: bookingServiceName,
           patientNotes: notes,
           paymentExpireAt,
           status: 'PENDING_PAYMENT',
@@ -86,13 +120,14 @@ export class AppointmentsService {
     const payment = await this.payments.createPaymentIntent(
       appointment.id,
       patient.id,
-      Number(psy.sessionRate),
+      bookingPrice,
     );
 
     return {
       appointmentId: appointment.id,
       scheduledAt: appointment.scheduledAt,
       durationMinutes: appointment.durationMinutes,
+      serviceName: bookingServiceName,
       expiresAt: appointment.paymentExpireAt,
       payment: {
         clientSecret: payment.stripeClientSecret,
