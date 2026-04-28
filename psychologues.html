@@ -729,6 +729,35 @@ function stars(rating) {
   return '★'.repeat(r) + '☆'.repeat(5 - r);
 }
 
+function fmtPriceEUR(n) {
+  return Number(n).toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' €';
+}
+
+// Construit le bloc prix d'une card de listing.
+// - Si le psy a configuré au moins une prestation active → "à partir de X €"
+//   (X = prix mini parmi les prestations actives) + libellé "plusieurs prestations"
+//   ou "X min" si une seule prestation.
+// - Sinon (psy legacy) → tarif unique sessionRate (compat).
+function buildCardPrice(p) {
+  const services = (p.services || []).filter(s => s.isActive !== false); // backend ne renvoie déjà que les actives mais on sécurise
+  if (services.length > 0) {
+    const minPrice = Math.min(...services.map(s => Number(s.price)));
+    const label = services.length === 1
+      ? `séance de ${services[0].durationMinutes} min`
+      : `${services.length} prestations disponibles`;
+    const fromPrefix = services.length === 1 ? '' : 'à partir de ';
+    return `
+      <strong>${fromPrefix}${fmtPriceEUR(minPrice)}</strong>
+      <span>${label}</span>
+    `;
+  }
+  // Fallback legacy
+  return `
+    <strong>${p.sessionRate ? fmtPriceEUR(p.sessionRate) : '—'}</strong>
+    <span>par séance de ${p.sessionDuration || 50} min</span>
+  `;
+}
+
 function renderCard(p, delay = '') {
   const name      = `${p.firstName || ''} ${p.lastName || ''}`.trim();
   const specialties = (p.specialties || []).slice(0, 5);
@@ -763,8 +792,7 @@ function renderCard(p, delay = '') {
       </div>
       <div class="psy-full-card__footer">
         <div class="psy-full-card__price">
-          <strong>${p.sessionRate ? Number(p.sessionRate).toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' €' : '—'}</strong>
-          <span>par séance de ${p.sessionDuration || 50} min</span>
+          ${buildCardPrice(p)}
         </div>
         <div class="psy-full-card__actions">
           <a href="psychologue-detail.html?id=${p.id}" class="btn btn--secondary btn--sm">Voir le profil</a>
