@@ -117,7 +117,13 @@ const API = (() => {
   const psychologists = {
     list:            (params = {}) => get(`/psychologists?${new URLSearchParams(params)}`),
     getOne:          (id)          => get(`/psychologists/${id}`),
-    getSlots:        (id, from, days) => get(`/psychologists/${id}/slots?from=${from}&days=${days || 14}`),
+    getSlots:        (id, from, days, serviceId) => {
+      const params = new URLSearchParams({ from, days: String(days || 14) });
+      if (serviceId) params.set('serviceId', serviceId);
+      return get(`/psychologists/${id}/slots?${params}`);
+    },
+    // Public — prestations d'un psy
+    getServices:     (id)          => get(`/psychologists/${id}/services`),
     // Psy logged-in
     myDashboard:     ()            => authGet('/psychologists/me/dashboard'),
     myAppointments:  (status)      => authGet(`/psychologists/me/appointments${status ? `?status=${status}` : ''}`),
@@ -125,6 +131,11 @@ const API = (() => {
     updateProfile:   (data)        => authPut('/psychologists/me/profile', data),
     setAvailability: (slots)       => authPost('/psychologists/me/availability', { slots }),
     addBlockedSlot:  (data)        => authPost('/psychologists/me/blocked-slots', data),
+    // Psy logged-in — gestion de SES prestations
+    myServices:      ()            => authGet('/psychologists/me/services'),
+    createService:   (data)        => authPost('/psychologists/me/services', data),
+    updateService:   (id, data)    => authPut(`/psychologists/me/services/${id}`, data),
+    deleteService:   (id)          => authDelete(`/psychologists/me/services/${id}`),
   };
 
   // ── Appointment endpoints ────────────────────────────────────────
@@ -187,6 +198,11 @@ const API = (() => {
     appointments:        (params={})=> authGet(`/admin/appointments?${new URLSearchParams(params)}`),
     revenue:             (from, to) => authGet(`/admin/revenue?from=${from}&to=${to}`),
     auditLogs:           (params={})=> authGet(`/admin/audit-logs?${new URLSearchParams(params)}`),
+    // Admin — gestion des prestations d'un psy
+    listServices:        (psyId)              => authGet(`/admin/psychologists/${psyId}/services`),
+    createService:       (psyId, data)        => authPost(`/admin/psychologists/${psyId}/services`, data),
+    updateService:       (psyId, sid, data)   => authPut(`/admin/psychologists/${psyId}/services/${sid}`, data),
+    deleteService:       (psyId, sid)         => authDelete(`/admin/psychologists/${psyId}/services/${sid}`),
   };
 
   return { get, post, authGet, authPost, authPut, authPatch, authDelete, auth, users, psychologists, appointments, payments, articles, newsletter, admin };

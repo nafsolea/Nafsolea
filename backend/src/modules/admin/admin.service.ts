@@ -138,6 +138,99 @@ export class AdminService {
     });
   }
 
+  // ── Services / Prestations (admin) ──────────────────────────────
+
+  private validateServiceData(data: Partial<{ name: string; price: number; durationMinutes: number }>) {
+    if (data.name !== undefined && !data.name.trim()) {
+      throw new BadRequestException('Le nom de la prestation est requis');
+    }
+    if (data.price !== undefined && data.price < 0) {
+      throw new BadRequestException('Le tarif ne peut pas être négatif');
+    }
+    if (data.durationMinutes !== undefined && (data.durationMinutes < 15 || data.durationMinutes > 240)) {
+      throw new BadRequestException('La durée doit être comprise entre 15 et 240 minutes');
+    }
+  }
+
+  async listPsychologistServices(psychologistId: string) {
+    const psy = await this.prisma.psychologist.findUnique({ where: { id: psychologistId } });
+    if (!psy) throw new NotFoundException('Psychologue introuvable');
+    return this.prisma.service.findMany({
+      where: { psychologistId },
+      orderBy: [{ displayOrder: 'asc' }, { createdAt: 'asc' }],
+    });
+  }
+
+  async createPsychologistService(psychologistId: string, data: {
+    name: string;
+    description?: string;
+    price: number;
+    durationMinutes: number;
+    displayOrder?: number;
+  }) {
+    const psy = await this.prisma.psychologist.findUnique({ where: { id: psychologistId } });
+    if (!psy) throw new NotFoundException('Psychologue introuvable');
+    this.validateServiceData(data);
+
+    // Plafond : 4 prestations max par psy
+    const count = await this.prisma.service.count({ where: { psychologistId } });
+    if (count >= 4) {
+      throw new BadRequestException('Ce psychologue a déjà 4 prestations (maximum). Supprimez-en une avant d\'en ajouter une nouvelle.');
+    }
+
+    return this.prisma.service.create({
+      data: {
+        psychologistId,
+        name: data.name.trim(),
+        description: data.description?.trim() || null,
+        price: data.price,
+        durationMinutes: data.durationMinutes,
+        displayOrder: data.displayOrder ?? 0,
+      },
+    });
+  }
+
+  async updatePsychologistService(psychologistId: string, serviceId: string, data: Partial<{
+    name: string;
+    description: string;
+    price: number;
+    durationMinutes: number;
+    isActive: boolean;
+    displayOrder: number;
+  }>) {
+    const svc = await this.prisma.service.findUnique({ where: { id: serviceId } });
+    if (!svc) throw new NotFoundException('Prestation introuvable');
+    if (svc.psychologistId !== psychologistId) {
+      throw new BadRequestException('Cette prestation n\'appartient pas à ce psychologue');
+    }
+    this.validateServiceData(data);
+
+    return this.prisma.service.update({
+      where: { id: serviceId },
+      data: {
+        ...(data.name !== undefined && { name: data.name.trim() }),
+        ...(data.description !== undefined && { description: data.description?.trim() || null }),
+        ...(data.price !== undefined && { price: data.price }),
+        ...(data.durationMinutes !== undefined && { durationMinutes: data.durationMinutes }),
+        ...(data.isActive !== undefined && { isActive: data.isActive }),
+        ...(data.displayOrder !== undefined && { displayOrder: data.displayOrder }),
+      },
+    });
+  }
+
+  async deletePsychologistService(psychologistId: string, serviceId: string) {
+    const svc = await this.prisma.service.findUnique({ where: { id: serviceId } });
+    if (!svc) throw new NotFoundException('Prestation introuvable');
+    if (svc.psychologistId !== psychologistId) {
+      throw new BadRequestException('Cette prestation n\'appartient pas à ce psychologue');
+    }
+
+    // Suppression libre — l'historique est protégé par le snapshot
+    // (serviceName, durationMinutes, prix) gardé sur l'Appointment.
+    await this.prisma.service.delete({ where: { id: serviceId } });
+    return { message: 'Prestation supprimée' };
+  }
+
   // ── User management ──────────────────────────────────────────────
 
   async getUsers(page = 1, limit = 20, search?: string, role?: string) {

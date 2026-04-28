@@ -48,6 +48,11 @@ export class PsychologistsService {
           totalSessions: true,
           avatarUrl: true,
           yearsExperience: true,
+          services: {
+            where: { isActive: true },
+            select: { id: true, name: true, price: true, durationMinutes: true },
+            orderBy: [{ displayOrder: 'asc' }, { createdAt: 'asc' }],
+          },
         },
         skip,
         take: limit,
@@ -83,6 +88,11 @@ export class PsychologistsService {
           where: { isActive: true },
           select: { dayOfWeek: true, startTime: true, endTime: true },
         },
+        services: {
+          where: { isActive: true },
+          select: { id: true, name: true, description: true, price: true, durationMinutes: true, displayOrder: true },
+          orderBy: [{ displayOrder: 'asc' }, { createdAt: 'asc' }],
+        },
         reviews: {
           where: { isPublic: true, isVerified: true },
           select: {
@@ -104,7 +114,7 @@ export class PsychologistsService {
   // ── Available time slots ─────────────────────────────────────────
   // Returns concrete datetime slots for the next N days
 
-  async getAvailableSlots(psychologistId: string, fromDate: string, days = 14) {
+  async getAvailableSlots(psychologistId: string, fromDate: string, days = 14, serviceId?: string) {
     const psy = await this.prisma.psychologist.findFirst({
       where: { id: psychologistId, status: 'APPROVED' },
       include: {
@@ -119,8 +129,20 @@ export class PsychologistsService {
 
     if (!psy) throw new NotFoundException('Psychologue introuvable');
 
+    // Si un serviceId est passé, on utilise SA durée pour générer les créneaux.
+    let duration = psy.sessionDuration; // fallback (valeur par défaut du psy)
+    if (serviceId) {
+      const svc = await this.prisma.service.findUnique({
+        where: { id: serviceId },
+        select: { psychologistId: true, durationMinutes: true, isActive: true },
+      });
+      if (!svc || svc.psychologistId !== psychologistId || !svc.isActive) {
+        throw new NotFoundException('Prestation introuvable pour ce psy');
+      }
+      duration = svc.durationMinutes;
+    }
+
     const timezone = psy.timezone;
-    const duration = psy.sessionDuration; // minutes
     const startDate = parseISO(fromDate);
     const endDate = addDays(startDate, days);
 
@@ -412,5 +434,113 @@ export class PsychologistsService {
     return this.prisma.blockedSlot.create({
       data: { psychologistId: psy.id, startsAt, endsAt, reason },
     });
+  }
+
+  // ── Services / Prestations ──────────────────────────────────────
+  // Chaque psy gère ses propres prestations (nom libre, tarif, durée).
+
+  /** Public — liste des prestations actives d'un psy */
+  async getServicesForPsy(psychologistId: string) {
+    return this.prisma.service.findMany({
+      where: { psychologistId, isActive: true },
+      orderBy: [{ displayOrder: 'asc' }, { createdAt: 'asc' }],
+    });
+  }
+
+  /** Psy — liste de TOUTES ses prestations (y compris archivées) */
+  async getMyServices(userId: string) {
+    const psy = await this.prisma.psychologist.findUnique({ where: { userId }, select: { id: true } });
+    if (!psy) throw new NotFoundException('Profil introuvable');
+    return this.prisma.service.findMany({
+      where: { psychologistId: psy.id },
+      orderBy: [{ displayOrder: 'asc' }, { createdAt: 'asc' }],
+    });
+  }
+
+  private validateServiceData(data: Partial<{ name: string; price: number; durationMinutes: number }>) {
+    if (data.name !== undefined && !data.name.trim()) {
+      throw new BadRequestException('Le nom de la prestation est requis');
+    }
+    if (data.price !== undefined && data.price < 0) {
+      throw new BadRequestException('Le tarif ne peut pas être négatif');
+    }
+    if (data.durationMinutes !== undefined && (data.durationMinutes < 15 || data.durationMinutes > 240)) {
+      throw new BadRequestException('La durée doit être comprise entre 15 et 240 minutes');
+    }
+  }
+
+  async createMyService(userId: string, data: {
+    name: string;
+    description?: string;
+    price: number;
+    durationMinutes: number;
+    displayOrder?: number;
+  }) {
+    const psy = await this.prisma.psychologist.findUnique({ where: { userId }, select: { id: true } });
+    if (!psy) throw new NotFoundException('Profil introuvable');
+    this.validateServiceData(data);
+
+    // Plafond : 4 prestations max par psy (toutes incluses, actives ou non)
+    const count = await this.prisma.service.count({ where: { psychologistId: psy.id } });
+    if (count >= 4) {
+      throw new BadRequestException('Vous avez atteint le maximum de 4 prestations. Supprimez-en une avant d\'en ajouter une nouvelle.');
+    }
+
+    return this.prisma.service.create({
+      data: {
+        psychologistId: psy.id,
+        name: data.name.trim(),
+        description: data.description?.trim() || null,
+        price: data.price,
+        durationMinutes: data.durationMinutes,
+        displayOrder: data.displayOrder ?? 0,
+      },
+    });
+  }
+
+  async updateMyService(userId: string, serviceId: string, data: Partial<{
+    name: string;
+    description: string;
+    price: number;
+    durationMinutes: number;
+    isActive: boolean;
+    displayOrder: number;
+  }>) {
+    const psy = await this.prisma.psychologist.findUnique({ where: { userId }, select: { id: true } });
+    if (!psy) throw new NotFoundException('Profil introuvable');
+
+    const svc = await this.prisma.service.findUnique({ where: { id: serviceId } });
+    if (!svc) throw new NotFoundException('Prestation introuvable');
+    if (svc.psychologistId !== psy.id) throw new ForbiddenException('Cette prestation ne vous appartient pas');
+
+    this.validateServiceData(data);
+
+    return this.prisma.service.update({
+      where: { id: serviceId },
+      data: {
+        ...(data.name !== undefined && { name: data.name.trim() }),
+        ...(data.description !== undefined && { description: data.description?.trim() || null }),
+        ...(data.price !== undefined && { price: data.price }),
+        ...(data.durationMinutes !== undefined && { durationMinutes: data.durationMinutes }),
+        ...(data.isActive !== undefined && { isActive: data.isActive }),
+        ...(data.displayOrder !== undefined && { displayOrder: data.displayOrder }),
+      },
+    });
+  }
+
+  async deleteMyService(userId: string, serviceId: string) {
+    const psy = await this.prisma.psychologist.findUnique({ where: { userId }, select: { id: true } });
+    if (!psy) throw new NotFoundException('Profil introuvable');
+
+    const svc = await this.prisma.service.findUnique({ where: { id: serviceId } });
+    if (!svc) throw new NotFoundException('Prestation introuvable');
+    if (svc.psychologistId !== psy.id) throw new ForbiddenException('Cette prestation ne vous appartient pas');
+
+    // Suppression libre : les rendez-vous existants conservent un snapshot
+    // (serviceName, durationMinutes, prix) sur l'Appointment → l'historique
+    // n'est jamais perdu. La relation Appointment.serviceId passe à null via
+    // SetNull défini dans le schéma Prisma.
+    await this.prisma.service.delete({ where: { id: serviceId } });
+    return { message: 'Prestation supprimée' };
   }
 }

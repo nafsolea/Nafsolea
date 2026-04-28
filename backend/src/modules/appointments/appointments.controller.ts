@@ -35,6 +35,7 @@ export class AppointmentsController {
     @Body() body: {
       psychologistId: string;
       scheduledAt: string;
+      serviceId?: string;
       notes?: string;
     },
   ) {
@@ -42,6 +43,7 @@ export class AppointmentsController {
       user.sub,
       body.psychologistId,
       new Date(body.scheduledAt),
+      body.serviceId,
       body.notes,
     );
   }

@@ -156,9 +156,35 @@ model Psychologist {
   appointments      Appointment[]
   consultationNotes ConsultationNote[]
   reviews           Review[]
+  services          Service[]
 
   @@index([status])
   @@map("psychologists")
+}
+
+// ─── Services (prestations par psychologue) ──────────────────────
+// Chaque psy définit ses propres prestations (consultation individuelle,
+// thérapie de couple, première consultation, etc.) avec tarif et durée
+// spécifiques. Les champs sessionRate/sessionDuration sur Psychologist
+// restent comme valeurs "par défaut" pour la compatibilité.
+
+model Service {
+  id              String       @id @default(cuid())
+  psychologistId  String       @map("psychologist_id")
+  name            String       // ex: "Consultation individuelle"
+  description     String?      @db.Text
+  price           Decimal      @db.Decimal(10, 2)
+  durationMinutes Int          @map("duration_minutes")
+  isActive        Boolean      @default(true) @map("is_active")
+  displayOrder    Int          @default(0) @map("display_order")
+  createdAt       DateTime     @default(now()) @map("created_at")
+  updatedAt       DateTime     @updatedAt @map("updated_at")
+
+  psychologist Psychologist  @relation(fields: [psychologistId], references: [id], onDelete: Cascade)
+  appointments Appointment[]
+
+  @@index([psychologistId, isActive])
+  @@map("services")
 }
 
 // ─── Availability ─────────────────────────────────────────────────
@@ -221,8 +247,13 @@ model Appointment {
   createdAt          DateTime          @default(now()) @map("created_at")
   updatedAt          DateTime          @updatedAt @map("updated_at")
 
+  // Prestation réservée — optionnel pour compat avec anciens RDV
+  serviceId          String?           @map("service_id")
+  serviceName        String?           @map("service_name")  // snapshot au moment du booking
+
   patient          Patient           @relation(fields: [patientId], references: [id])
   psychologist     Psychologist      @relation(fields: [psychologistId], references: [id])
+  service          Service?          @relation(fields: [serviceId], references: [id], onDelete: SetNull)
   payment          Payment?
   consultationNote ConsultationNote?
   review           Review?
