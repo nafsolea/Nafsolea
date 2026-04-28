@@ -78,6 +78,65 @@ export class AdminController {
     return this.service.updatePsychologist(id, body);
   }
 
+  // ── Services / Prestations (admin) ──────────────────────────────
+  // Routes : list / create / update / delete des prestations d'un psy
+  // depuis le back-office admin.
+
+  /**
+   * GET /api/v1/admin/psychologists/:id/services
+   */
+  @Get('psychologists/:id/services')
+  listPsychologistServices(@Param('id') id: string) {
+    return this.service.listPsychologistServices(id);
+  }
+
+  /**
+   * POST /api/v1/admin/psychologists/:id/services
+   */
+  @Post('psychologists/:id/services')
+  createPsychologistService(
+    @Param('id') id: string,
+    @Body() body: {
+      name: string;
+      description?: string;
+      price: number;
+      durationMinutes: number;
+      displayOrder?: number;
+    },
+  ) {
+    return this.service.createPsychologistService(id, body);
+  }
+
+  /**
+   * PUT /api/v1/admin/psychologists/:id/services/:serviceId
+   */
+  @Put('psychologists/:id/services/:serviceId')
+  updatePsychologistService(
+    @Param('id') id: string,
+    @Param('serviceId') serviceId: string,
+    @Body() body: Partial<{
+      name: string;
+      description: string;
+      price: number;
+      durationMinutes: number;
+      isActive: boolean;
+      displayOrder: number;
+    }>,
+  ) {
+    return this.service.updatePsychologistService(id, serviceId, body);
+  }
+
+  /**
+   * DELETE /api/v1/admin/psychologists/:id/services/:serviceId
+   */
+  @Delete('psychologists/:id/services/:serviceId')
+  deletePsychologistService(
+    @Param('id') id: string,
+    @Param('serviceId') serviceId: string,
+  ) {
+    return this.service.deletePsychologistService(id, serviceId);
+  }
+
   /**
    * GET /api/v1/admin/users
    */
