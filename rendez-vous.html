@@ -877,6 +877,11 @@
   let availableSlots    = [];
   let selectedDate      = null;
   let selectedTime      = null;
+  // Mois actuellement affiché dans le calendrier de booking (peut être différent
+  // du mois courant si l'utilisateur navigue avec les flèches ‹ ›).
+  let displayedMonth    = { year: new Date().getFullYear(), month: new Date().getMonth() };
+  // Limite : pas de réservation au-delà de 3 mois dans le futur
+  const MAX_MONTHS_AHEAD = 3;
 
   function fmtPriceEUR(n) {
     return Number(n).toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' €';
@@ -1180,9 +1185,12 @@
       availableSlots = await API.psychologists.getSlots(
         selectedPsy.id,
         from,
-        21,
+        90, // fenêtre large pour permettre la navigation entre mois
         selectedService?.id, // null si psy legacy → backend utilise sessionDuration
       );
+      // Reset l'affichage sur le mois courant à chaque rechargement
+      const today = new Date();
+      displayedMonth = { year: today.getFullYear(), month: today.getMonth() };
       renderCalendar();
     } catch {
       calEl.innerHTML = `<p style="grid-column:1/-1;text-align:center;padding:30px;color:var(--text-muted)">
@@ -1194,11 +1202,31 @@
 
   function renderCalendar() {
     const today = new Date();
-    const year  = today.getFullYear();
-    const month = today.getMonth();
+    const year  = displayedMonth.year;
+    const month = displayedMonth.month;
+    const todayY = today.getFullYear();
+    const todayM = today.getMonth();
+    const todayD = today.getDate();
 
     const MONTHS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
     document.querySelector('.calendar-nav strong').textContent = `${MONTHS[month]} ${year}`;
+
+    // Activer/désactiver les flèches de navigation
+    const isCurrentMonth = (year === todayY && month === todayM);
+    const maxDate = new Date(todayY, todayM + MAX_MONTHS_AHEAD, 1);
+    const isMaxMonth = (new Date(year, month, 1) >= maxDate);
+    const prevBtn = document.querySelector('.calendar-nav button[aria-label="Mois précédent"]');
+    const nextBtn = document.querySelector('.calendar-nav button[aria-label="Mois suivant"]');
+    if (prevBtn) {
+      prevBtn.disabled = isCurrentMonth;
+      prevBtn.style.opacity = isCurrentMonth ? '.3' : '';
+      prevBtn.style.cursor = isCurrentMonth ? 'not-allowed' : 'pointer';
+    }
+    if (nextBtn) {
+      nextBtn.disabled = isMaxMonth;
+      nextBtn.style.opacity = isMaxMonth ? '.3' : '';
+      nextBtn.style.cursor = isMaxMonth ? 'not-allowed' : 'pointer';
+    }
 
     // Group slots by date
     const byDate = {};
@@ -1217,8 +1245,8 @@
 
     for (let d = 1; d <= daysInMonth; d++) {
       const dateStr = `${year}-${String(month + 1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-      const isPast  = new Date(year, month, d) < new Date(today.getFullYear(), today.getMonth(), today.getDate());
-      const isToday = d === today.getDate();
+      const isPast  = new Date(year, month, d) < new Date(todayY, todayM, todayD);
+      const isToday = (year === todayY && month === todayM && d === todayD);
       const hasSlot = !isPast && byDate[dateStr]?.length > 0;
 
       if (hasSlot) {
@@ -1233,6 +1261,24 @@
     // If previously selected date still has slots, restore it
     if (selectedDate && byDate[selectedDate]) selectDate(selectedDate);
   }
+
+  // ── Navigation entre mois ──────────────────────────────────────
+  function shiftMonth(delta) {
+    const today = new Date();
+    const newMonth = displayedMonth.month + delta;
+    const newDate = new Date(displayedMonth.year, newMonth, 1);
+    // Garde-fous : pas avant le mois courant, pas après MAX_MONTHS_AHEAD
+    const minDate = new Date(today.getFullYear(), today.getMonth(), 1);
+    const maxDate = new Date(today.getFullYear(), today.getMonth() + MAX_MONTHS_AHEAD, 1);
+    if (newDate < minDate || newDate > maxDate) return;
+    displayedMonth = { year: newDate.getFullYear(), month: newDate.getMonth() };
+    renderCalendar();
+  }
+  // Câblage des flèches ‹ et › du calendrier
+  document.querySelector('.calendar-nav button[aria-label="Mois précédent"]')
+    ?.addEventListener('click', () => shiftMonth(-1));
+  document.querySelector('.calendar-nav button[aria-label="Mois suivant"]')
+    ?.addEventListener('click', () => shiftMonth(+1));
 
   function selectDate(dateStr) {
     selectedDate = dateStr;
