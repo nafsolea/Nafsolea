@@ -661,7 +661,18 @@
             </div>
 
             <form class="form-section" novalidate aria-label="Formulaire de réservation" id="booking-form">
-              <div class="form-row">
+
+              <!-- Bandeau "Connectée en tant que" — visible UNIQUEMENT si patiente connectée -->
+              <div id="logged-as-banner" style="display:none;padding:var(--space-4) var(--space-5);background:var(--sage-pale);border:1px solid var(--sage-light);border-radius:var(--radius-md);margin-bottom:var(--space-5);display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap">
+                <span style="font-size:1.4rem">✓</span>
+                <div style="flex:1;min-width:200px">
+                  <div style="font-weight:700;color:var(--sage-dark)" data-name>—</div>
+                  <div style="font-size:.85rem;color:var(--text-mid)" data-email>—</div>
+                </div>
+                <a href="#" id="logout-and-restart" style="font-size:.85rem;color:var(--sage-dark);text-decoration:underline;font-weight:600">Changer de compte</a>
+              </div>
+
+              <div class="form-row" data-hide-when-logged>
                 <div class="form-group">
                   <label class="form-label" for="prenom">Prénom *</label>
                   <input type="text" id="prenom" class="form-input" placeholder="Votre prénom" required autocomplete="given-name">
@@ -672,19 +683,19 @@
                 </div>
               </div>
 
-              <div class="form-group">
+              <div class="form-group" data-hide-when-logged>
                 <label class="form-label" for="email">Email *</label>
                 <input type="email" id="email" class="form-input" placeholder="votre@email.com" required autocomplete="email">
                 <p class="form-hint">📧 La confirmation de RDV sera envoyée à cette adresse</p>
               </div>
 
-              <div class="form-group">
+              <div class="form-group" data-hide-when-logged>
                 <label class="form-label" for="tel">Téléphone</label>
                 <input type="tel" id="tel" class="form-input" placeholder="+33 6 00 00 00 00" autocomplete="tel">
                 <p class="form-hint">Pour le rappel SMS (optionnel)</p>
               </div>
 
-              <div class="form-group">
+              <div class="form-group" data-hide-when-logged>
                 <label class="form-label" for="pays">Pays de résidence</label>
                 <select id="pays" class="form-select" autocomplete="country">
                   <option value="">Sélectionnez votre pays</option>
@@ -951,7 +962,7 @@
       if (raw) { intent = JSON.parse(raw); sessionStorage.removeItem('bookingIntent'); }
     } catch { /* ignore */ }
 
-    // Pre-fill form if logged in
+    // Pre-fill form if logged in + cacher les champs déjà connus
     if (Auth.isLoggedIn()) {
       try {
         const me = await API.users.me();
@@ -961,6 +972,34 @@
           document.getElementById('nom').value    = p.lastName  || '';
         }
         document.getElementById('email').value = me.email || '';
+
+        // Cacher les champs prénom/nom/email/tel/pays — la patiente n'a plus
+        // à les saisir. On garde les inputs dans le DOM (pour la validation
+        // required) mais on cache leur container visuel.
+        document.querySelectorAll('[data-hide-when-logged]').forEach(el => {
+          el.style.display = 'none';
+        });
+        // Retirer le required des champs cachés non pré-remplis (tel, pays)
+        // pour que la validation HTML ne bloque pas.
+        ['tel', 'pays'].forEach(id => {
+          const f = document.getElementById(id);
+          if (f) f.required = false;
+        });
+
+        // Afficher le bandeau "Connectée en tant que…"
+        const fullName = `${(p?.firstName || '')} ${(p?.lastName || '')}`.trim();
+        const banner = document.getElementById('logged-as-banner');
+        if (banner) {
+          banner.style.display = 'flex';
+          banner.querySelector('[data-name]').textContent = fullName || me.email;
+          banner.querySelector('[data-email]').textContent = me.email || '';
+        }
+        // "Changer de compte" : on déconnecte et on revient sur la même page
+        document.getElementById('logout-and-restart')?.addEventListener('click', (e) => {
+          e.preventDefault();
+          if (typeof Auth.clearSession === 'function') Auth.clearSession();
+          window.location.href = window.location.pathname + window.location.search;
+        });
       } catch { /* non-blocking */ }
     }
 
