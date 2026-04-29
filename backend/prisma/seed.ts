@@ -99,6 +99,35 @@ async function main() {
   });
 
   console.log(`✅ Patient created: patient@example.com`);
+
+  // ── Migration : prestations par défaut ───────────────────────────
+  // Pour chaque psy qui n'a encore AUCUN service, on crée une
+  // prestation par défaut "Consultation individuelle" à partir de
+  // ses sessionRate / sessionDuration actuels. Idempotent : se
+  // rejoue sans effet si le psy a déjà des services.
+  const psysWithoutServices = await prisma.psychologist.findMany({
+    where: { services: { none: {} } },
+    select: { id: true, firstName: true, sessionRate: true, sessionDuration: true },
+  });
+  for (const p of psysWithoutServices) {
+    const rate = Number(p.sessionRate || 0);
+    if (rate <= 0) continue; // on ne crée pas de prestation à 0 €
+    await prisma.service.create({
+      data: {
+        psychologistId: p.id,
+        name: 'Consultation individuelle',
+        description: null,
+        price: p.sessionRate,
+        durationMinutes: p.sessionDuration,
+        isActive: true,
+        displayOrder: 0,
+      },
+    });
+  }
+  if (psysWithoutServices.length > 0) {
+    console.log(`✅ Prestations par défaut créées pour ${psysWithoutServices.length} psy(s)`);
+  }
+
   console.log('\n🎉 Seed complete!');
   console.log('   Admin:    admin@nafsolea.com   / Admin1234!');
   console.log('   Patient:  patient@example.com  / Patient1!');
