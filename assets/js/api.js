@@ -129,6 +129,7 @@ const API = (() => {
     myAppointments:  (status)      => authGet(`/psychologists/me/appointments${status ? `?status=${status}` : ''}`),
     myPatients:      ()            => authGet('/psychologists/me/patients'),
     updateProfile:   (data)        => authPut('/psychologists/me/profile', data),
+    myAvailability:  ()            => authGet('/psychologists/me/availability'),
     setAvailability: (slots)       => authPost('/psychologists/me/availability', { slots }),
     addBlockedSlot:  (data)        => authPost('/psychologists/me/blocked-slots', data),
     // Psy logged-in — gestion de SES prestations

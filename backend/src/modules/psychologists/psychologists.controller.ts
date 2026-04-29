@@ -100,6 +100,17 @@ export class PsychologistsController {
   }
 
   /**
+   * GET /api/v1/psychologists/me/availability
+   * Psychologist only — récupère les dispos hebdo configurées
+   */
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.PSYCHOLOGIST)
+  @Get('me/availability')
+  getMyAvailability(@CurrentUser() user: JwtPayload) {
+    return this.service.getMyAvailability(user.sub);
+  }
+
+  /**
    * POST /api/v1/psychologists/me/availability
    * Psychologist only — set weekly recurring availability
    */

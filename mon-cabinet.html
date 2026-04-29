@@ -293,6 +293,71 @@
     .svc-card__actions { display:flex; gap:var(--space-2); margin-top: var(--space-3); padding-top: var(--space-3); border-top: 1px dashed var(--border-light); }
     .svc-card__actions .btn { flex: 1; }
 
+    /* ── Disponibilités ────────────────────────────────────────── */
+    .avail-day {
+      display: grid;
+      grid-template-columns: 110px 1fr;
+      gap: var(--space-4);
+      align-items: start;
+      padding: var(--space-3) 0;
+      border-bottom: 1px dashed var(--border-light);
+    }
+    .avail-day:last-child { border-bottom: none; }
+    .avail-day__name {
+      font-weight: 700;
+      color: var(--navy);
+      font-size: .95rem;
+      padding-top: 8px;
+    }
+    .avail-day__slots {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+    .avail-slot-row {
+      display: flex;
+      gap: var(--space-2);
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .avail-slot-row input[type="time"] {
+      width: 100px;
+      padding: 6px 10px;
+      border: 1.5px solid var(--border-light);
+      border-radius: var(--radius-sm, 6px);
+      font-family: inherit;
+      font-size: .92rem;
+    }
+    .avail-slot-row input[type="time"]:focus {
+      outline: none;
+      border-color: var(--sage-dark);
+    }
+    .avail-slot-row__sep { color: var(--text-muted); }
+    .avail-slot-row__delete {
+      background: transparent;
+      border: none;
+      color: #DC2626;
+      font-size: 1.1rem;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+    .avail-slot-row__delete:hover { background: #FEE2E2; }
+    .avail-day__add {
+      background: transparent;
+      border: 1.5px dashed var(--border-light);
+      color: var(--sage-dark);
+      padding: 6px 14px;
+      border-radius: var(--radius-md);
+      font-size: .85rem;
+      font-weight: 600;
+      cursor: pointer;
+      align-self: flex-start;
+      margin-top: 2px;
+    }
+    .avail-day__add:hover { border-color: var(--sage-dark); background: var(--sage-pale); }
+    .avail-day--empty .avail-day__name { color: var(--text-muted); font-weight: 600; }
+
     /* ── Modale ────────────────────────────────────────────────── */
     .svc-modal { position: fixed; inset: 0; z-index: 9000; display: none; }
     .svc-modal.open { display: block; }
@@ -400,6 +465,7 @@
       <button class="cabinet-tab" data-tab="patients">Mes patients</button>
       <button class="cabinet-tab" data-tab="past">Historique</button>
       <button class="cabinet-tab" data-tab="services">Mes prestations</button>
+      <button class="cabinet-tab" data-tab="availability">Mes disponibilités</button>
       <button class="cabinet-tab" data-tab="settings">Mes paramètres</button>
     </div>
 
@@ -451,6 +517,28 @@
         </div>
         <div id="servicesList">
           <div class="empty-state"><p>Chargement…</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel: availability (disponibilités hebdomadaires) -->
+    <div class="cabinet-panel" id="panel-availability">
+      <div class="cabinet-section">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:var(--space-3);margin-bottom:var(--space-4)">
+          <div>
+            <h2 style="margin-bottom:6px">Mes disponibilités</h2>
+            <p style="color:var(--text-mid);margin:0;font-size:.92rem">
+              Définissez vos plages horaires hebdomadaires. Les patientes verront ces créneaux pour réserver.
+              Vous pouvez ajouter plusieurs plages par jour (matin / après-midi par exemple).
+            </p>
+          </div>
+        </div>
+        <div id="availabilityList">
+          <div class="empty-state"><p>Chargement…</p></div>
+        </div>
+        <div style="display:flex;gap:var(--space-3);align-items:center;margin-top:var(--space-5);padding-top:var(--space-4);border-top:1px solid var(--border-light)">
+          <button type="button" class="btn btn--primary" id="availabilitySaveBtn">Enregistrer mes disponibilités</button>
+          <span id="availabilityStatus" style="font-size:.9rem;color:var(--text-muted)"></span>
         </div>
       </div>
     </div>
@@ -637,6 +725,7 @@
     if (name === 'past' && !pastLoaded) loadPast();
     if (name === 'settings' && !settingsLoaded) loadSettings();
     if (name === 'services' && !servicesLoaded) loadServices();
+    if (name === 'availability' && !availabilityLoaded) loadAvailability();
     // Scroll vers les onglets (utile quand on arrive depuis "quick action")
     document.querySelector('.cabinet-tabs')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
@@ -1064,6 +1153,188 @@
     } finally {
       btn.disabled = false;
       btn.textContent = originalLabel;
+    }
+  });
+
+  // ── Disponibilités hebdomadaires ───────────────────────────────
+  let availabilityLoaded = false;
+  // Représentation de travail : tableau de plages { dayOfWeek, startTime, endTime }
+  // (équivalent direct du payload backend, on évite tout state intermédiaire compliqué)
+  let availabilityState = [];
+
+  const DAY_NAMES = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+  // Ordre d'affichage : Lun → Dim (FR), donc on commence par 1 et on termine par 0
+  const DAY_DISPLAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
+
+  function timeToMinutes(t) {
+    if (!t) return null;
+    const [h, m] = t.split(':').map(Number);
+    if (Number.isNaN(h) || Number.isNaN(m)) return null;
+    return h * 60 + m;
+  }
+
+  function renderAvailability() {
+    const container = document.getElementById('availabilityList');
+    const byDay = {};
+    DAY_DISPLAY_ORDER.forEach(d => { byDay[d] = []; });
+    availabilityState.forEach(s => {
+      if (byDay[s.dayOfWeek] != null) byDay[s.dayOfWeek].push(s);
+    });
+    // Tri par heure de début dans chaque jour
+    Object.values(byDay).forEach(list => list.sort((a, b) => a.startTime.localeCompare(b.startTime)));
+
+    container.innerHTML = DAY_DISPLAY_ORDER.map(day => {
+      const slots = byDay[day];
+      const isEmpty = slots.length === 0;
+      return `
+        <div class="avail-day ${isEmpty ? 'avail-day--empty' : ''}" data-day="${day}">
+          <div class="avail-day__name">${DAY_NAMES[day]}</div>
+          <div class="avail-day__slots">
+            ${slots.map((s, idx) => `
+              <div class="avail-slot-row" data-idx="${idx}">
+                <input type="time" data-field="startTime" value="${s.startTime}">
+                <span class="avail-slot-row__sep">→</span>
+                <input type="time" data-field="endTime" value="${s.endTime}">
+                <button type="button" class="avail-slot-row__delete" data-action="delete-slot" title="Supprimer">✕</button>
+              </div>
+            `).join('')}
+            <button type="button" class="avail-day__add" data-action="add-slot">+ Ajouter une plage</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Lit les inputs visibles et reconstruit l'état (utile avant validation/save)
+  function readAvailabilityFromDOM() {
+    const next = [];
+    document.querySelectorAll('.avail-day').forEach(dayEl => {
+      const day = parseInt(dayEl.dataset.day, 10);
+      dayEl.querySelectorAll('.avail-slot-row').forEach(row => {
+        const startTime = row.querySelector('[data-field="startTime"]').value;
+        const endTime = row.querySelector('[data-field="endTime"]').value;
+        if (startTime && endTime) next.push({ dayOfWeek: day, startTime, endTime });
+      });
+    });
+    availabilityState = next;
+  }
+
+  async function loadAvailability() {
+    availabilityLoaded = true;
+    try {
+      const data = await API.psychologists.myAvailability();
+      availabilityState = (data || []).map(s => ({
+        dayOfWeek: s.dayOfWeek, startTime: s.startTime, endTime: s.endTime,
+      }));
+      renderAvailability();
+    } catch (e) {
+      document.getElementById('availabilityList').innerHTML = `
+        <div class="empty-state"><p>Erreur : ${escapeHtml(e.message)}</p></div>`;
+    }
+  }
+
+  // Délégation : ajouter une plage à un jour
+  document.getElementById('availabilityList').addEventListener('click', (e) => {
+    const dayEl = e.target.closest('.avail-day');
+    if (!dayEl) return;
+    const day = parseInt(dayEl.dataset.day, 10);
+
+    if (e.target.matches('[data-action="add-slot"]')) {
+      readAvailabilityFromDOM();
+      // Plage par défaut "raisonnable" : 09:00 → 17:00 si aucune, sinon
+      // on prolonge après la dernière plage du jour de 1h.
+      const existing = availabilityState.filter(s => s.dayOfWeek === day);
+      let startTime = '09:00', endTime = '17:00';
+      if (existing.length) {
+        const last = existing.reduce((max, s) => s.endTime > max ? s.endTime : max, '00:00');
+        const lastMin = timeToMinutes(last);
+        if (lastMin != null && lastMin <= 22 * 60) {
+          const newStartMin = Math.min(lastMin + 60, 22 * 60);
+          const newEndMin = Math.min(newStartMin + 60, 23 * 60);
+          startTime = `${String(Math.floor(newStartMin / 60)).padStart(2,'0')}:${String(newStartMin % 60).padStart(2,'0')}`;
+          endTime   = `${String(Math.floor(newEndMin   / 60)).padStart(2,'0')}:${String(newEndMin   % 60).padStart(2,'0')}`;
+        }
+      }
+      availabilityState.push({ dayOfWeek: day, startTime, endTime });
+      renderAvailability();
+      return;
+    }
+
+    if (e.target.matches('[data-action="delete-slot"]')) {
+      const row = e.target.closest('.avail-slot-row');
+      const idx = parseInt(row.dataset.idx, 10);
+      readAvailabilityFromDOM();
+      // Récupérer les plages du jour dans l'ordre affiché et virer la idx-ième
+      const dayState = availabilityState
+        .map((s, i) => ({ ...s, _i: i }))
+        .filter(s => s.dayOfWeek === day)
+        .sort((a, b) => a.startTime.localeCompare(b.startTime));
+      const target = dayState[idx];
+      if (target) {
+        availabilityState.splice(target._i, 1);
+        renderAvailability();
+      }
+    }
+  });
+
+  // Validation côté front : durée min 30 min + pas de chevauchement
+  function validateAvailability() {
+    const errors = [];
+    // Grouper par jour
+    const byDay = {};
+    availabilityState.forEach(s => {
+      if (!byDay[s.dayOfWeek]) byDay[s.dayOfWeek] = [];
+      byDay[s.dayOfWeek].push(s);
+    });
+    for (const dayKey of Object.keys(byDay)) {
+      const day = parseInt(dayKey, 10);
+      const slots = byDay[day]
+        .map(s => ({ ...s, startMin: timeToMinutes(s.startTime), endMin: timeToMinutes(s.endTime) }))
+        .sort((a, b) => a.startMin - b.startMin);
+
+      for (const s of slots) {
+        if (s.startMin == null || s.endMin == null) {
+          errors.push(`${DAY_NAMES[day]} : horaire invalide`);
+          continue;
+        }
+        if (s.endMin - s.startMin < 30) {
+          errors.push(`${DAY_NAMES[day]} ${s.startTime}-${s.endTime} : durée minimum 30 min`);
+        }
+      }
+      // Chevauchements
+      for (let i = 1; i < slots.length; i++) {
+        if (slots[i].startMin < slots[i - 1].endMin) {
+          errors.push(`${DAY_NAMES[day]} : les plages ${slots[i-1].startTime}-${slots[i-1].endTime} et ${slots[i].startTime}-${slots[i].endTime} se chevauchent`);
+        }
+      }
+    }
+    return errors;
+  }
+
+  // Bouton Enregistrer
+  document.getElementById('availabilitySaveBtn').addEventListener('click', async () => {
+    readAvailabilityFromDOM();
+    const errors = validateAvailability();
+    if (errors.length) {
+      toast(errors[0], 'error');
+      return;
+    }
+    const btn = document.getElementById('availabilitySaveBtn');
+    const status = document.getElementById('availabilityStatus');
+    btn.disabled = true;
+    const original = btn.textContent;
+    btn.textContent = 'Enregistrement…';
+    status.textContent = '';
+    try {
+      await API.psychologists.setAvailability(availabilityState);
+      toast('Disponibilités enregistrées');
+      status.textContent = '✓ Sauvegardé';
+      setTimeout(() => { status.textContent = ''; }, 3000);
+    } catch (err) {
+      toast(err.message || 'Erreur', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = original;
     }
   });
 

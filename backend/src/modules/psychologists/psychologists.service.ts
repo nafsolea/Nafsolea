@@ -161,47 +161,54 @@ export class PsychologistsService {
     for (let d = 0; d < days; d++) {
       const date = addDays(startDate, d);
       const dayOfWeek = getDay(date); // 0=Sun
-      const daySlot = psy.availabilitySlots.find((s) => s.dayOfWeek === dayOfWeek);
-      if (!daySlot) continue;
+      // On supporte PLUSIEURS plages par jour (ex: 9h-12h ET 14h-18h).
+      const daySlots = psy.availabilitySlots.filter((s) => s.dayOfWeek === dayOfWeek);
+      if (!daySlots.length) continue;
 
-      // Generate slot times within the day window
-      const [startH, startM] = daySlot.startTime.split(':').map(Number);
-      const [endH, endM] = daySlot.endTime.split(':').map(Number);
-      const dayStart = new Date(date);
-      dayStart.setHours(startH, startM, 0, 0);
-      const dayEnd = new Date(date);
-      dayEnd.setHours(endH, endM, 0, 0);
+      for (const daySlot of daySlots) {
+        // Generate slot times within this day window
+        const [startH, startM] = daySlot.startTime.split(':').map(Number);
+        const [endH, endM] = daySlot.endTime.split(':').map(Number);
+        const dayStart = new Date(date);
+        dayStart.setHours(startH, startM, 0, 0);
+        const dayEnd = new Date(date);
+        dayEnd.setHours(endH, endM, 0, 0);
 
-      let cursor = new Date(dayStart);
-      while (cursor < dayEnd) {
-        const slotEnd = new Date(cursor.getTime() + duration * 60_000);
-        if (slotEnd > dayEnd) break;
+        let cursor = new Date(dayStart);
+        while (cursor < dayEnd) {
+          const slotEnd = new Date(cursor.getTime() + duration * 60_000);
+          if (slotEnd > dayEnd) break;
 
-        // Check not in past
-        if (cursor <= new Date()) { cursor = slotEnd; continue; }
+          // Check not in past
+          if (cursor <= new Date()) { cursor = slotEnd; continue; }
 
-        // Check not blocked
-        const isBlocked = psy.blockedSlots.some((b) =>
-          cursor >= b.startsAt && cursor < b.endsAt,
-        );
+          // Check not blocked
+          const isBlocked = psy.blockedSlots.some((b) =>
+            cursor >= b.startsAt && cursor < b.endsAt,
+          );
 
-        // Check not already booked
-        const isBooked = bookedSlots.some((a) => {
-          const aEnd = new Date(a.scheduledAt.getTime() + a.durationMinutes * 60_000);
-          return cursor < aEnd && slotEnd > a.scheduledAt;
-        });
-
-        if (!isBlocked && !isBooked) {
-          slots.push({
-            date: format(date, 'yyyy-MM-dd'),
-            time: format(cursor, 'HH:mm'),
-            datetime: cursor.toISOString(),
+          // Check not already booked
+          const isBooked = bookedSlots.some((a) => {
+            const aEnd = new Date(a.scheduledAt.getTime() + a.durationMinutes * 60_000);
+            return cursor < aEnd && slotEnd > a.scheduledAt;
           });
-        }
 
-        cursor = slotEnd;
+          if (!isBlocked && !isBooked) {
+            slots.push({
+              date: format(date, 'yyyy-MM-dd'),
+              time: format(cursor, 'HH:mm'),
+              datetime: cursor.toISOString(),
+            });
+          }
+
+          cursor = slotEnd;
+        }
       }
     }
+
+    // Tri par datetime pour que les créneaux soient ordonnés même si le psy
+    // a plusieurs plages dans la journée (ex: matin + après-midi).
+    slots.sort((a, b) => a.datetime.localeCompare(b.datetime));
 
     return slots;
   }
@@ -404,6 +411,19 @@ export class PsychologistsService {
     return this.prisma.psychologist.update({
       where: { userId },
       data,
+    });
+  }
+
+  async getMyAvailability(userId: string) {
+    const psy = await this.prisma.psychologist.findUnique({
+      where: { userId },
+      select: { id: true },
+    });
+    if (!psy) throw new NotFoundException('Profil introuvable');
+    return this.prisma.availabilitySlot.findMany({
+      where: { psychologistId: psy.id, isActive: true },
+      select: { id: true, dayOfWeek: true, startTime: true, endTime: true },
+      orderBy: [{ dayOfWeek: 'asc' }, { startTime: 'asc' }],
     });
   }
 
