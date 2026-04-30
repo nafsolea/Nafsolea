@@ -426,6 +426,12 @@
     }
     .service-row--readonly:hover { border-color: var(--sage-dark); }
 
+    /* ── Anti-flicker : masqué jusqu'à la vérification auth ──────── */
+    /* La classe .auth-ready est ajoutée par init() une fois l'auth validée.
+       Sans elle, le contenu reste invisible même si JS est lent. */
+    .booking-page { opacity: 0; transition: opacity 0.18s ease; }
+    .booking-page.auth-ready { opacity: 1; }
+
     /* ── Étape paiement Stripe ──────────────────────────────────── */
     .payment-amount-badge {
       display: inline-flex;
@@ -1024,6 +1030,8 @@
       window.location.href = `login.html?redirect=${encodeURIComponent(target)}`;
       return;
     }
+    // Auth validée — rendre la page visible (anti-flicker)
+    document.querySelector('.booking-page')?.classList.add('auth-ready');
 
     // ── Détection retour Stripe 3DS ───────────────────────────────
     // Si Stripe redirige ici après une authentification 3D Secure,
@@ -1516,9 +1524,17 @@
       return;
     }
 
-    // ── Stripe pas encore configuré (bêta) ─────────────────────
+    // ── Stripe — vérification (retry si l'init a échoué, ex: cold start) ─
     if (!stripeConfig?.isConfigured) {
-      showToast('Le paiement en ligne n\'est pas encore activé. Stripe doit être configuré dans les variables d\'environnement.', 'warning');
+      try {
+        stripeConfig = await API.payments.config();
+        if (stripeConfig?.isConfigured && typeof Stripe !== 'undefined' && !stripeInstance) {
+          stripeInstance = Stripe(stripeConfig.publishableKey);
+        }
+      } catch { /* non-bloquant */ }
+    }
+    if (!stripeConfig?.isConfigured) {
+      showToast('Le paiement n\'est pas encore disponible. L\'équipe Nafsoléa est prévenue.', 'warning');
       return;
     }
 

@@ -186,6 +186,13 @@ const API = (() => {
     deleteCampaign:(id)        => authDelete(`/newsletter/admin/campaigns/${id}`),
   };
 
+  // ── Contenu du site (CMS) ───────────────────────────────────────
+
+  const content = {
+    // Public — retourne { key: value } pour toutes les pages
+    getAll: () => get('/site-content'),
+  };
+
   // ── Admin endpoints ──────────────────────────────────────────────
 
   const admin = {
@@ -205,7 +212,10 @@ const API = (() => {
     createService:       (psyId, data)        => authPost(`/admin/psychologists/${psyId}/services`, data),
     updateService:       (psyId, sid, data)   => authPut(`/admin/psychologists/${psyId}/services/${sid}`, data),
     deleteService:       (psyId, sid)         => authDelete(`/admin/psychologists/${psyId}/services/${sid}`),
+    // Admin — gestion des contenus du site (CMS)
+    listContent:         ()                   => authGet('/admin/site-content'),
+    updateContent:       (key, value)         => authPut(`/admin/site-content/${encodeURIComponent(key)}`, { value }),
   };
 
-  return { get, post, authGet, authPost, authPut, authPatch, authDelete, auth, users, psychologists, appointments, payments, articles, newsletter, admin };
+  return { get, post, authGet, authPost, authPut, authPatch, authDelete, auth, users, psychologists, appointments, payments, articles, newsletter, content, admin };
 })();

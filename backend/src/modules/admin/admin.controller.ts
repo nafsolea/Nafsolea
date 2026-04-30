@@ -18,6 +18,7 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { CurrentUser, JwtPayload } from '../../common/decorators/current-user.decorator';
+import { Public } from '../../common/decorators/public.decorator';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.ADMIN)
@@ -200,5 +201,28 @@ export class AdminController {
     @Query('userId') userId?: string,
   ) {
     return this.service.getAuditLogs(page, limit, userId);
+  }
+
+  // ── Contenus du site (CMS) ───────────────────────────────────────
+
+  /**
+   * GET /api/v1/admin/site-content  (admin)
+   * Liste complète avec métadonnées pour l'UI d'administration.
+   */
+  @Get('site-content')
+  listSiteContent() {
+    return this.service.listSiteContent();
+  }
+
+  /**
+   * PUT /api/v1/admin/site-content/:key  (admin)
+   * Met à jour la valeur d'un champ de contenu.
+   */
+  @Put('site-content/:key')
+  updateSiteContent(
+    @Param('key') key: string,
+    @Body() body: { value: string },
+  ) {
+    return this.service.updateSiteContent(key, body.value);
   }
 }

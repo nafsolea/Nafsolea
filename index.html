@@ -105,23 +105,19 @@
         </div>
       </div>
 
-      <!-- Visual card -->
+      <!-- Visual card — chargée dynamiquement depuis l'API -->
       <div class="hero__visual" aria-hidden="true">
-        <div class="hero__card">
-          <div class="hero__card-avatar">👩‍⚕️</div>
-          <h4>Dr. Amira Mansouri</h4>
-          <p class="hero__card-role">Psychologue clinicienne · 8 ans d'expérience</p>
-          <div class="hero__card-tags">
-            <span class="tag tag--sage">Arabe · Français</span>
-            <span class="tag">Anxiété</span>
-            <span class="tag">Expatriation</span>
-            <span class="tag">Famille</span>
-          </div>
-          <div class="hero__card-availability">
+        <div class="hero__card" id="heroCard">
+          <!-- Skeleton affiché pendant le chargement -->
+          <div class="hero__card-avatar" id="heroCardAvatar" style="background:var(--sage-pale);color:transparent;overflow:hidden"></div>
+          <h4 id="heroCardName" class="skeleton" style="height:18px;width:70%;border-radius:4px;background:var(--sage-pale);margin-bottom:8px">&nbsp;</h4>
+          <p class="hero__card-role skeleton" id="heroCardRole" style="height:12px;width:80%;border-radius:4px;background:var(--sage-pale)">&nbsp;</p>
+          <div class="hero__card-tags" id="heroCardTags"></div>
+          <div class="hero__card-availability" id="heroCardAvail" style="display:none">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-            Disponible — prochain créneau : demain 10h
+            Disponible en ligne
           </div>
-          <a href="rendez-vous.html" class="btn btn--primary" style="width:100%">Réserver une séance</a>
+          <a href="rendez-vous.html" id="heroCardBtn" class="btn btn--primary" style="width:100%">Réserver une séance</a>
         </div>
 
         <div class="hero__floating-1" aria-hidden="true">
@@ -324,94 +320,45 @@
       <p>Chacun de nos psychologues est diplômé, certifié et formé à la sensibilité culturelle maghrébine.</p>
     </div>
 
-    <div class="grid-3">
-      <!-- Psy 1 -->
-      <article class="psychologist-card reveal">
+    <!-- Skeletons de chargement — remplacés par les vrais psys via JS -->
+    <div class="grid-3" id="homePsyGrid">
+      <article class="psychologist-card" aria-hidden="true" style="pointer-events:none">
         <div class="psychologist-card__header">
-          <div class="psychologist-card__photo-container" aria-hidden="true">👩‍⚕️</div>
-          <div class="psychologist-card__meta">
-            <h3>Dr. Amira Mansouri</h3>
-            <div class="psychologist-card__title">Psychologue clinicienne</div>
-            <div class="psychologist-card__langs">
-              <span class="lang-badge">FR</span>
-              <span class="lang-badge lang-badge--ar">عربي</span>
-            </div>
+          <div class="psychologist-card__photo-container skeleton" style="background:var(--sage-pale)"></div>
+          <div class="psychologist-card__meta" style="flex:1">
+            <div class="skeleton" style="height:16px;width:65%;background:var(--sage-pale);border-radius:4px;margin-bottom:8px"></div>
+            <div class="skeleton" style="height:12px;width:80%;background:var(--sage-pale);border-radius:4px"></div>
           </div>
         </div>
         <div class="psychologist-card__body">
-          <div class="psychologist-card__specialties">
-            <span class="tag tag--sage">Anxiété</span>
-            <span class="tag tag--sage">Expatriation</span>
-            <span class="tag tag--sage">Famille</span>
-          </div>
-          <p class="psychologist-card__bio">
-            Née à Alger, formée à Paris, Amira accompagne depuis 8 ans des personnes vivant entre deux cultures. Son approche est centrée sur les ressources internes et l'histoire familiale.
-          </p>
-          <a href="rendez-vous.html" class="btn btn--primary btn--sm">Réserver</a>
-        </div>
-        <div class="psychologist-card__footer">
-          <div class="psychologist-card__price"><strong>60€</strong> / séance</div>
-          <span class="badge badge--available">● Disponible</span>
+          <div class="skeleton" style="height:12px;width:90%;background:var(--sage-pale);border-radius:4px;margin-bottom:6px"></div>
+          <div class="skeleton" style="height:12px;width:75%;background:var(--sage-pale);border-radius:4px"></div>
         </div>
       </article>
-
-      <!-- Psy 2 -->
-      <article class="psychologist-card reveal reveal-delay-1">
+      <article class="psychologist-card" aria-hidden="true" style="pointer-events:none">
         <div class="psychologist-card__header">
-          <div class="psychologist-card__photo-container" aria-hidden="true">👨‍⚕️</div>
-          <div class="psychologist-card__meta">
-            <h3>Dr. Karim Belhadj</h3>
-            <div class="psychologist-card__title">Psychothérapeute · TCC</div>
-            <div class="psychologist-card__langs">
-              <span class="lang-badge">FR</span>
-              <span class="lang-badge lang-badge--ar">عربي</span>
-            </div>
+          <div class="psychologist-card__photo-container skeleton" style="background:var(--sage-pale)"></div>
+          <div class="psychologist-card__meta" style="flex:1">
+            <div class="skeleton" style="height:16px;width:55%;background:var(--sage-pale);border-radius:4px;margin-bottom:8px"></div>
+            <div class="skeleton" style="height:12px;width:70%;background:var(--sage-pale);border-radius:4px"></div>
           </div>
         </div>
         <div class="psychologist-card__body">
-          <div class="psychologist-card__specialties">
-            <span class="tag tag--sage">Dépression</span>
-            <span class="tag tag--sage">Stress</span>
-            <span class="tag tag--sage">Trauma</span>
-          </div>
-          <p class="psychologist-card__bio">
-            Karim utilise les thérapies cognitivo-comportementales (TCC) pour aider à reprendre le contrôle face à la dépression et aux phobies. Il privilégie un accompagnement concret et bienveillant.
-          </p>
-          <a href="rendez-vous.html" class="btn btn--primary btn--sm">Réserver</a>
-        </div>
-        <div class="psychologist-card__footer">
-          <div class="psychologist-card__price"><strong>55€</strong> / séance</div>
-          <span class="badge badge--available">● Disponible</span>
+          <div class="skeleton" style="height:12px;width:85%;background:var(--sage-pale);border-radius:4px;margin-bottom:6px"></div>
+          <div class="skeleton" style="height:12px;width:60%;background:var(--sage-pale);border-radius:4px"></div>
         </div>
       </article>
-
-      <!-- Psy 3 -->
-      <article class="psychologist-card reveal reveal-delay-2">
+      <article class="psychologist-card" aria-hidden="true" style="pointer-events:none">
         <div class="psychologist-card__header">
-          <div class="psychologist-card__photo-container" aria-hidden="true">👩‍⚕️</div>
-          <div class="psychologist-card__meta">
-            <h3>Mme. Nadia Cherif</h3>
-            <div class="psychologist-card__title">Psychologue · Couples & Relations</div>
-            <div class="psychologist-card__langs">
-              <span class="lang-badge">FR</span>
-              <span class="lang-badge lang-badge--ar">دارجة</span>
-            </div>
+          <div class="psychologist-card__photo-container skeleton" style="background:var(--sage-pale)"></div>
+          <div class="psychologist-card__meta" style="flex:1">
+            <div class="skeleton" style="height:16px;width:70%;background:var(--sage-pale);border-radius:4px;margin-bottom:8px"></div>
+            <div class="skeleton" style="height:12px;width:75%;background:var(--sage-pale);border-radius:4px"></div>
           </div>
         </div>
         <div class="psychologist-card__body">
-          <div class="psychologist-card__specialties">
-            <span class="tag tag--sage">Couple</span>
-            <span class="tag tag--sage">Identité</span>
-            <span class="tag tag--sage">Rupture</span>
-          </div>
-          <p class="psychologist-card__bio">
-            Nadia accompagne les femmes maghrébines dans leur chemin vers l'affirmation de soi, les questions relationnelles et la reconstruction post-rupture, avec une profonde sensibilité culturelle.
-          </p>
-          <a href="rendez-vous.html" class="btn btn--primary btn--sm">Réserver</a>
-        </div>
-        <div class="psychologist-card__footer">
-          <div class="psychologist-card__price"><strong>65€</strong> / séance</div>
-          <span class="badge badge--available">● Disponible</span>
+          <div class="skeleton" style="height:12px;width:80%;background:var(--sage-pale);border-radius:4px;margin-bottom:6px"></div>
+          <div class="skeleton" style="height:12px;width:65%;background:var(--sage-pale);border-radius:4px"></div>
         </div>
       </article>
     </div>
@@ -645,5 +592,109 @@
 <script src="assets/js/api.js"></script>
 <script src="assets/js/auth.js"></script>
 <script src="assets/js/main.js" defer></script>
+<script>
+  // ── Chargement des vrais psychologues sur la homepage ─────────────
+  (async function loadHomePsys() {
+    const grid = document.getElementById('homePsyGrid');
+    if (!grid) return;
+
+    const LANG_MAP = { fr:'FR', en:'EN', ar:'عربي', darija:'دارجة', darja:'دارجة', kabyle:'Kabyle' };
+
+    function escHtml(s) {
+      return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+    function fmtPrice(p) {
+      return Number(p).toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    }
+    function renderCard(p, delay) {
+      const name = escHtml(`${p.firstName || ''} ${p.lastName || ''}`.trim() || 'Psychologue');
+      const title = escHtml(p.title || (p.gender === 'M' ? 'Psychologue clinicien' : 'Psychologue clinicienne'));
+      const specs = (p.specialties || []).slice(0, 3).map(s => `<span class="tag tag--sage">${escHtml(s)}</span>`).join('');
+      const langs = (p.languages || []).map(l => {
+        const code = LANG_MAP[l] || l.toUpperCase();
+        const isAr = l === 'ar' || l === 'darija' || l === 'darja' || l === 'kabyle';
+        return `<span class="lang-badge${isAr ? ' lang-badge--ar' : ''}">${code}</span>`;
+      }).join('');
+      const avatar = p.avatarUrl
+        ? `<img src="${escHtml(p.avatarUrl)}" alt="${name}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`
+        : (p.gender === 'M' ? '👨‍⚕️' : '👩‍⚕️');
+      const price = p.sessionPrice != null ? `<strong>${fmtPrice(p.sessionPrice)}€</strong> / séance` : '';
+      const revealCls = delay ? ` reveal-delay-${delay}` : '';
+
+      return `
+        <a href="psychologue-detail.html?id=${escHtml(p.id)}" class="psychologist-card reveal${revealCls}" style="text-decoration:none;color:inherit;display:block">
+          <div class="psychologist-card__header">
+            <div class="psychologist-card__photo-container" aria-hidden="true">${avatar}</div>
+            <div class="psychologist-card__meta">
+              <h3>${name}</h3>
+              <div class="psychologist-card__title">${title}</div>
+              <div class="psychologist-card__langs">${langs}</div>
+            </div>
+          </div>
+          <div class="psychologist-card__body">
+            <div class="psychologist-card__specialties">${specs}</div>
+            ${p.bio ? `<p class="psychologist-card__bio">${escHtml(p.bio.slice(0, 160))}${p.bio.length > 160 ? '…' : ''}</p>` : ''}
+            <span class="btn btn--primary btn--sm">Réserver</span>
+          </div>
+          ${price ? `<div class="psychologist-card__footer"><div class="psychologist-card__price">${price}</div><span class="badge badge--available">● Disponible</span></div>` : ''}
+        </a>`;
+    }
+
+    try {
+      const res = await API.psychologists.list({ limit: 50 });
+      const all = res.data || (Array.isArray(res) ? res : []);
+      if (!all.length) { grid.innerHTML = ''; return; }
+
+      // Fisher-Yates partiel pour 3 aléatoires
+      const pool = all.slice();
+      for (let i = 0; i < Math.min(3, pool.length); i++) {
+        const j = i + Math.floor(Math.random() * (pool.length - i));
+        [pool[i], pool[j]] = [pool[j], pool[i]];
+      }
+      const pick = pool.slice(0, 3);
+
+      grid.innerHTML = pick.map((p, i) => renderCard(p, i)).join('');
+      // Déclencher les animations reveal
+      if (typeof window.observeReveals === 'function') window.observeReveals(grid);
+
+      // ── Remplir la hero card avec le 1er psy de la sélection ────
+      const hero = pick[0];
+      if (hero) {
+        const hName = `${hero.firstName || ''} ${hero.lastName || ''}`.trim();
+        const hTitle = hero.title || (hero.gender === 'M' ? 'Psychologue clinicien' : 'Psychologue clinicienne');
+        const nameEl = document.getElementById('heroCardName');
+        const roleEl = document.getElementById('heroCardRole');
+        const tagsEl = document.getElementById('heroCardTags');
+        const avalEl = document.getElementById('heroCardAvail');
+        const avatEl = document.getElementById('heroCardAvatar');
+        const btnEl  = document.getElementById('heroCardBtn');
+        if (nameEl) { nameEl.textContent = hName; nameEl.className = 'hero__card-name'; }
+        if (roleEl) { roleEl.textContent = hTitle; roleEl.className = 'hero__card-role'; }
+        if (avatEl) {
+          avatEl.style.background = '';
+          avatEl.style.color = '';
+          if (hero.avatarUrl) {
+            avatEl.innerHTML = `<img src="${escHtml(hero.avatarUrl)}" alt="${escHtml(hName)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+          } else {
+            avatEl.textContent = hero.gender === 'M' ? '👨‍⚕️' : '👩‍⚕️';
+          }
+        }
+        if (tagsEl) {
+          const specs = (hero.specialties || []).slice(0, 3).map(s => `<span class="tag tag--sage">${escHtml(s)}</span>`).join('');
+          const langs = (hero.languages || []).map(l => {
+            const code = LANG_MAP[l] || l.toUpperCase();
+            return `<span class="tag">${code}</span>`;
+          }).join('');
+          tagsEl.innerHTML = langs + specs;
+        }
+        if (avalEl) avalEl.style.display = 'flex';
+        if (btnEl)  btnEl.href = `rendez-vous.html?psy=${escHtml(hero.id)}`;
+      }
+    } catch {
+      // En cas d'erreur API, on cache juste la grille (pas de faux psys)
+      grid.innerHTML = '';
+    }
+  })();
+</script>
 </body>
 </html>

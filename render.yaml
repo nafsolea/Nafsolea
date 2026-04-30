@@ -47,12 +47,13 @@ services:
         sync: false                           # URL Netlify, ex: https://nafsolea.netlify.app
 
       # ─── Stripe (mode TEST en bêta) ──────────────────────────────
+      # ⚠️ À remplir dans le dashboard Render (Developers → API keys sur stripe.com)
       - key: STRIPE_SECRET_KEY
-        value: sk_test_placeholder_replace_me
+        sync: false                           # sk_test_... depuis stripe.com
       - key: STRIPE_PUBLISHABLE_KEY
-        value: pk_test_placeholder_replace_me
+        sync: false                           # pk_test_... depuis stripe.com
       - key: STRIPE_WEBHOOK_SECRET
-        value: whsec_placeholder
+        sync: false                           # whsec_... depuis stripe.com → Webhooks
       - key: STRIPE_CURRENCY
         value: EUR
 

@@ -406,4 +406,25 @@ export class AdminService {
 
     return { data: logs, meta: { total, page, limit } };
   }
+
+  // ── Contenus du site (CMS) ───────────────────────────────────────
+
+  /** Retourne tous les contenus sous forme { key: value } pour le frontend public. */
+  async getSiteContentMap(): Promise<Record<string, string>> {
+    const entries = await this.prisma.siteContent.findMany({ orderBy: { key: 'asc' } });
+    return Object.fromEntries(entries.map(e => [e.key, e.value]));
+  }
+
+  /** Retourne la liste complète avec métadonnées pour l'interface admin. */
+  async listSiteContent() {
+    return this.prisma.siteContent.findMany({ orderBy: [{ page: 'asc' }, { key: 'asc' }] });
+  }
+
+  /** Met à jour la valeur d'un contenu par sa clé. */
+  async updateSiteContent(key: string, value: string) {
+    const entry = await this.prisma.siteContent.findUnique({ where: { key } });
+    if (!entry) throw new NotFoundException(`Contenu introuvable : ${key}`);
+    if (typeof value !== 'string') throw new BadRequestException('La valeur doit être une chaîne de caractères');
+    return this.prisma.siteContent.update({ where: { key }, data: { value } });
+  }
 }

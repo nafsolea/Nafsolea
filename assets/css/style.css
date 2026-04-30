@@ -192,8 +192,8 @@ p { color: var(--text-light); max-width: 65ch; }
    et on affiche la PNG en background. Le hover assombrit légèrement l'image. */
 .nav__logo {
   display: inline-block;
-  width: 148px;
-  height: 48px;
+  width: 190px;
+  height: 58px;
   background-image: url('../../Logos/Logo%20Principal.png');
   background-size: contain;
   background-repeat: no-repeat;
@@ -1128,8 +1128,8 @@ p { color: var(--text-light); max-width: 65ch; }
      bien avec le footer et seul le texte "Nafsoléa" en blanc reste visible. */
   color: transparent;
   font-size: 0;
-  width: 180px;
-  height: 56px;
+  width: 220px;
+  height: 68px;
   background-image: url('../../Logos/D%C3%A9clinaison%2002.png');
   background-size: contain;
   background-repeat: no-repeat;

@@ -450,3 +450,18 @@ model AuditLog {
   @@index([action, createdAt])
   @@map("audit_logs")
 }
+
+// ─── Contenus du site (CMS léger) ────────────────────────────────
+// Permet à l'admin de modifier les textes publics sans redéployer.
+// Chaque entrée est identifiée par une clé type "home.hero.title".
+
+model SiteContent {
+  key       String   @id              // ex: "home.hero.title"
+  value     String   @db.Text        // valeur actuelle (texte brut ou HTML léger)
+  label     String                   // libellé lisible pour l'admin, ex: "Titre héro accueil"
+  page      String                   // ex: "home", "about", "faq", "howItWorks", "psychologues"
+  type      String   @default("text") // "text" | "textarea" | "html"
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("site_content")
+}
