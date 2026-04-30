@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/style.css">
+  <script src="https://js.stripe.com/v3/"></script>
   <style>
     .booking-page {
       padding-top: calc(72px + var(--space-8));
@@ -424,6 +425,46 @@
       grid-template-columns: 1fr auto;
     }
     .service-row--readonly:hover { border-color: var(--sage-dark); }
+
+    /* ── Étape paiement Stripe ──────────────────────────────────── */
+    .payment-amount-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      background: var(--sage-pale);
+      color: var(--sage-dark);
+      font-weight: 700;
+      padding: 6px 18px;
+      border-radius: var(--radius-full);
+      margin-bottom: var(--space-6);
+      font-size: 1.05rem;
+    }
+    #stripe-element-container {
+      margin-bottom: var(--space-5);
+      min-height: 48px;
+    }
+    .stripe-error {
+      color: #B91C1C;
+      background: #FEE2E2;
+      border: 1px solid #FECACA;
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      font-size: .875rem;
+      margin-bottom: var(--space-4);
+      display: none;
+    }
+    .stripe-error.show { display: block; }
+    .payment-spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.4); border-top-color: white; border-radius: 50%; animation: spin .65s linear infinite; vertical-align: middle; margin-right: 8px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .beta-notice {
+      background: #FEF3C7; border: 1px solid #FDE68A;
+      border-radius: var(--radius-md);
+      padding: var(--space-5);
+      margin-bottom: var(--space-6);
+      font-size: .9rem;
+      color: #78350F;
+      line-height: 1.6;
+    }
   </style>
 </head>
 <body>
@@ -504,45 +545,31 @@
             </div>
 
             <div class="psy-selector" role="radiogroup" aria-label="Choisir un psychologue" id="psySelectorGrid">
-              <label class="psy-select-row selected" for="psy-1">
-                <input type="radio" id="psy-1" name="psy" value="amira" checked>
-                <div class="psy-select-avatar">👩‍⚕️</div>
-                <div class="psy-select-info">
-                  <h4>Dr. Amira Mansouri</h4>
-                  <p>Anxiété · Expatriation · FR / عربي · Disponible aujourd'hui</p>
+              <!-- Skeleton de chargement — remplacé par les vrais psys via init() -->
+              <div class="psy-select-row" aria-hidden="true" style="pointer-events:none">
+                <div class="psy-select-avatar skeleton" style="background:var(--sage-pale);border-radius:50%;width:48px;height:48px"></div>
+                <div class="psy-select-info" style="flex:1">
+                  <div class="skeleton" style="height:14px;width:60%;background:var(--sage-pale);border-radius:4px;margin-bottom:6px"></div>
+                  <div class="skeleton" style="height:11px;width:80%;background:var(--sage-pale);border-radius:4px;opacity:.7"></div>
                 </div>
-                <div class="psy-select-price">60€</div>
-              </label>
-
-              <label class="psy-select-row" for="psy-2">
-                <input type="radio" id="psy-2" name="psy" value="karim">
-                <div class="psy-select-avatar">👨‍⚕️</div>
-                <div class="psy-select-info">
-                  <h4>Dr. Karim Belhadj</h4>
-                  <p>Dépression · Trauma · FR / عربي · Disponible aujourd'hui</p>
+                <div class="skeleton" style="height:18px;width:48px;background:var(--sage-pale);border-radius:4px"></div>
+              </div>
+              <div class="psy-select-row" aria-hidden="true" style="pointer-events:none">
+                <div class="psy-select-avatar skeleton" style="background:var(--sage-pale);border-radius:50%;width:48px;height:48px"></div>
+                <div class="psy-select-info" style="flex:1">
+                  <div class="skeleton" style="height:14px;width:55%;background:var(--sage-pale);border-radius:4px;margin-bottom:6px"></div>
+                  <div class="skeleton" style="height:11px;width:75%;background:var(--sage-pale);border-radius:4px;opacity:.7"></div>
                 </div>
-                <div class="psy-select-price">55€</div>
-              </label>
-
-              <label class="psy-select-row" for="psy-3">
-                <input type="radio" id="psy-3" name="psy" value="nadia">
-                <div class="psy-select-avatar">👩‍⚕️</div>
-                <div class="psy-select-info">
-                  <h4>Mme. Nadia Cherif</h4>
-                  <p>Couple · Identité · FR / دارجة · Prochain créneau : demain</p>
+                <div class="skeleton" style="height:18px;width:48px;background:var(--sage-pale);border-radius:4px"></div>
+              </div>
+              <div class="psy-select-row" aria-hidden="true" style="pointer-events:none">
+                <div class="psy-select-avatar skeleton" style="background:var(--sage-pale);border-radius:50%;width:48px;height:48px"></div>
+                <div class="psy-select-info" style="flex:1">
+                  <div class="skeleton" style="height:14px;width:65%;background:var(--sage-pale);border-radius:4px;margin-bottom:6px"></div>
+                  <div class="skeleton" style="height:11px;width:70%;background:var(--sage-pale);border-radius:4px;opacity:.7"></div>
                 </div>
-                <div class="psy-select-price">65€</div>
-              </label>
-
-              <label class="psy-select-row" for="psy-4">
-                <input type="radio" id="psy-4" name="psy" value="youcef">
-                <div class="psy-select-avatar">👨‍⚕️</div>
-                <div class="psy-select-info">
-                  <h4>Dr. Youcef Aït-Ahmed</h4>
-                  <p>Identité · Pression familiale · FR / عربي · Disponible aujourd'hui</p>
-                </div>
-                <div class="psy-select-price">50€</div>
-              </label>
+                <div class="skeleton" style="height:18px;width:48px;background:var(--sage-pale);border-radius:4px"></div>
+              </div>
             </div>
 
             <div style="display:flex; align-items:center; gap:var(--space-3); margin-top:var(--space-4); padding:var(--space-4); background:var(--sage-pale); border-radius:var(--radius-md)">
@@ -733,7 +760,38 @@
             </div>
 
             <p style="font-size:0.78rem; color:var(--text-muted); margin-top:var(--space-4); text-align:center; max-width:none">
-              💳 Paiement sécurisé · La première séance est entièrement gratuite · Annulation possible jusqu'à 24h avant
+              💳 Paiement sécurisé via Stripe · Annulation possible jusqu'à 24h avant · Données chiffrées
+            </p>
+          </div>
+        </div>
+
+        <!-- STEP PAIEMENT (Stripe) -->
+        <div class="booking-step" id="step-payment">
+          <div class="booking__panel">
+            <div class="step-section-title">
+              <span>💳</span> Paiement sécurisé
+            </div>
+
+            <p style="color:var(--text-muted);font-size:.9rem;margin-bottom:var(--space-5);max-width:none">
+              Votre créneau est réservé. Finalisez le paiement pour confirmer votre séance.
+            </p>
+
+            <div class="payment-amount-badge" id="payment-amount-display">—</div>
+
+            <!-- Zone Stripe Elements (montée dynamiquement) -->
+            <div id="stripe-element-container"></div>
+
+            <div class="stripe-error" id="stripe-error-msg"></div>
+
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:var(--space-4);flex-wrap:wrap;margin-top:var(--space-2)">
+              <button class="btn btn--ghost" id="cancel-payment-btn">Annuler la réservation</button>
+              <button class="btn btn--primary btn--lg" id="submit-payment-btn">
+                💳 Payer maintenant
+              </button>
+            </div>
+
+            <p style="font-size:.75rem;color:var(--text-muted);margin-top:var(--space-5);text-align:center;max-width:none">
+              🔒 Paiement chiffré SSL · Propulsé par Stripe · Aucune donnée bancaire stockée par Nafsoléa
             </p>
           </div>
         </div>
@@ -768,7 +826,7 @@
                     <span style="font-size:1.2rem">💚</span>
                     <div>
                       <div style="font-size:0.75rem; color:var(--text-muted)">Tarif</div>
-                      <div style="font-weight:600; color:var(--sage-dark)">Gratuit (première séance)</div>
+                      <div style="font-weight:600; color:var(--sage-dark)" id="confirm-amount">—</div>
                     </div>
                   </div>
                 </div>
@@ -802,8 +860,8 @@
           <div class="summary-item">
             <span class="summary-item__icon">🎯</span>
             <div>
-              <div class="summary-item__label">Spécialité</div>
-              <div class="summary-item__value">Anxiété · Expatriation</div>
+              <div class="summary-item__label">Spécialités</div>
+              <div class="summary-item__value" id="summary-specialties">—</div>
             </div>
           </div>
 
@@ -811,7 +869,7 @@
             <span class="summary-item__icon">🌍</span>
             <div>
               <div class="summary-item__label">Langues</div>
-              <div class="summary-item__value">Français · عربي</div>
+              <div class="summary-item__value" id="summary-languages">—</div>
             </div>
           </div>
 
@@ -819,7 +877,7 @@
             <span class="summary-item__icon">📅</span>
             <div>
               <div class="summary-item__label">Date</div>
-              <div class="summary-item__value" id="summary-date">Jeudi 10 juillet 2025</div>
+              <div class="summary-item__value" id="summary-date">—</div>
             </div>
           </div>
 
@@ -827,7 +885,7 @@
             <span class="summary-item__icon">🕐</span>
             <div>
               <div class="summary-item__label">Heure</div>
-              <div class="summary-item__value" id="summary-time">11h00</div>
+              <div class="summary-item__value" id="summary-time">—</div>
             </div>
           </div>
 
@@ -835,16 +893,15 @@
             <span class="summary-item__icon">⏱️</span>
             <div>
               <div class="summary-item__label">Durée</div>
-              <div class="summary-item__value">50 minutes</div>
+              <div class="summary-item__value" id="summary-duration">—</div>
             </div>
           </div>
         </div>
 
         <div class="summary-footer">
-          <div class="summary-free-badge">✓ Première séance offerte</div>
           <div class="summary-total-row">
             <span>Total à payer</span>
-            <div class="summary-total-price">0€</div>
+            <div class="summary-total-price" id="summary-total">—</div>
           </div>
           <div class="trust-items">
             <div class="trust-item">🔒 Paiement sécurisé SSL</div>
@@ -893,6 +950,12 @@
   let displayedMonth    = { year: new Date().getFullYear(), month: new Date().getMonth() };
   // Limite : pas de réservation au-delà de 3 mois dans le futur
   const MAX_MONTHS_AHEAD = 3;
+
+  // ── Stripe state ─────────────────────────────────────────────────
+  let stripeConfig        = null;   // { publishableKey, currency, isConfigured }
+  let stripeInstance      = null;   // Stripe(publishableKey)
+  let stripeElements      = null;   // stripe.elements({ clientSecret })
+  let currentAppointmentId = null;  // ID du RDV créé, pour afficher la confirmation
 
   function fmtPriceEUR(n) {
     return Number(n).toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' €';
@@ -951,6 +1014,42 @@
 
   // ── STEP 1 — Psychologist list ───────────────────────────────────
   async function init() {
+    // ── Auth gate ─────────────────────────────────────────────────
+    // On exige la connexion AVANT que la patiente puisse choisir un
+    // psy / créneau. Si elle n'est pas connectée, on la redirige vers
+    // /login.html?redirect=… (les params de l'URL — psy, serviceId — sont
+    // préservés et restaurés après login).
+    if (!Auth.isLoggedIn()) {
+      const target = window.location.pathname + window.location.search;
+      window.location.href = `login.html?redirect=${encodeURIComponent(target)}`;
+      return;
+    }
+
+    // ── Détection retour Stripe 3DS ───────────────────────────────
+    // Si Stripe redirige ici après une authentification 3D Secure,
+    // l'URL contient ?payment_intent_client_secret=... On récupère
+    // le statut et on affiche la confirmation ou l'erreur.
+    const urlParams0 = new URLSearchParams(window.location.search);
+    const piClientSecret = urlParams0.get('payment_intent_client_secret');
+    const piStatus       = urlParams0.get('redirect_status');
+    const piApptId       = urlParams0.get('appointmentId');
+    if (piClientSecret && piStatus) {
+      if (piStatus === 'succeeded') {
+        showConfirmScreen(piApptId, null);
+      } else {
+        // Nettoyage URL propre, puis on ré-init le booking avec un toast d'erreur
+        history.replaceState({}, '', window.location.pathname);
+        setTimeout(() => showToast('Le paiement a échoué ou a été annulé. Réessayez.', 'error'), 300);
+      }
+      return;
+    }
+
+    // ── Chargement de la configuration Stripe ────────────────────
+    try { stripeConfig = await API.payments.config(); } catch { stripeConfig = { isConfigured: false }; }
+    if (stripeConfig?.isConfigured && typeof Stripe !== 'undefined') {
+      stripeInstance = Stripe(stripeConfig.publishableKey);
+    }
+
     const urlParams      = new URLSearchParams(window.location.search);
     const urlPsyId       = urlParams.get('psy');
     const urlServiceId   = urlParams.get('serviceId');
@@ -1110,16 +1209,58 @@
     }
   }
 
+  // Met à jour la durée / prix dans le récap selon la prestation (ou
+  // la valeur legacy du psy si pas de prestation).
+  function updateSummaryPricing() {
+    const durEl = document.getElementById('summary-duration');
+    const totEl = document.getElementById('summary-total');
+    if (!selectedPsy) {
+      if (durEl) durEl.textContent = '—';
+      if (totEl) totEl.textContent = '—';
+      return;
+    }
+    const dur = selectedService?.durationMinutes
+      ?? selectedPsy.sessionDuration
+      ?? null;
+    const price = selectedService?.price
+      ?? selectedPsy.sessionPrice
+      ?? selectedPsy.sessionRate
+      ?? null;
+    if (durEl) durEl.textContent = dur ? `${dur} minutes` : '—';
+    if (totEl) totEl.textContent = price != null ? fmtPriceEUR(price) : '—';
+  }
+
+  function updateSummaryPsy(psy) {
+    const nameEl  = document.getElementById('summary-psy-name');
+    const specEl  = document.getElementById('summary-specialties');
+    const langEl  = document.getElementById('summary-languages');
+    const name = `${psy?.firstName || ''} ${psy?.lastName || ''}`.trim() || '—';
+    if (nameEl) nameEl.textContent = name;
+
+    const specs = (psy?.specialties || []).slice(0, 3).join(' · ');
+    if (specEl) specEl.textContent = specs || '—';
+
+    const langs = (psy?.languages || []).map(l => {
+      if (l === 'ar') return 'عربي';
+      if (l === 'darija' || l === 'darja') return 'دارجة';
+      if (l === 'kabyle') return 'Kabyle';
+      if (l === 'fr') return 'Français';
+      if (l === 'en') return 'Anglais';
+      return l;
+    }).join(' · ');
+    if (langEl) langEl.textContent = langs || '—';
+  }
+
   async function selectPsy(psy, opts = {}) {
     selectedPsy     = psy;
     selectedService = null;
     psyServices     = [];
     selectedDate    = null;
     selectedTime    = null;
-    const name = `${psy.firstName || ''} ${psy.lastName || ''}`.trim();
-    document.getElementById('summary-psy-name').textContent = name;
+    updateSummaryPsy(psy);
     document.getElementById('summary-date').textContent = '—';
     document.getElementById('summary-time').textContent = '—';
+    updateSummaryPricing();
 
     // Désactiver le bouton "Choisir un créneau" pendant le chargement
     // pour éviter la race condition (utilisateur clique avant que getServices réponde).
@@ -1178,6 +1319,7 @@
           </div>
           <div class="service-row__price">${fmtPriceEUR(s.price)}</div>
         </div>`;
+      updateSummaryPricing();
       return;
     }
 
@@ -1204,8 +1346,11 @@
         list.querySelectorAll('.service-row').forEach(r => r.classList.remove('selected'));
         radio.closest('.service-row').classList.add('selected');
         selectedService = psyServices.find(s => s.id === radio.value) || null;
+        updateSummaryPricing();
       });
     });
+    // Si on a pré-sélectionné un service depuis l'URL/intent, refléter dans le récap.
+    updateSummaryPricing();
   }
 
   // ── STEP 2 — Slots calendar ───────────────────────────────────────
@@ -1359,7 +1504,7 @@
     const form = document.getElementById('booking-form');
     if (!form.checkValidity()) { form.reportValidity(); return; }
 
-    // Auth gate
+    // Auth gate (ne devrait pas arriver — init() vérifie déjà)
     if (!Auth.isLoggedIn()) {
       sessionStorage.setItem('bookingIntent', JSON.stringify({
         psyId: selectedPsy?.id,
@@ -1371,36 +1516,122 @@
       return;
     }
 
+    // ── Stripe pas encore configuré (bêta) ─────────────────────
+    if (!stripeConfig?.isConfigured) {
+      showToast('Le paiement en ligne n\'est pas encore activé. Stripe doit être configuré dans les variables d\'environnement.', 'warning');
+      return;
+    }
+
     const btn = document.getElementById('confirm-btn');
     btn.disabled    = true;
-    btn.textContent = '⏳ Réservation en cours…';
+    btn.innerHTML   = '<span class="payment-spinner"></span>Réservation en cours…';
 
     try {
       const scheduledAt = new Date(`${selectedDate}T${selectedTime}`).toISOString();
       const bookPayload = { psychologistId: selectedPsy.id, scheduledAt };
       if (selectedService?.id) bookPayload.serviceId = selectedService.id;
-      await API.appointments.book(bookPayload);
 
-      // Fill confirmation screen
-      const name = `${selectedPsy.firstName || ''} ${selectedPsy.lastName || ''}`.trim();
-      const d    = new Date(scheduledAt);
-      document.getElementById('confirm-psy-name').textContent = name;
-      document.getElementById('confirm-date').textContent =
-        d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-      document.getElementById('confirm-time').textContent = selectedTime.slice(0, 5);
+      const appt = await API.appointments.book(bookPayload);
+      currentAppointmentId = appt?.id || appt?.appointmentId || null;
 
-      // Show confirmation
+      const clientSecret = appt?.payment?.clientSecret || null;
+      // Le backend retourne payment.amount en euros (ex: 70.0), pas en centimes
+      const amountEUR    = appt?.payment?.amount != null ? Number(appt.payment.amount) : null;
+      const amountCents  = amountEUR != null ? Math.round(amountEUR * 100) : null;
+
+      if (!clientSecret) {
+        // Pas de paiement requis (montant 0 ou cas edge) — confirmation directe
+        showConfirmScreen(currentAppointmentId, amountCents ?? 0);
+        return;
+      }
+
+      // ── Afficher l'étape paiement ─────────────────────────────
+      const amountDisplay = amountEUR != null
+        ? amountEUR.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €'
+        : '—';
+      document.getElementById('payment-amount-display').textContent = amountDisplay;
+
+      stripeElements = stripeInstance.elements({ clientSecret, locale: 'fr' });
+      const payEl = stripeElements.create('payment');
+      document.getElementById('stripe-element-container').innerHTML = '';
+      payEl.mount('#stripe-element-container');
+
       document.querySelectorAll('.booking-step').forEach(s => s.classList.remove('active'));
-      document.getElementById('step-confirm').classList.add('active');
+      document.getElementById('step-payment').classList.add('active');
       document.querySelector('.booking__steps-indicator').style.display = 'none';
       window.scrollTo({ top: 0, behavior: 'smooth' });
 
     } catch (err) {
       showToast('Erreur : ' + (err.message || 'Réservation impossible.'), 'error');
-      btn.disabled    = false;
-      btn.textContent = '🔒 Confirmer ma réservation';
+      btn.disabled  = false;
+      btn.innerHTML = '🔒 Confirmer ma réservation';
     }
   });
+
+  // ── Paiement Stripe — bouton "Payer maintenant" ───────────────────
+  document.getElementById('submit-payment-btn').addEventListener('click', async () => {
+    if (!stripeElements || !stripeInstance) return;
+    const btn    = document.getElementById('submit-payment-btn');
+    const errEl  = document.getElementById('stripe-error-msg');
+    errEl.classList.remove('show');
+    btn.disabled  = true;
+    btn.innerHTML = '<span class="payment-spinner"></span>Paiement en cours…';
+
+    const returnUrl = `${window.location.origin}${window.location.pathname}?appointmentId=${currentAppointmentId}`;
+
+    const { error, paymentIntent } = await stripeInstance.confirmPayment({
+      elements: stripeElements,
+      confirmParams: { return_url: returnUrl },
+      redirect: 'if_required',   // pas de redirect si non nécessaire (ex: carte simple)
+    });
+
+    if (error) {
+      errEl.textContent = error.message || 'Le paiement a échoué. Vérifiez vos informations.';
+      errEl.classList.add('show');
+      btn.disabled  = false;
+      btn.innerHTML = '💳 Payer maintenant';
+      return;
+    }
+
+    if (paymentIntent?.status === 'succeeded' || paymentIntent?.status === 'processing') {
+      // paymentIntent.amount est en centimes (format Stripe)
+      showConfirmScreen(currentAppointmentId, paymentIntent.amount);
+    }
+  });
+
+  // ── Annuler le paiement ───────────────────────────────────────────
+  document.getElementById('cancel-payment-btn').addEventListener('click', async () => {
+    if (!confirm('Annuler la réservation ? Votre créneau sera libéré.')) return;
+    try {
+      if (currentAppointmentId) await API.appointments.cancel(currentAppointmentId, 'Annulé par la patiente lors du paiement');
+    } catch { /* non-bloquant */ }
+    // Revenir au step 3 (coordonnées)
+    document.querySelector('.booking__steps-indicator').style.display = '';
+    goToStep(3);
+  });
+
+  // ── Afficher l'écran de confirmation ─────────────────────────────
+  function showConfirmScreen(appointmentId, amountCents) {
+    const name = `${selectedPsy?.firstName || ''} ${selectedPsy?.lastName || ''}`.trim();
+    const d    = selectedDate && selectedTime ? new Date(`${selectedDate}T${selectedTime}`) : null;
+    document.getElementById('confirm-psy-name').textContent = name || '—';
+    if (d) {
+      document.getElementById('confirm-date').textContent =
+        d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+      document.getElementById('confirm-time').textContent = selectedTime?.slice(0, 5) || '—';
+    }
+    const amountText = amountCents == null
+      ? '—'
+      : amountCents === 0
+        ? 'Offert'
+        : (amountCents / 100).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+    document.getElementById('confirm-amount').textContent = amountText;
+
+    document.querySelectorAll('.booking-step').forEach(s => s.classList.remove('active'));
+    document.getElementById('step-confirm').classList.add('active');
+    document.querySelector('.booking__steps-indicator').style.display = 'none';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 
   // ── Launch ────────────────────────────────────────────────────────
   init();

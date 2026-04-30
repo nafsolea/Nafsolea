@@ -780,12 +780,24 @@
 
   // ── Appointment status helpers ────────────────────────────────────
   const STATUS_LABELS = {
-    CONFIRMED:            ['confirmed', 'Confirmé'],
-    COMPLETED:            ['completed', 'Terminé'],
-    PENDING_PAYMENT:      ['pending',   'En attente de paiement'],
-    CANCELLED_BY_PATIENT: ['cancelled', 'Annulé par vous'],
-    CANCELLED_BY_PSY:     ['cancelled', 'Annulé par le psy'],
+    CONFIRMED:                ['confirmed', 'Confirmé'],
+    IN_PROGRESS:              ['confirmed', 'En cours'],
+    COMPLETED:                ['completed', 'Terminé'],
+    PENDING_PAYMENT:          ['pending',   'En attente de paiement'],
+    EXPIRED:                  ['cancelled', 'Expiré (paiement non finalisé)'],
+    CANCELLED_BY_PATIENT:     ['cancelled', 'Annulé par vous'],
+    CANCELLED_BY_PSY:         ['cancelled', 'Annulé par le psy'],
+    CANCELLED_BY_PSYCHOLOGIST:['cancelled', 'Annulé par le psy'],
   };
+
+  // Un RDV est considéré "terminé/inactif" s'il a été annulé ou si le créneau
+  // de paiement a expiré (le slot a été libéré côté serveur).
+  function isInactiveStatus(status) {
+    if (!status) return false;
+    return status === 'EXPIRED'
+        || status === 'COMPLETED'
+        || status.startsWith('CANCELLED');
+  }
 
   function apptBadge(status) {
     const [cls, label] = STATUS_LABELS[status] || ['pending', status];
@@ -810,9 +822,11 @@
     let list = [...allAppointments];
 
     if (activeFilter === 'upcoming') {
-      list = list.filter(a => new Date(a.scheduledAt) >= now && !a.status?.startsWith('CANCELLED'));
+      // "À venir" = uniquement les RDV futurs encore actifs (ni expirés, ni annulés, ni terminés).
+      list = list.filter(a => new Date(a.scheduledAt) >= now && !isInactiveStatus(a.status));
     } else if (activeFilter === 'past') {
-      list = list.filter(a => new Date(a.scheduledAt) < now || a.status?.startsWith('CANCELLED'));
+      // "Passés" = RDV dont la date est passée OU dont le statut indique qu'ils sont inactifs.
+      list = list.filter(a => new Date(a.scheduledAt) < now || isInactiveStatus(a.status));
     }
 
     if (!list.length) {

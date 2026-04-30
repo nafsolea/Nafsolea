@@ -186,37 +186,38 @@ p { color: var(--text-light); max-width: 65ch; }
   margin-inline: auto;
 }
 
-/* Logo — blob bleu organique */
+/* Logo — image PNG officielle (Logos/Logo Principal.png).
+   On garde la balise <a class="nav__logo">…<div class="nav__logo-mark">…SVG…</div> Nafsoléa</a>
+   pour ne pas avoir à modifier toutes les pages, mais on cache le contenu
+   et on affiche la PNG en background. Le hover assombrit légèrement l'image. */
 .nav__logo {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  background: var(--blue);
-  color: white;
-  padding: 8px 18px 8px 10px;
-  border-radius: 18px 22px 20px 16px / 16px 20px 22px 18px;
-  font-family: var(--font-heading);
-  font-size: 1.15rem;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  transition: background var(--tr), transform var(--tr), box-shadow var(--tr);
+  display: inline-block;
+  width: 148px;
+  height: 48px;
+  background-image: url('../../Logos/Logo%20Principal.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: left center;
+  background-color: transparent;
+  border-radius: 0;
+  padding: 0;
+  /* Cache le texte "Nafsoléa" qui suit le <div class="nav__logo-mark"> */
+  font-size: 0;
+  color: transparent;
+  text-indent: -9999px;
+  overflow: hidden;
+  vertical-align: middle;
+  transition: opacity var(--tr), transform var(--tr);
 }
 .nav__logo:hover {
-  background: var(--navy);
+  background-color: transparent;
+  opacity: 0.85;
   transform: translateY(-1px);
-  box-shadow: var(--shadow-sage);
+  box-shadow: none;
 }
-
-.nav__logo-mark {
-  width: 30px;
-  height: 30px;
-  background: rgba(255,255,255,0.18);
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
+/* Cache le SVG inline (ancien rendu CSS du logo) */
+.nav__logo > * { display: none; }
+.nav__logo-mark { display: none; }
 
 .nav__links {
   display: flex;
@@ -1122,9 +1123,17 @@ p { color: var(--text-light); max-width: 65ch; }
 }
 
 .footer__brand h3 {
-  color: white;
-  font-size: 1.7rem;
-  font-weight: 700;
+  /* Affiche la déclinaison navy/blanc du logo (Logos/Déclinaison 02.png).
+     Le footer étant sur fond navy gradient, le fond navy de l'image se fond
+     bien avec le footer et seul le texte "Nafsoléa" en blanc reste visible. */
+  color: transparent;
+  font-size: 0;
+  width: 180px;
+  height: 56px;
+  background-image: url('../../Logos/D%C3%A9clinaison%2002.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: left center;
   margin-bottom: var(--space-3);
   letter-spacing: -0.01em;
 }
@@ -1142,10 +1151,13 @@ p { color: var(--text-light); max-width: 65ch; }
   background: rgba(255, 255, 255, 0.07);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 50%;
+  color: rgba(255, 255, 255, 0.78);
   font-size: 1.05rem;
   text-decoration: none;
   transition: all var(--tr);
 }
+.footer__social svg { width: 18px; height: 18px; fill: currentColor; display: block; }
+.footer__social:hover svg { fill: currentColor; }
 .footer__social:hover {
   background: var(--rose);
   border-color: var(--rose);

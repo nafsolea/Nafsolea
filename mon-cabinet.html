@@ -411,7 +411,9 @@
       <li><a href="blog.html" class="nav__link">Ressources</a></li>
     </ul>
     <div class="nav__actions">
-      <a href="#" id="logoutLink" class="btn btn--ghost btn--sm">Se déconnecter</a>
+      <!-- data-nav="logout" évite que auth.js injecte un second bouton "Se déconnecter".
+           Le listener click est attaché par auth.js (updateNav). -->
+      <a href="#" id="logoutLink" data-nav="logout" class="btn btn--ghost btn--sm">Se déconnecter</a>
     </div>
     <button class="nav__hamburger" aria-label="Menu" aria-expanded="false">
       <span></span><span></span><span></span>
@@ -453,7 +455,7 @@
         <div class="quick-action__icon">🌐</div>
         <div class="quick-action__label">Voir mon profil public</div>
       </a>
-      <a href="mon-compte-photo.html" class="quick-action" id="photoLink">
+      <a href="#" id="photoLink" onclick="event.preventDefault(); switchTab('settings'); setTimeout(() => document.getElementById('cabinet-photo-block')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);" class="quick-action">
         <div class="quick-action__icon">🖼</div>
         <div class="quick-action__label">Photo de profil</div>
       </a>
@@ -545,6 +547,26 @@
 
     <!-- Panel: settings (profil + tarif + durée + langues) -->
     <div class="cabinet-panel" id="panel-settings">
+      <div class="cabinet-section" id="cabinet-photo-block" style="margin-bottom:var(--space-6)">
+        <h2>Photo de profil</h2>
+        <p style="color:var(--text-mid);margin-bottom:var(--space-5)">
+          Une photo professionnelle rassure les patientes. Format carré, visage visible, format JPG ou PNG.
+        </p>
+        <div style="display:flex;gap:var(--space-5);align-items:center;flex-wrap:wrap">
+          <div id="cabinetAvatarPreview" style="width:120px;height:120px;border-radius:50%;background:var(--sage-pale);border:3px solid var(--sage-light);display:flex;align-items:center;justify-content:center;font-size:2.4rem;font-weight:800;color:var(--sage-dark);overflow:hidden;flex-shrink:0">⏳</div>
+          <div>
+            <input type="file" id="cabinetAvatarFile" accept="image/*" style="display:none">
+            <button type="button" class="btn btn--primary btn--sm" id="cabinetAvatarUploadBtn">
+              📷 Choisir / changer la photo
+            </button>
+            <button type="button" class="btn btn--ghost btn--sm" id="cabinetAvatarDeleteBtn" style="display:none;margin-left:.5rem">
+              Supprimer
+            </button>
+            <span id="cabinetAvatarStatus" style="display:block;font-size:.82rem;color:var(--text-muted);margin-top:.5rem"></span>
+          </div>
+        </div>
+      </div>
+
       <div class="cabinet-section">
         <h2>Mes paramètres</h2>
         <p style="color:var(--text-mid);margin-bottom:var(--space-6)">
@@ -707,10 +729,8 @@
   }
 
   // ── Logout ──────────────────────────────────────────────────────
-  document.getElementById('logoutLink').addEventListener('click', (e) => {
-    e.preventDefault();
-    Auth.logout();
-  });
+  // (Le listener est désormais attaché par auth.js → updateNav() sur
+  // l'élément [data-nav="logout"]. Pas besoin de le doubler ici.)
 
   // ── Tabs ────────────────────────────────────────────────────────
   // Exposé en global pour pouvoir être appelé depuis onclick dans le HTML
@@ -947,12 +967,17 @@
     }
   });
 
+  // Données psy partagées (utilisées par le hero ET le bloc photo)
+  let __psyData = null;
+
   async function loadDashboard() {
     try {
       const d = await API.psychologists.myDashboard();
+      __psyData = d.psychologist || null;
       renderHero(d);
       renderStats(d.stats);
       renderUpcoming(d.upcomingAppointments || []);
+      renderCabinetAvatar(__psyData);
       // Lien "voir mon profil public" → vers le bon id
       if (d.psychologist?.id) {
         document.getElementById('viewPublicLink').href = `psychologue-detail.html?id=${d.psychologist.id}`;
@@ -1337,6 +1362,108 @@
       btn.textContent = original;
     }
   });
+
+  // ── Avatar (photo de profil) ────────────────────────────────────
+  // Met à jour à la fois la prévisualisation dans l'onglet "paramètres"
+  // ET la grosse pastille du hero en haut de page.
+  function renderCabinetAvatar(psy) {
+    const preview = document.getElementById('cabinetAvatarPreview');
+    const deleteBtn = document.getElementById('cabinetAvatarDeleteBtn');
+    if (!preview) return;
+    if (psy?.avatarUrl) {
+      preview.innerHTML = `<img src="${escapeHtml(psy.avatarUrl)}" alt="" style="width:100%;height:100%;object-fit:cover">`;
+      if (deleteBtn) deleteBtn.style.display = '';
+    } else {
+      preview.textContent = initials(psy);
+      if (deleteBtn) deleteBtn.style.display = 'none';
+    }
+    // Hero (gros avatar en haut) — seulement si déjà rendu
+    const heroAvatar = document.querySelector('.cabinet-hero__avatar');
+    if (heroAvatar) {
+      if (psy?.avatarUrl) {
+        const name = `${psy.firstName || ''} ${psy.lastName || ''}`.trim();
+        heroAvatar.innerHTML = `<img src="${escapeHtml(psy.avatarUrl)}" alt="${escapeHtml(name)}">`;
+      } else {
+        heroAvatar.textContent = initials(psy);
+      }
+    }
+  }
+
+  document.getElementById('cabinetAvatarUploadBtn').addEventListener('click', () => {
+    document.getElementById('cabinetAvatarFile').click();
+  });
+
+  document.getElementById('cabinetAvatarFile').addEventListener('change', async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const status = document.getElementById('cabinetAvatarStatus');
+    status.textContent = 'Compression de l\'image…';
+    status.style.color = 'var(--text-muted)';
+    try {
+      // Resize côté client (max 512px) pour éviter d'envoyer 5 Mo
+      const dataUrl = await resizeImage(file, 512);
+      status.textContent = 'Envoi…';
+      await API.users.updateAvatar(dataUrl);
+      if (__psyData) __psyData.avatarUrl = dataUrl;
+      renderCabinetAvatar(__psyData || { avatarUrl: dataUrl });
+      status.textContent = '✓ Photo enregistrée';
+      status.style.color = 'var(--sage-dark)';
+      toast('Photo de profil mise à jour');
+    } catch (err) {
+      status.textContent = '❌ ' + (err.message || 'Erreur lors de l\'upload');
+      status.style.color = '#B91C1C';
+    }
+    e.target.value = '';
+  });
+
+  document.getElementById('cabinetAvatarDeleteBtn').addEventListener('click', async () => {
+    if (!confirm('Supprimer votre photo de profil ?')) return;
+    const status = document.getElementById('cabinetAvatarStatus');
+    status.textContent = 'Suppression…';
+    status.style.color = 'var(--text-muted)';
+    try {
+      await API.users.deleteAvatar();
+      if (__psyData) __psyData.avatarUrl = null;
+      renderCabinetAvatar(__psyData || {});
+      status.textContent = '✓ Photo supprimée';
+      status.style.color = 'var(--sage-dark)';
+    } catch (err) {
+      status.textContent = '❌ ' + (err.message || 'Erreur');
+      status.style.color = '#B91C1C';
+    }
+  });
+
+  // Helper: redimensionne une image et retourne un data URL JPEG (qualité 0.85).
+  function resizeImage(file, maxSize) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = () => reject(new Error('Lecture impossible'));
+      reader.onload = () => {
+        const img = new Image();
+        img.onerror = () => reject(new Error('Image invalide'));
+        img.onload = () => {
+          let { width, height } = img;
+          if (width > maxSize || height > maxSize) {
+            if (width > height) {
+              height = Math.round(height * (maxSize / width));
+              width = maxSize;
+            } else {
+              width = Math.round(width * (maxSize / height));
+              height = maxSize;
+            }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL('image/jpeg', 0.85));
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
 
   await Promise.all([loadDashboard(), loadPatients()]);
 })();

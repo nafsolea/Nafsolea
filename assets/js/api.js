@@ -151,7 +151,8 @@ const API = (() => {
   // ── Payment endpoints ────────────────────────────────────────────
 
   const payments = {
-    getByAppointment: (id) => authGet(`/payments/appointments/${id}`),
+    config:           ()    => get('/payments/config'),
+    getByAppointment: (id)  => authGet(`/payments/appointments/${id}`),
   };
 
   // ── Article endpoints ────────────────────────────────────────────
